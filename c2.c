@@ -6,23 +6,24 @@
 #include <string.h>
 
 typedef enum {
-  TK_RESERVED, // 記号
-  TK_NUM, // 整数トークン
-  TK_EOF, // 入力の終わり
+  TK_RESERVED, // Keywords or punctuators
+  TK_NUM, // Numeric literals
+  TK_EOF, // End-of-file markers
 } TokenKind;
 
 typedef struct Token Token;
 
 struct Token {
-  TokenKind kind; // トークンの型
+  TokenKind kind;
   Token *next;
-  int val; // kindがTK_NUMの場合、その数値
-  char *str;
+  long value; // If kind is TK_NUM, its value
+  char *location;
+  int length;
 };
 
 Token *token;
 
-void error(char *fmt, ...) {
+static void error(char *fmt, ...) {
   va_list ap;
   va_start(ap, fmt);
   vfprintf(stderr, fmt, ap);
@@ -30,44 +31,30 @@ void error(char *fmt, ...) {
   exit(1);
 }
 
-bool consume(char op) {
-  if (token->kind != TK_RESERVED || token->str[0] !=op)
-    return false;
-  token = token->next;
-  return true;
+static bool equal(Token *token, char *str) {
+  return strlen(str) == token->length &&
+          !strncmp(token->location, str, token->length);
 }
 
-void expect(char op) {
-  if (token->kind != TK_RESERVED || token->str[0] != op)
-    error("'%c'ではありません", op);
-  token = token->next;
-}
-
-int expect_number() {
+static long get_number(Token *token) {
   if (token->kind != TK_NUM)
-    error("数ではありません");
-  int val = token->val;
-  token = token->next;
-  return val;
-}
-
-bool at_eof() {
-  return token->kind == TK_EOF;
+    error("expected a number");
+  return token->value;
 }
 
 // 新しいトークンを作成しcurにつなげる
-Token *new_token(TokenKind kind, Token *cur, char *str) {
-  Token *tok = calloc(1, sizeof(Token));
-  tok->kind = kind;
-  tok->str = str;
-  cur->next = tok;
-  return tok;
+static Token *new_token(TokenKind kind, Token *current, char *location, int length) {
+  Token *newtoken = calloc(1, sizeof(Token));
+  newtoken->kind = kind;
+  newtoken->location = location;
+  newtoken->length = length;
+  current->next = newtoken;
+  return newtoken;
 }
 
 Token *tokenize(char *p) {
-  Token head;
-  head.next = NULL;
-  Token *cur = &head;
+  Token head = {};
+  Token *current = &head;
 
   while (*p) {
     if (isspace(*p)) {
@@ -75,45 +62,56 @@ Token *tokenize(char *p) {
       continue;
     }
 
-    if (*p == '+' || *p == '-') {
-      cur = new_token(TK_RESERVED, cur, p++);
-      continue;
-    }
-
     if (isdigit(*p)) {
-      cur = new_token(TK_NUM, cur, p);
-      cur->val = strtol(p, &p, 10);
+      current = new_token(TK_NUM, current, p, 0); // length is still unknown
+      char *p_old = p;
+      current->value = strtol(p, &p, 10); // with update p
+      current->length = p - p_old;
       continue;
     }
 
-    error("トークナイズできません");
+    if (*p == '+' || *p == '-') {
+      current = new_token(TK_RESERVED, current, p++, 1); //with update p
+      continue;
+    }
+
+    error("Invalid token");
   }
 
-  new_token(TK_EOF, cur, p);
+  new_token(TK_EOF, current, p, 0);
   return head.next;
 }
 
 int main(int argc, char **argv) {
-  if (argc != 2) {
-    error("引数の個数が正しくありません\n");
-    return 1;
-  }
+  if (argc != 2)
+    error("%s: invalid number of arguments.\n", argv[0]);
 
   token = tokenize(argv[1]);
 
   printf(".intel_syntax noprefix\n");
   printf(".globl main\n");
   printf("main:\n");
-  printf("  mov rax, %d\n", expect_number());
 
-  while (!at_eof()) {
-    if (consume('+')) {
-      printf("  add rax, %d\n", expect_number());
+  // The first toke must be a number.
+  printf("  mov rax, %ld\n", get_number(token));
+  token = token->next;
+
+  while (token->kind != TK_EOF) {
+    if (equal(token, "+")) {
+      token = token->next;
+      printf("  add rax, %ld\n", get_number(token));
+      token = token->next;
       continue;
     }
 
-    expect('-');
-    printf("  sub rax, %d\n", expect_number());
+    if (equal(token, "-")) {
+      token = token->next;
+      printf("  sub rax, %ld\n", get_number(token));
+      token = token->next;
+      continue;
+    }
+
+    error("unexpected token.");
   }
 
   printf("  ret\n");
