@@ -16,12 +16,28 @@ typedef struct Token Token;
 struct Token {
   TokenKind kind;
   Token *next;
-  long value; // If kind is TK_NUM, its value
+  long value; // If kind is TK_NUM, its value.
   char *location;
   int length;
 };
 
 Token *token;
+
+char *user_input;
+
+static void error_at(Token *prevtoken, char *fmt, ...) {
+  va_list ap;
+  va_start(ap, fmt);
+
+  int position = (prevtoken->location + prevtoken->length) - user_input;
+  fprintf(stderr, "%s\n", user_input);
+  fprintf(stderr, "%*s", position, "");
+  fprintf(stderr, "^ ");
+
+  vfprintf(stderr, fmt, ap);
+  fprintf(stderr, "\n");
+  exit(1);
+}
 
 static void error(char *fmt, ...) {
   va_list ap;
@@ -38,11 +54,11 @@ static bool equal(Token *token, char *str) {
 
 static long get_number(Token *token) {
   if (token->kind != TK_NUM)
-    error("expected a number");
+    error_at(token, "expected a number");
   return token->value;
 }
 
-// 新しいトークンを作成しcurにつなげる
+// Create new (tail) token, Connect to the current token and Return new (tail) token.
 static Token *new_token(TokenKind kind, Token *current, char *location, int length) {
   Token *newtoken = calloc(1, sizeof(Token));
   newtoken->kind = kind;
@@ -75,7 +91,7 @@ Token *tokenize(char *p) {
       continue;
     }
 
-    error("Invalid token");
+    error_at(current, "Invalid token");
   }
 
   new_token(TK_EOF, current, p, 0);
@@ -86,7 +102,8 @@ int main(int argc, char **argv) {
   if (argc != 2)
     error("%s: invalid number of arguments.\n", argv[0]);
 
-  token = tokenize(argv[1]);
+  user_input = argv[1];
+  token = tokenize(user_input);
 
   printf(".intel_syntax noprefix\n");
   printf(".globl main\n");
@@ -111,7 +128,7 @@ int main(int argc, char **argv) {
       continue;
     }
 
-    error("unexpected token.");
+    error_at(token, "unexpected token.");
   }
 
   printf("  ret\n");
