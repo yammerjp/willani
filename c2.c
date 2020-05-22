@@ -69,6 +69,20 @@ static Token *new_token(TokenKind kind, Token *current, char *location, int leng
   return newtoken;
 }
 
+bool is_reserved_token(char *p) {
+  switch(*p) {
+  case '+':
+  case '-':
+  case '*':
+  case '/':
+  case '(':
+  case ')':
+    return true;
+  default:
+    return false;
+  }
+}
+
 Token *tokenize(char *p) {
   Token head = {};
   Token *current = &head;
@@ -87,7 +101,7 @@ Token *tokenize(char *p) {
       continue;
     }
 
-    if (*p == '+' || *p == '-') {
+    if (is_reserved_token(p)) {
       current = new_token(TK_RESERVED, current, p++, 1); //with update p
       continue;
     }
@@ -125,6 +139,8 @@ void tokenize_log(Token* head) {
 typedef enum {
   ND_ADD,
   ND_SUB,
+  ND_MUL,
+  ND_DIV,
   ND_NUM,
 } NodeKind;
 
@@ -152,24 +168,59 @@ Node *new_node_num(long value) {
   return node;
 }
 
-Node *primary(Token *token);
-Node *mul(Token *token);
+Node *primary(Token **rest, Token *token);
+Node *mul(Token **rest, Token *token);
 
-Node *expr(Token *token) {
-  Node *node = new_node_num(get_number(token));
-  token = token->next;
+Node *expr(Token **rest, Token *token) {
+  Node *node = mul(&token, token);
 
   for(;;) {
     if (equal(token, "+")){
       token = token->next;
-      node = new_node_op2(ND_ADD, node, expr(token));
+      node = new_node_op2(ND_ADD, node, expr(&token, token));
     } else if (equal(token, "-")) {
       token = token->next;
-      node = new_node_op2(ND_SUB, node, expr(token));
+      node = new_node_op2(ND_SUB, node, expr(&token, token));
     } else {
+      *rest = token;
       return node;
     }
   }
+}
+Node *mul(Token **rest, Token *token) {
+  Node *node = primary(&token, token);
+
+  for(;;) {
+    if (equal(token, "*")) {
+      token = token->next;
+      node = new_node_op2(ND_MUL, node, primary(&token, token));
+    } else if (equal(token, "/")) {
+      token = token->next;
+      node = new_node_op2(ND_DIV, node, primary(&token, token));
+    } else {
+      *rest = token;
+      return node;
+    }
+  }
+}
+
+Node *primary(Token **rest, Token *token) {
+  if (!equal(token,"(")) {
+    Node *node = new_node_num(get_number(token));
+    token = token->next;
+    *rest = token;
+    return node;
+  }
+
+  token = token->next;
+  Node *node = expr(&token, token);
+
+  if (!equal(token,")")) {
+    error_at(token, "expected )");
+  }
+  token = token->next;
+  *rest = token;
+  return node;
 }
 
 void code_generate(Node *node) {
@@ -192,6 +243,13 @@ void code_generate(Node *node) {
   case ND_SUB:
     printf("  sub rax, rdi\n");
     break;
+  case ND_MUL:
+    printf("  imul rax, rdi\n");
+    break;
+  case ND_DIV:
+    printf("  cqo\n");
+    printf("  idiv rdi\n");
+    break;
   }
   printf("  push rax\n");
 }
@@ -207,6 +265,12 @@ void print_node(FILE *logfile, Node *node, int depth) {
   }
   if (node->kind == ND_SUB) {
     fprintf(logfile, "-\n");
+  }
+  if (node->kind == ND_MUL) {
+    fprintf(logfile, "*\n");
+  }
+  if (node->kind == ND_DIV) {
+    fprintf(logfile, "/\n");
   }
 }
 
@@ -242,7 +306,7 @@ int main(int argc, char **argv) {
   tokenize_log(token);
 
   // parse
-  Node *node = expr(token);
+  Node *node = expr(&token, token);
 
   parse_log(node);
 
