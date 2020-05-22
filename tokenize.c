@@ -3,6 +3,23 @@
 // for debug
 static FILE *tokenize_log_file;
 
+// for debug
+static char *token_kind_str(Token *token) {
+  switch (token->kind) {
+    case TK_RESERVED: return("TK_RESERVED");
+    case TK_NUM:      return("TK_NUM     ");
+    case TK_EOF:      return("TK_EOF     ");
+    default : error("unexpected token->kind");
+  }
+}
+
+// for debug
+static void tokenize_log(Token *token) {
+  fprintf(tokenize_log_file, "%s, ", token_kind_str(token));
+  fprintf(tokenize_log_file, "%.*s\n",token->length ,token->location);
+}
+
+
 bool is_number_token(Token *token) {
   return token->kind == TK_NUM;
 }
@@ -28,7 +45,7 @@ static Token *new_token(TokenKind kind, Token *current, char *location, int leng
   current->next = newtoken;
 
   // for debug
-  fprintf(tokenize_log_file, "%.*s\n",newtoken->length ,newtoken->location);
+  tokenize_log(newtoken);
 
   return newtoken;
 }
