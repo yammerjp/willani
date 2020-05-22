@@ -1,6 +1,6 @@
 #include "willani.h"
 
-static char *node_kind_str(Node *node) {
+char *node_kind_str(Node *node) {
   switch (node->kind) {
     case ND_ADD: return("+");
     case ND_SUB: return("-");
@@ -10,22 +10,36 @@ static char *node_kind_str(Node *node) {
     case ND_NE:  return("!=");
     case ND_LT:  return("<");
     case ND_LE:  return("<=");
+    case ND_ASSIGN: return("=");
+    case ND_VAR: return("Variable");
     case ND_NUM: return("Integer");
     default : error("unexpected node->kind");
   }
 }
 
 static void print_node(FILE *logfile, Node *node, int depth) {
+  if (node == NULL) {
+    return;
+  }
   fprintf(logfile, "%*s",depth*2, "");
 
   if (node->kind == ND_NUM) {
     fprintf(logfile, "%ld\n",node->value);
     return;
   }
+
+  if (node->kind == ND_VAR) {
+    fprintf(logfile, "%c\n",node->name);
+    return;
+  }
+
   fprintf(logfile, "%s\n", node_kind_str(node));
 }
 
 static void print_nodes(FILE *logfile, Node *node, int depth) {
+  if (node == NULL) {
+    return;
+  }
   if (node->kind == ND_NUM) {
     print_node(logfile, node, depth);
     return;
