@@ -1,4 +1,4 @@
-#include "c2.h"
+#include "willani.h"
 
 static char *node_kind_str(Node *node) {
   switch (node->kind) {

@@ -1,4 +1,4 @@
-#include "c2.h"
+#include "willani.h"
 
 void code_generate(Node *node) {
   if (node->kind == ND_NUM) {

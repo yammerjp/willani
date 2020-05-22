@@ -4,7 +4,7 @@ assert() {
   expected="$1"
   input="$2"
 
-  ./c2 "$input" > tmp.s
+  ./willani "$input" > tmp.s
   cc -o tmp tmp.s
   ./tmp
   actual="$?"
