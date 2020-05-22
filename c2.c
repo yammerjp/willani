@@ -73,18 +73,14 @@ static Token *new_token(TokenKind kind, Token *current, char *location, int leng
   return newtoken;
 }
 
-bool is_reserved_token(char *p) {
-  switch(*p) {
-  case '+':
-  case '-':
-  case '*':
-  case '/':
-  case '(':
-  case ')':
-    return true;
-  default:
-    return false;
+// To return 0 is not reserved token
+int reserved_token_length(char *p) {
+  char tokens[][2] = { "+", "-", "*", "/", "(", ")" };
+  for (int i=0; i<sizeof(tokens); i++) {
+    if ( strncmp(p, tokens[i], strlen(tokens[i])) == 0 )
+      return strlen(tokens[i]);
   }
+  return 0;
 }
 
 Token *tokenize(char *p) {
@@ -105,12 +101,13 @@ Token *tokenize(char *p) {
       continue;
     }
 
-    if (is_reserved_token(p)) {
-      current = new_token(TK_RESERVED, current, p++, 1); //with update p
-      continue;
+    int length = reserved_token_length(p);
+    if (length == 0) {
+      error_at(current, "Invalid token");
     }
-
-    error_at(current, "Invalid token");
+    current = new_token(TK_RESERVED, current, p ,length); //with update p
+    p += length;
+    continue;
   }
 
   new_token(TK_EOF, current, p, 0);
