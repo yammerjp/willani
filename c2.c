@@ -64,11 +64,12 @@ static long get_number(Token *token) {
 }
 
 // Create new (tail) token, Connect to the current token and Return new (tail) token.
-static Token *new_token(TokenKind kind, Token *current, char *location, int length) {
+static Token *new_token(TokenKind kind, Token *current, char *location, int length, long value) {
   Token *newtoken = calloc(1, sizeof(Token));
   newtoken->kind = kind;
   newtoken->location = location;
   newtoken->length = length;
+  newtoken->value = value;
   current->next = newtoken;
   return newtoken;
 }
@@ -94,10 +95,9 @@ Token *tokenize(char *p) {
     }
 
     if (isdigit(*p)) {
-      current = new_token(TK_NUM, current, p, 0); // length is still unknown
       char *p_old = p;
-      current->value = strtol(p, &p, 10); // with update p
-      current->length = p - p_old;
+      long value = strtol(p, &p, 10); // with update p
+      current = new_token(TK_NUM, current, p_old, p - p_old, value);
       continue;
     }
 
@@ -105,12 +105,12 @@ Token *tokenize(char *p) {
     if (length == 0) {
       error_at(current, "Invalid token");
     }
-    current = new_token(TK_RESERVED, current, p ,length); //with update p
+    current = new_token(TK_RESERVED, current, p ,length, 0); //with update p
     p += length;
     continue;
   }
 
-  new_token(TK_EOF, current, p, 0);
+  new_token(TK_EOF, current, p, 0, 0);
   return head.next;
 }
 
