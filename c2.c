@@ -275,11 +275,12 @@ void print_node(FILE *logfile, Node *node, int depth) {
 }
 
 void print_nodes(FILE *logfile, Node *node, int depth) {
-  print_node(logfile, node, depth);
   if (node->kind == ND_NUM) {
+    print_node(logfile, node, depth);
     return;
   }
   print_nodes(logfile, node->left, depth+1);
+  print_node(logfile, node, depth);
   print_nodes(logfile, node->right, depth+1);
 }
 
