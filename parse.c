@@ -8,19 +8,23 @@ static Node *mul(Token **rest, Token *token);
 static Node *unary(Token **rest, Token *token);
 static Node *primary(Token **rest, Token *token);
 
-static Node *new_node_op2(NodeKind kind, Node *left, Node *right) {
+static Node *new_node( NodeKind kind, Node *next, Node *left, Node *right, long value) {
   Node *node = calloc(1, sizeof(Node));
   node->kind = kind;
+  node->next = next;
   node->left = left;
   node->right = right;
+  node->value = value;
+
   return node;
 }
 
+static Node *new_node_op2(NodeKind kind, Node *left, Node *right) {
+  return new_node( kind, NULL, left, right, 0);
+}
+
 static Node *new_node_num(long value) {
-  Node *node = calloc(1, sizeof(Node));
-  node->kind = ND_NUM;
-  node->value = value;
-  return node;
+  return new_node( ND_NUM, NULL, NULL, NULL, value);
 }
 
 // program = stmt*
