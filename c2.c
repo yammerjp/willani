@@ -98,12 +98,36 @@ Token *tokenize(char *p) {
   return head.next;
 }
 
+void print_token(FILE *logfile, Token *token) {
+  for(;;) {
+    if (token->kind == TK_EOF) {
+      return;
+    }
+    fprintf(logfile, "%.*s\n",token->length ,token->location);
+    token = token->next;
+  }
+}
+
+void tokenize_log(Token* head) {
+  FILE *logfile;
+  logfile = fopen("tokenize.log","w");
+  if (logfile == NULL) {
+    error("fail to open tokenize.log");
+  }
+  Token *token = head;
+  print_token(logfile, token);
+
+  fclose(logfile);
+}
+
 int main(int argc, char **argv) {
   if (argc != 2)
     error("%s: invalid number of arguments.\n", argv[0]);
 
   user_input = argv[1];
   token = tokenize(user_input);
+
+  tokenize_log(token);
 
   printf(".intel_syntax noprefix\n");
   printf(".globl main\n");
