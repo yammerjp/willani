@@ -48,6 +48,10 @@ static void error(char *fmt, ...) {
   exit(1);
 }
 
+static bool is_number_token(Token *token) {
+  return token->kind == TK_NUM;
+}
+
 static bool equal(Token *token, char *str) {
   return strlen(str) == token->length &&
           !strncmp(token->location, str, token->length);
@@ -170,33 +174,37 @@ Node *new_node_num(long value) {
 
 Node *primary(Token **rest, Token *token);
 Node *mul(Token **rest, Token *token);
+Node *unary(Token **rest, Token *token);
 
+// expr = mul ("+" mul | "-" mul)*
 Node *expr(Token **rest, Token *token) {
   Node *node = mul(&token, token);
 
   for(;;) {
     if (equal(token, "+")){
       token = token->next;
-      node = new_node_op2(ND_ADD, node, expr(&token, token));
+      node = new_node_op2(ND_ADD, node, mul(&token, token));
     } else if (equal(token, "-")) {
       token = token->next;
-      node = new_node_op2(ND_SUB, node, expr(&token, token));
+      node = new_node_op2(ND_SUB, node, mul(&token, token));
     } else {
       *rest = token;
       return node;
     }
   }
 }
+
+// mul = unary ("*" unary | "/" unary)*
 Node *mul(Token **rest, Token *token) {
-  Node *node = primary(&token, token);
+  Node *node = unary(&token, token);
 
   for(;;) {
     if (equal(token, "*")) {
       token = token->next;
-      node = new_node_op2(ND_MUL, node, primary(&token, token));
+      node = new_node_op2(ND_MUL, node, unary(&token, token));
     } else if (equal(token, "/")) {
       token = token->next;
-      node = new_node_op2(ND_DIV, node, primary(&token, token));
+      node = new_node_op2(ND_DIV, node, unary(&token, token));
     } else {
       *rest = token;
       return node;
@@ -204,12 +212,36 @@ Node *mul(Token **rest, Token *token) {
   }
 }
 
+// unary   = ("+" | "-")? primary
+Node *unary(Token **rest, Token *token) {
+  if (equal(token,"+")) {
+    token = token->next;
+    Node *node = primary(&token, token);
+    *rest = token;
+    return node;
+  }
+  if (equal(token,"-")) {
+    token = token->next;
+    Node *node = new_node_op2(ND_SUB, new_node_num(0), primary(&token, token));
+    *rest = token;
+    return node;
+  }
+  Node *node = primary(&token, token);
+  *rest = token;
+  return node;
+}
+
+// primary = num | "(" expr ")"
 Node *primary(Token **rest, Token *token) {
-  if (!equal(token,"(")) {
+  if (is_number_token(token)) {
     Node *node = new_node_num(get_number(token));
     token = token->next;
     *rest = token;
     return node;
+  }
+
+  if (!equal(token,"(")) {
+    error_at(token, "expected (");
   }
 
   token = token->next;
