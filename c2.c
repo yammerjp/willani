@@ -63,6 +63,9 @@ static long get_number(Token *token) {
   return token->value;
 }
 
+// for debug
+FILE *tokenize_log_file;
+
 // Create new (tail) token, Connect to the current token and Return new (tail) token.
 static Token *new_token(TokenKind kind, Token *current, char *location, int length, long value) {
   Token *newtoken = calloc(1, sizeof(Token));
@@ -71,6 +74,10 @@ static Token *new_token(TokenKind kind, Token *current, char *location, int leng
   newtoken->length = length;
   newtoken->value = value;
   current->next = newtoken;
+
+  // for debug
+  fprintf(tokenize_log_file, "%.*s\n",newtoken->length ,newtoken->location);
+
   return newtoken;
 }
 
@@ -87,6 +94,12 @@ int reserved_token_length(char *p) {
 Token *tokenize(char *p) {
   Token head = {};
   Token *current = &head;
+
+  // for debug
+  tokenize_log_file = fopen("tokenize.log","w");
+  if (tokenize_log_file == NULL) {
+    error("fail to open tokenize.log");
+  }
 
   while (*p) {
     if (isspace(*p)) {
@@ -111,29 +124,11 @@ Token *tokenize(char *p) {
   }
 
   new_token(TK_EOF, current, p, 0, 0);
+
+  // for debug
+  fclose(tokenize_log_file);
+
   return head.next;
-}
-
-void print_token(FILE *logfile, Token *token) {
-  for(;;) {
-    if (token->kind == TK_EOF) {
-      return;
-    }
-    fprintf(logfile, "%.*s\n",token->length ,token->location);
-    token = token->next;
-  }
-}
-
-void tokenize_log(Token* head) {
-  FILE *logfile;
-  logfile = fopen("tokenize.log","w");
-  if (logfile == NULL) {
-    error("fail to open tokenize.log");
-  }
-  Token *token = head;
-  print_token(logfile, token);
-
-  fclose(logfile);
 }
 
 // parse
@@ -411,8 +406,6 @@ int main(int argc, char **argv) {
 
   user_input = argv[1];
   token = tokenize(user_input);
-
-  tokenize_log(token);
 
   // parse
   Node *node = expr(&token, token);
