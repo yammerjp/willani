@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+// tokenize
 typedef enum {
   TK_RESERVED, // Keywords or punctuators
   TK_NUM, // Numeric literals
@@ -120,41 +121,138 @@ void tokenize_log(Token* head) {
   fclose(logfile);
 }
 
+// parse
+typedef enum {
+  ND_ADD,
+  ND_SUB,
+  ND_NUM,
+} NodeKind;
+
+typedef struct Node Node;
+
+struct Node {
+  NodeKind kind;
+  Node *left;
+  Node *right;
+  long value;
+};
+
+Node *new_node_op2(NodeKind kind, Node *left, Node *right) {
+  Node *node = calloc(1, sizeof(Node));
+  node->kind = kind;
+  node->left = left;
+  node->right = right;
+  return node;
+}
+
+Node *new_node_num(long value) {
+  Node *node = calloc(1, sizeof(Node));
+  node->kind = ND_NUM;
+  node->value = value;
+  return node;
+}
+
+Node *primary(Token *token);
+Node *mul(Token *token);
+
+Node *expr(Token *token) {
+  Node *node = new_node_num(get_number(token));
+  token = token->next;
+
+  for(;;) {
+    if (equal(token, "+")){
+      token = token->next;
+      node = new_node_op2(ND_ADD, node, expr(token));
+    } else if (equal(token, "-")) {
+      token = token->next;
+      node = new_node_op2(ND_SUB, node, expr(token));
+    } else {
+      return node;
+    }
+  }
+}
+
+void code_generate(Node *node) {
+  if (node->kind == ND_NUM) {
+    printf("  push %ld\n", node->value);
+    return;
+  }
+
+  // expect op2
+  code_generate(node->left);
+  code_generate(node->right);
+
+  printf("  pop rdi\n");
+  printf("  pop rax\n");
+
+  switch (node->kind) {
+  case ND_ADD:
+    printf("  add rax, rdi\n");
+    break;
+  case ND_SUB:
+    printf("  sub rax, rdi\n");
+    break;
+  }
+  printf("  push rax\n");
+}
+
+void print_node(FILE *logfile, Node *node, int depth) {
+  fprintf(logfile, "%*s",depth*2, "");
+
+  if (node->kind == ND_NUM) {
+    fprintf(logfile, "%ld\n",node->value);
+  }
+  if (node->kind == ND_ADD) {
+    fprintf(logfile, "+\n");
+  }
+  if (node->kind == ND_SUB) {
+    fprintf(logfile, "-\n");
+  }
+}
+
+void print_nodes(FILE *logfile, Node *node, int depth) {
+  print_node(logfile, node, depth);
+  if (node->kind == ND_NUM) {
+    return;
+  }
+  print_nodes(logfile, node->left, depth+1);
+  print_nodes(logfile, node->right, depth+1);
+}
+
+void parse_log(Node* head) {
+  FILE *logfile;
+  logfile = fopen("parse.log","w");
+  if (logfile == NULL) {
+    error("fail to open parse.log");
+  }
+  Node *node = head;
+  print_nodes(logfile, node, 0);
+
+  fclose(logfile);
+}
+
 int main(int argc, char **argv) {
-  if (argc != 2)
+  if (argc != 2) {
     error("%s: invalid number of arguments.\n", argv[0]);
+  }
 
   user_input = argv[1];
   token = tokenize(user_input);
 
   tokenize_log(token);
 
+  // parse
+  Node *node = expr(token);
+
+  parse_log(node);
+
   printf(".intel_syntax noprefix\n");
   printf(".globl main\n");
   printf("main:\n");
 
-  // The first toke must be a number.
-  printf("  mov rax, %ld\n", get_number(token));
-  token = token->next;
+  code_generate(node);
 
-  while (token->kind != TK_EOF) {
-    if (equal(token, "+")) {
-      token = token->next;
-      printf("  add rax, %ld\n", get_number(token));
-      token = token->next;
-      continue;
-    }
-
-    if (equal(token, "-")) {
-      token = token->next;
-      printf("  sub rax, %ld\n", get_number(token));
-      token = token->next;
-      continue;
-    }
-
-    error_at(token, "unexpected token.");
-  }
-
+  printf("  pop rax\n");
   printf("  ret\n");
   return 0;
 }
