@@ -75,7 +75,7 @@ static Token *new_token(TokenKind kind, Token *current, char *location, int leng
 
 // To return 0 is not reserved token
 int reserved_token_length(char *p) {
-  char tokens[][2] = { "+", "-", "*", "/", "(", ")" };
+  char tokens[][3] = { "==", "!=", "<=", ">=", "+", "-", "*", "/", "(", ")", ">", "<", };
   for (int i=0; i<sizeof(tokens); i++) {
     if ( strncmp(p, tokens[i], strlen(tokens[i])) == 0 )
       return strlen(tokens[i]);
@@ -138,11 +138,15 @@ void tokenize_log(Token* head) {
 
 // parse
 typedef enum {
-  ND_ADD,
-  ND_SUB,
-  ND_MUL,
-  ND_DIV,
-  ND_NUM,
+  ND_ADD, // +
+  ND_SUB, // -
+  ND_MUL, // *
+  ND_DIV, // /
+  ND_EQ,  // ==
+  ND_NE,  // !=
+  ND_LT,  // <
+  ND_LE,  // <=
+  ND_NUM, // Integer
 } NodeKind;
 
 typedef struct Node Node;
@@ -169,14 +173,64 @@ Node *new_node_num(long value) {
   return node;
 }
 
-Node *primary(Token **rest, Token *token);
+Node *expr(Token **rest, Token *token);
+Node *relational(Token **rest, Token *token);
+Node *add(Token **rest, Token *token);
 Node *mul(Token **rest, Token *token);
 Node *unary(Token **rest, Token *token);
+Node *primary(Token **rest, Token *token);
 
-// expr = mul ("+" mul | "-" mul)*
+// expr     = equality
+// equality = relational ("==" relational | "!=" relational)*
 Node *expr(Token **rest, Token *token) {
-  Node *node = mul(&token, token);
+  Node *node = relational(&token, token);
+  for(;;) {
+    if (equal(token, "==")){
+      token = token->next;
+      node = new_node_op2(ND_EQ, node, relational(&token, token));
+    } else if (equal(token, "!=")) {
+      token = token->next;
+      node = new_node_op2(ND_NE, node, relational(&token, token));
+    } else {
+      *rest = token;
+      return node;
+    }
+  }
+}
 
+// relational = add ("<" add | "<=" add | ">" add | ">=" add)*
+Node *relational(Token **rest, Token *token) {
+  Node *node = add(&token, token);
+  for(;;) {
+    if (equal(token, "<")){
+      token = token->next;
+      node = new_node_op2(ND_LT, node, add(&token, token));
+      continue;
+    }
+    if (equal(token, "<=")) {
+      token = token->next;
+      node = new_node_op2(ND_LE, node, add(&token, token));
+      continue;
+    }
+    if (equal(token, ">")){
+      token = token->next;
+      node = new_node_op2(ND_LT, add(&token, token), node);
+      continue;
+    }
+    if (equal(token, ">=")) {
+      token = token->next;
+      node = new_node_op2(ND_LE, add(&token, token), node);
+      continue;
+    }
+    *rest = token;
+    return node;
+  }
+}
+
+
+// add = mul ("+" mul | "-" mul)*
+Node *add(Token **rest, Token *token) {
+  Node *node = mul(&token, token);
   for(;;) {
     if (equal(token, "+")){
       token = token->next;
@@ -209,7 +263,7 @@ Node *mul(Token **rest, Token *token) {
   }
 }
 
-// unary   = ("+" | "-")? primary
+// unary = ("+" | "-")? primary
 Node *unary(Token **rest, Token *token) {
   if (equal(token,"+")) {
     token = token->next;
@@ -279,8 +333,43 @@ void code_generate(Node *node) {
     printf("  cqo\n");
     printf("  idiv rdi\n");
     break;
+  case ND_EQ:
+    printf("  cmp rax, rdi\n");
+    printf("  sete al\n");
+    printf("  movzb rax, al\n");
+    break;
+  case ND_NE:
+    printf("  cmp rax, rdi\n");
+    printf("  setne al\n");
+    printf("  movzb rax, al\n");
+    break;
+  case ND_LT:
+    printf("  cmp rax, rdi\n");
+    printf("  setl al\n");
+    printf("  movzb rax, al\n");
+    break;
+  case ND_LE:
+    printf("  cmp rax, rdi\n");
+    printf("  setle al\n");
+    printf("  movzb rax, al\n");
+    break;
   }
   printf("  push rax\n");
+}
+
+char *node_kind_str(Node *node) {
+  switch (node->kind) {
+    case ND_ADD: return("+");
+    case ND_SUB: return("-");
+    case ND_MUL: return("*");
+    case ND_DIV: return("/");
+    case ND_EQ:  return("==");
+    case ND_NE:  return("!=");
+    case ND_LT:  return("<");
+    case ND_LE:  return("<=");
+    case ND_NUM: return("Integer");
+    default : error("unexpected node->kind");
+  }
 }
 
 void print_node(FILE *logfile, Node *node, int depth) {
@@ -288,19 +377,9 @@ void print_node(FILE *logfile, Node *node, int depth) {
 
   if (node->kind == ND_NUM) {
     fprintf(logfile, "%ld\n",node->value);
+    return;
   }
-  if (node->kind == ND_ADD) {
-    fprintf(logfile, "+\n");
-  }
-  if (node->kind == ND_SUB) {
-    fprintf(logfile, "-\n");
-  }
-  if (node->kind == ND_MUL) {
-    fprintf(logfile, "*\n");
-  }
-  if (node->kind == ND_DIV) {
-    fprintf(logfile, "/\n");
-  }
+  fprintf(logfile, "%s\n", node_kind_str(node));
 }
 
 void print_nodes(FILE *logfile, Node *node, int depth) {
