@@ -5,5 +5,5 @@ c2:  c2.c
 test: c2
 	./test.sh
 clean:
-	rm -f c2 *.o *~ tmp*
+	rm -f c2 *.o *~ tmp* *.log
 .PHONY: test clean
