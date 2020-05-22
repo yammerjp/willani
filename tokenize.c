@@ -7,6 +7,7 @@ static FILE *tokenize_log_file;
 static char *token_kind_str(Token *token) {
   switch (token->kind) {
     case TK_RESERVED: return("TK_RESERVED");
+//    case TK_INDENT:   return("TK_INDENT  ");
     case TK_NUM:      return("TK_NUM     ");
     case TK_EOF:      return("TK_EOF     ");
     default : error("unexpected token->kind");
@@ -52,7 +53,7 @@ static Token *new_token(TokenKind kind, Token *current, char *location, int leng
 
 // To return 0 is not reserved token
 static int reserved_token_length(char *p) {
-  char tokens[][3] = { "==", "!=", "<=", ">=", "+", "-", "*", "/", "(", ")", ">", "<", };
+  char tokens[][3] = { "==", "!=", "<=", ">=", "+", "-", "*", "/", "(", ")", ">", "<", ";"};
   for (int i=0; i<sizeof(tokens); i++) {
     if ( strncmp(p, tokens[i], strlen(tokens[i])) == 0 )
       return strlen(tokens[i]);

@@ -47,12 +47,13 @@ typedef struct Node Node;
 
 struct Node {
   NodeKind kind;
+  Node *next;
   Node *left;
   Node *right;
   long value;
 };
 
-Node *expr(Token **rest, Token *token);
+Node *program(Token **rest, Token *token);
 
 
 //======================================

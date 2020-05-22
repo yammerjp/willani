@@ -1,6 +1,7 @@
 #include "willani.h"
 
-Node *expr(Token **rest, Token *token);
+static Node *stmt(Token **rest, Token *token);
+static Node *expr(Token **rest, Token *token);
 static Node *relational(Token **rest, Token *token);
 static Node *add(Token **rest, Token *token);
 static Node *mul(Token **rest, Token *token);
@@ -19,6 +20,31 @@ static Node *new_node_num(long value) {
   Node *node = calloc(1, sizeof(Node));
   node->kind = ND_NUM;
   node->value = value;
+  return node;
+}
+
+// program = stmt*
+Node *program(Token **rest, Token *token) {
+  Node head = {};
+  Node *current = &head;
+
+  while (token->kind != TK_EOF) {
+    current->next = stmt(&token, token);
+    current = current->next;
+ }
+
+  *rest = token;
+  return head.next;
+}
+
+Node *stmt(Token **rest, Token *token) {
+  Node *node = expr(&token, token);
+  if (!equal(token, ";")) {
+    error_at(token, "expected ;");
+  }
+  token = token->next;
+
+  *rest = token;
   return node;
 }
 

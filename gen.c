@@ -1,14 +1,14 @@
 #include "willani.h"
 
-void code_generate(Node *node) {
+void gen(Node *node) {
   if (node->kind == ND_NUM) {
     printf("  push %ld\n", node->value);
     return;
   }
 
   // expect op2
-  code_generate(node->left);
-  code_generate(node->right);
+  gen(node->left);
+  gen(node->right);
 
   printf("  pop rdi\n");
   printf("  pop rax\n");
@@ -49,4 +49,17 @@ void code_generate(Node *node) {
     break;
   }
   printf("  push rax\n");
+}
+
+void code_generate(Node *node) {
+
+  printf(".intel_syntax noprefix\n");
+  printf(".globl main\n");
+  printf("main:\n");
+
+  for(Node *n = node; n; n = n->next) {
+    gen(n);
+    printf("  pop rax\n");
+  }
+  printf("  ret\n");
 }

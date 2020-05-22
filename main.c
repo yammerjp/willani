@@ -11,17 +11,11 @@ int main(int argc, char **argv) {
   Token *token = tokenize(user_input);
 
   // parse
-  Node *node = expr(&token, token);
+  Node *node = program(&token, token);
 
   parse_log(node);
 
-  printf(".intel_syntax noprefix\n");
-  printf(".globl main\n");
-  printf("main:\n");
-
   code_generate(node);
 
-  printf("  pop rax\n");
-  printf("  ret\n");
   return 0;
 }
