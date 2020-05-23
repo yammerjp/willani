@@ -30,7 +30,7 @@ static void store(void) {
 // load the address of node's variable to the stack top
 static void gen_addr(Node *node) {
   if (node->kind != ND_VAR) {
-    error("expected variable");
+    error("Left side is expected a variable.");
   }
   int offset = (node->name - 'a' + 1) * 8;
   printf("  # gen_addr(): load the address of node's variable to the stack top\n");
