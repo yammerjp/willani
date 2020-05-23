@@ -64,6 +64,17 @@ static int reserved_token_length(char *p) {
   return 0;
 }
 
+static int identifer_token_length(char *p) {
+  if (!isalpha(*p)) {
+    return 0;
+  }
+  int i = 1;
+  while (isalnum(*(p+i))) {
+    i++;
+  }
+  return i;
+}
+
 Token *tokenize(char *p) {
   Token head = {};
   Token *current = &head;
@@ -87,18 +98,21 @@ Token *tokenize(char *p) {
       continue;
     }
 
-    if ('a' <= *p && *p <= 'z' ) {
-      current = new_token(TK_IDENT, current,p++, 1, 0);
+    int ilen = identifer_token_length(p);
+    if (ilen == 1) {
+      current = new_token(TK_IDENT, current, p, ilen, 0);
+      p += ilen;
       continue;
     }
 
-    int length = reserved_token_length(p);
-    if (length == 0) {
-      error_at(current, "Invalid token");
+    int rlen = reserved_token_length(p);
+    if (rlen != 0) {
+      current = new_token(TK_RESERVED, current, p, rlen, 0);
+      p += rlen;
+      continue;
     }
-    current = new_token(TK_RESERVED, current, p ,length, 0); //with update p
-    p += length;
-    continue;
+
+    error_at(current, "Invalid token");
   }
 
   new_token(TK_EOF, current, p, 0, 0);
