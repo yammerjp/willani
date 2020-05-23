@@ -32,9 +32,8 @@ static void gen_addr(Node *node) {
   if (node->kind != ND_VAR) {
     error("Left side is expected a variable.");
   }
-  int offset = (node->name - 'a' + 1) * 8;
   printf("  # gen_addr(): load the address of node's variable to the stack top\n");
-  printf("  lea rax, [rbp-%d]\n", offset); // load the address of the actual value of (rbp - offset)
+  printf("  lea rax, [rbp-%d]\n", node->lvar->offset); // load the address of the actual value of (rbp - offset)
   printf("  push rax\n");         // push rbp - offset
 }
 
@@ -112,7 +111,7 @@ static void prologue(void) {
   printf("  # prologue\n");
   printf("  push rbp\n");         // record caller's rbp
   printf("  mov rbp, rsp\n");     // set current stack top to rbp
-  printf("  sub rsp, 208\n");     // allocate memory for a-z variables
+  printf("  sub rsp, %d\n", locals == NULL ? 0 : locals->offset);     // allocate memory for a-z variables
 }
 
 static void epilogue(void) {

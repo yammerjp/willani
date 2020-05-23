@@ -10,29 +10,67 @@ static Node *mul(Token **rest, Token *token);
 static Node *unary(Token **rest, Token *token);
 static Node *primary(Token **rest, Token *token);
 
-static Node *new_node( NodeKind kind, Node *next, Node *left, Node *right, long value, char name) {
+static Node *new_node_op2(NodeKind kind, Node *left, Node *right) {
   Node *node = calloc(1, sizeof(Node));
   node->kind = kind;
-  node->next = next;
+  node->next = NULL;
   node->left = left;
   node->right = right;
-  node->value = value;
-  node->name = name;
+  node->value = 0;
+  node->lvar = NULL;
 
   return node;
 }
 
-static Node *new_node_op2(NodeKind kind, Node *left, Node *right) {
-  return new_node( kind, NULL, left, right, 0, 0);
+static Node *new_node_num(long value) {
+  Node *node = calloc(1, sizeof(Node));
+  node->kind = ND_NUM;
+  node->next = NULL;
+  node->left = NULL;
+  node->right = NULL;
+  node->value = value;
+  node->lvar = NULL;
+
+  return node;
 }
 
-static Node *new_node_num(long value) {
-  return new_node( ND_NUM, NULL, NULL, NULL, value, 0);
+LVar *locals = NULL;
+
+static LVar *find_lvar(Token *token) {
+  for (LVar *var = locals; var!= NULL; var = var->next) {
+    if (var->length == token->length && strncmp(token->location, var->name, var->length)) {
+      return var;
+    }
+  }
+  return NULL;
+}
+
+static LVar *new_lvar(char *name, int length) {
+  LVar *lvar = calloc(1, sizeof(LVar));
+  lvar->next = locals;
+  lvar->name = name;
+  lvar->length = length;
+  lvar->offset = locals == NULL ? 0 : locals->offset + 8;
+  locals = lvar;
+  return lvar;
 }
 
 static Node *new_node_var(Token *token) {
-  char c = *(token->location);
-  return new_node( ND_VAR, NULL, NULL, NULL, 0, c);
+  LVar *lvar = find_lvar(token);
+  if (lvar==NULL) {
+    // create new lvar
+    lvar = new_lvar(token->location, token->length);
+  }
+
+  Node *node = calloc(1, sizeof(Node));
+  node->kind = ND_VAR;
+  node->next = NULL;
+  node->left = NULL;
+  node->right = NULL;
+  node->value = 0;
+  node->lvar = lvar;
+
+  return node;
 }
 
 
