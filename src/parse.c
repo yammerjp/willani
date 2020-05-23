@@ -185,7 +185,7 @@ static Node *unary(Token **rest, Token *token) {
 // primary    = num | ident | "(" expr ")"
 static Node *primary(Token **rest, Token *token) {
   if (is_number_token(token)) {
-    Node *node = new_node_num(get_number(token));
+    Node *node = new_node_num(strtol(token->location, NULL, 10));
     token = token->next;
     *rest = token;
     return node;

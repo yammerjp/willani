@@ -19,7 +19,6 @@ typedef struct Token Token;
 struct Token {
   TokenKind kind;
   Token *next;
-  long value; // If kind is TK_NUM, its value.
   char *location;
   int length;
 };
@@ -27,7 +26,6 @@ struct Token {
 bool is_number_token(Token *token);
 bool is_identifer_token(Token *token);
 bool equal(Token *token, char *str);
-long get_number(Token *token);
 Token *tokenize(char *p);
 
 
