@@ -13,6 +13,7 @@ static char *node_kind_str(Node *node) {
     case ND_ASSIGN: return("=");
     case ND_VAR: return("Variable");
     case ND_NUM: return("Integer");
+    case ND_RETURN: return("return");
     default : error("unexpected node->kind");
   }
 }

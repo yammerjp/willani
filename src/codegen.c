@@ -57,6 +57,11 @@ static void gen(Node *node) {
     gen(node->right);
     store();
     return;
+  case ND_RETURN:
+    gen(node->left);
+    printf("  pop rax\n");
+    epilogue();
+    return;
   }
 
   // expect binary operator node

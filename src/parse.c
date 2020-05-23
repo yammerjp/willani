@@ -82,9 +82,16 @@ Function *program(Token *token) {
   return func;
 }
 
-// stmt       = expr ";"
+// stmt       = (return)? expr ";"
 static Node *stmt(Token **rest, Token *token) {
-  Node *node = expr(&token, token);
+  Node *node;
+  if (equal(token, "return")) {
+    token = token->next;
+    node = new_node(ND_RETURN, NULL, expr(&token, token) , NULL, 0 ,NULL);
+  } else {
+    node = expr(&token, token);
+  }
+
   if (!equal(token, ";")) {
     error_at(token, "expected ;");
   }

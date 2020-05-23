@@ -9,10 +9,11 @@
 //======================================
 // tokenize.c
 typedef enum {
-  TK_RESERVED, // Keywords or punctuators
-  TK_IDENT, // Identifers
-  TK_NUM, // Numeric literals
-  TK_EOF, // End-of-file markers
+  TK_RESERVED,  // Keywords or punctuators
+  TK_RETURN,    // return
+  TK_IDENT,     // Identifers
+  TK_NUM,       // Numeric literals
+  TK_EOF,       // End-of-file markers
 } TokenKind;
 
 typedef struct Token Token;
@@ -33,17 +34,18 @@ Token *tokenize(char *p);
 //======================================
 // parse.c
 typedef enum {
-  ND_ADD, // +
-  ND_SUB, // -
-  ND_MUL, // *
-  ND_DIV, // /
-  ND_EQ,  // ==
-  ND_NE,  // !=
-  ND_LT,  // <
-  ND_LE,  // <=
+  ND_ADD,     // +
+  ND_SUB,     // -
+  ND_MUL,     // *
+  ND_DIV,     // /
+  ND_EQ,      // ==
+  ND_NE,      // !=
+  ND_LT,      // <
+  ND_LE,      // <=
   ND_ASSIGN,  // =
-  ND_VAR,  // Variable
-  ND_NUM, // Integer
+  ND_VAR,     // Variable
+  ND_NUM,     // Integer
+  ND_RETURN,  // return
 } NodeKind;
 
 

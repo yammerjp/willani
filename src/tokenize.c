@@ -37,7 +37,7 @@ bool equal(Token *token, char *str) {
 }
 
 
-// ========== token length (to read input) ==========
+// ==========  read input and check token ==========
 static int digit_token_length(char *p) {
   int i = 0;
   while (isdigit(*(p+i))) {
@@ -71,6 +71,11 @@ static int reserved_token_length(char *p) {
       return strlen(tokens[i]);
   }
   return 0;
+}
+
+static int is_return_token(char *p) {
+  // not includes 'returnhogehoge'
+  return strncmp(p, "return", 6) == 0 && !is_alnum(p[6]);
 }
 
 
@@ -125,6 +130,12 @@ Token *tokenize(char *p) {
     if (rlen > 0) {
       current = new_token(TK_RESERVED, current, p, rlen);
       p += rlen;
+      continue;
+    }
+
+    if (is_return_token(p)) {
+      current = new_token(TK_RETURN, current, p, 6);
+      p += 6;
       continue;
     }
 

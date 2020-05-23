@@ -9,7 +9,7 @@ Now, Willani can compile the following code.
 ```
 foo123=3;
 bar=5;
-foo123+bar;
+return foo123+bar;
 ```
 
 ## Usage
