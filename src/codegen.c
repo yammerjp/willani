@@ -101,10 +101,10 @@ static void gen(Node *node) {
   gen_binary_operator(node);
 }
 
-static void prologue(void) {
+static void prologue(int offset) {
   printf("  push rbp\n");         // record caller's rbp
   printf("  mov rbp, rsp\n");     // set current stack top to rbp
-  printf("  sub rsp, 208\n");     // allocate memory for a-z variables
+  printf("  sub rsp, %d\n", offset);     // allocate memory for a-z variables
 }
 
 static void epilogue(void) {
@@ -113,16 +113,16 @@ static void epilogue(void) {
   printf("  ret\n");
 }
 
-void code_generate(Node *node) {
+void code_generate(Function *func) {
 
   // assembly code header
   printf(".intel_syntax noprefix\n");
   printf(".globl main\n");
   printf("main:\n");
 
-  prologue();
+  prologue(func->offset);
 
-  for(Node *n = node; n; n = n->next) {
+  for(Node *n = func->node; n; n = n->next) {
     gen(n);
     printf("  pop rax\n"); // load result(stack top) to rax
   }

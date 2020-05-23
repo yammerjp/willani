@@ -11,11 +11,11 @@ int main(int argc, char **argv) {
   Token *token = tokenize(user_input);
 
   // parse
-  Node *node = program(&token, token);
+  Function *func = program(token);
 
-  parse_log(node);
+  parse_log(func->node);
 
-  code_generate(node);
+  code_generate(func);
 
   return 0;
 }

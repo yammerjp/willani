@@ -37,17 +37,20 @@ static Node *new_node_var(Token *token) {
 
 
 // program = stmt*
-Node *program(Token **rest, Token *token) {
+Function *program(Token *token) {
   Node head = {};
   Node *current = &head;
 
   while (token->kind != TK_EOF) {
     current->next = stmt(&token, token);
     current = current->next;
- }
+  }
 
-  *rest = token;
-  return head.next;
+  Function *func = calloc(1, sizeof(Function));
+  func->node = head.next;
+  func->offset = 208;
+
+  return func;
 }
 
 // stmt       = expr ";"

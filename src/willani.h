@@ -56,7 +56,13 @@ struct Node {
   char name; // Used if kind == ND_NUM
 };
 
-Node *program(Token **rest, Token *token);
+typedef struct Function Function;
+struct Function {
+  Node *node;
+  int offset;
+};
+
+Function *program(Token *token);
 
 
 //======================================
@@ -66,7 +72,7 @@ void parse_log(Node* head);
 
 //======================================
 // gen.c
-void code_generate(Node *node);
+void code_generate(Function *func);
 
 
 //======================================
