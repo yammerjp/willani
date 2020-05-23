@@ -16,6 +16,10 @@ static char *node_kind_str(Node *node) {
 }
 
 static void print_node(FILE *logfile, Node *node, int depth) {
+  if (node == NULL) {
+    return;
+  }
+
   fprintf(logfile, "%*s",depth*2, "");
 
   if (node->kind == ND_NUM) {
@@ -26,13 +30,15 @@ static void print_node(FILE *logfile, Node *node, int depth) {
 }
 
 static void print_nodes(FILE *logfile, Node *node, int depth) {
-  if (node->kind == ND_NUM) {
-    print_node(logfile, node, depth);
+  if (node == NULL) {
     return;
   }
+
   print_nodes(logfile, node->left, depth+1);
   print_node(logfile, node, depth);
   print_nodes(logfile, node->right, depth+1);
+
+  print_nodes(logfile, node->next, depth);
 }
 
 void parse_log(Node* head) {
