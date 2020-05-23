@@ -5,7 +5,7 @@ static void gen(Node *node);
 static void gen_num(Node *node) {
   printf("  # gen_num\n");
   printf("  push %ld\n", node->value); // push constant
-  }
+}
 
 static void gen_binary_operator(Node *node) {
   printf("  # gen_op2 left\n");
