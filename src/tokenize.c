@@ -73,9 +73,10 @@ static int reserved_token_length(char *p) {
   return 0;
 }
 
-static int is_return_token(char *p) {
+static bool is_reserved_alpha_token(char *reserved,char *p) {
   // not includes 'returnhogehoge'
-  return strncmp(p, "return", 6) == 0 && !is_alnum(p[6]);
+  int len = strlen(reserved);
+  return strncmp(p, reserved, len) == 0 && !is_alnum(p[len]);
 }
 
 
@@ -133,7 +134,7 @@ Token *tokenize(char *p) {
       continue;
     }
 
-    if (is_return_token(p)) {
+    if (is_reserved_alpha_token("return" ,p)) {
       current = new_token(TK_RETURN, current, p, 6);
       p += 6;
       continue;
