@@ -3,13 +3,11 @@
 static void gen(Node *node);
 
 static void gen_num(Node *node) {
-  printf("  # gen_num\n");
   printf("  push %ld\n", node->value); // push constant
 }
 
 // change the stack top from addr to value
 static void load(void) {
-  printf("  # load() : change the stack top from addr to value\n");
   printf("  pop rax\n");          // load the stack top to rax
   printf("  mov rax, [rax]\n");   // load the actual value of rax to rax
   printf("  push rax\n");         // store rax to the stack top
@@ -20,7 +18,6 @@ static void store(void) {
   // stack
   // before : (top) value, (variable's address), ...
   // after  : (top) value, ...
-  printf("  # store(): store value to the variable.\n");
   printf("  pop rdi\n");          // load the stack top to rdi
   printf("  pop rax\n");          // load the stack top to rax
   printf("  mov [rax], rdi\n");   // copy rdi's value to the address pointed by rax
@@ -33,17 +30,13 @@ static void gen_addr(Node *node) {
     error("Left side is expected a variable.");
   }
   int offset = (node->name - 'a' + 1) * 8;
-  printf("  # gen_addr(): load the address of node's variable to the stack top\n");
   printf("  lea rax, [rbp-%d]\n", offset); // load the address of the actual value of (rbp - offset)
   printf("  push rax\n");         // push rbp - offset
 }
 
 static void gen_binary_operator(Node *node) {
-  printf("  # gen_op2 left\n");
   gen(node->left);
-  printf("  # gen_op2 right\n");
   gen(node->right);
-  printf("  # gen_op2 operator\n");
 
   printf("  pop rdi\n");          // load the stack top to rdi to calculate
   printf("  pop rax\n");          // load the stack top to rax to calculate
@@ -109,14 +102,12 @@ static void gen(Node *node) {
 }
 
 static void prologue(void) {
-  printf("  # prologue\n");
   printf("  push rbp\n");         // record caller's rbp
   printf("  mov rbp, rsp\n");     // set current stack top to rbp
   printf("  sub rsp, 208\n");     // allocate memory for a-z variables
 }
 
 static void epilogue(void) {
-  printf("  # epilogue\n");       // rax is already set, and will be exit code
   printf("  mov rsp, rbp\n");   // ignore the remanig data in the stack
   printf("  pop rbp\n");        // set caller's rbp to rsp
   printf("  ret\n");
