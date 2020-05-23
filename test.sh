@@ -47,6 +47,8 @@ assert 0 '1>=2;'
 assert 101 '2;3;0;101;'
 assert 2 'i=2;'
 assert 5 '1;p=100/(10+10);'
+assert 2 '1;p=100/(10+10);p-3;'
+assert 2 '1;poyopoyo=100/(10+10);poyopoyo-3;'
 assert 7 '1;p=100/(10+10);i=p+2;i;'
 
 echo OK

@@ -13,6 +13,11 @@ int main(int argc, char **argv) {
   // parse
   Node *node = program(&token, token);
 
+  int offset = 0;
+  for ( LVar *lvar = locals; lvar; lvar = lvar->next ) {
+    offset += 8;
+    lvar->offset = offset;
+  }
   parse_log(node);
 
   code_generate(node);

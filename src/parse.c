@@ -39,8 +39,8 @@ static Node *new_node_num(long value, Token *token) {
 LVar *locals = NULL;
 
 static LVar *find_lvar(Token *token) {
-  for (LVar *var = locals; var!= NULL; var = var->next) {
-    if (var->length == token->length && strncmp(token->location, var->name, var->length)) {
+  for (LVar *var = locals; var; var = var->next) {
+    if (var->length == token->length && strncmp(token->location, var->name, token->length)) {
       return var;
     }
   }
@@ -52,8 +52,6 @@ static LVar *new_lvar(char *name, int length) {
   lvar->next = locals;
   lvar->name = name;
   lvar->length = length;
-  lvar->offset = locals == NULL ? 0 : locals->offset + 8;
-  locals = lvar;
   return lvar;
 }
 

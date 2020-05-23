@@ -99,7 +99,7 @@ Token *tokenize(char *p) {
     }
 
     int ilen = identifer_token_length(p);
-    if (ilen == 1) {
+    if (ilen != 0) {
       current = new_token(TK_IDENT, current, p, ilen, 0);
       p += ilen;
       continue;
