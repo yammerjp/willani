@@ -30,7 +30,8 @@ static Node *new_node_num(long value) {
   return new_node( ND_NUM, NULL, NULL, NULL, value, 0);
 }
 
-static Node *new_node_var(char c) {
+static Node *new_node_var(Token *token) {
+  char c = *(token->location);
   return new_node( ND_VAR, NULL, NULL, NULL, 0, c);
 }
 
@@ -191,7 +192,7 @@ static Node *primary(Token **rest, Token *token) {
   }
 
   if (is_identifer_token(token)) {
-    Node *node = new_node_var(get_identifer(token));
+    Node *node = new_node_var(token);
     token = token->next;
     *rest = token;
     return node;

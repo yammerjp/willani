@@ -28,7 +28,6 @@ bool is_number_token(Token *token);
 bool is_identifer_token(Token *token);
 bool equal(Token *token, char *str);
 long get_number(Token *token);
-char get_identifer(Token *token);
 Token *tokenize(char *p);
 
 

@@ -33,12 +33,6 @@ bool equal(Token *token, char *str) {
           !strncmp(token->location, str, token->length);
 }
 
-char get_identifer(Token *token) {
-  if (token->kind != TK_IDENT)
-    error_at(token, "expected a variable");
-  return *(token->location);
-}
-
 long get_number(Token *token) {
   if (token->kind != TK_NUM)
     error_at(token, "expected a number");
