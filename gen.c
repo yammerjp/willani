@@ -68,6 +68,20 @@ static void gen(Node *node) {
   gen_binary_operator(node);
 }
 
+static void prologue(void) {
+  printf("  # prologue\n");
+  printf("  push rbp\n");         // record caller's rbp
+  printf("  mov rbp, rsp\n");     // set current stack top to rbp
+  printf("  sub rsp, 208\n");     // allocate memory for a-z variables
+}
+
+static void epilogue(void) {
+  printf("  # epilogue\n");       // rax is already set, and will be exit code
+  printf("  mov rsp, rbp\n");   // ignore the remanig data in the stack
+  printf("  pop rbp\n");        // set caller's rbp to rsp
+  printf("  ret\n");
+}
+
 void code_generate(Node *node) {
 
   // assembly code header
@@ -75,9 +89,12 @@ void code_generate(Node *node) {
   printf(".globl main\n");
   printf("main:\n");
 
+  prologue();
+
   for(Node *n = node; n; n = n->next) {
     gen(n);
     printf("  pop rax\n"); // load result(stack top) to rax
   }
-  printf("  ret\n");
+
+  epilogue();
 }
