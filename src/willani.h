@@ -46,6 +46,17 @@ typedef enum {
   ND_NUM, // Integer
 } NodeKind;
 
+
+typedef struct LVar LVar;
+struct LVar {
+  LVar *next;
+  char *name;
+  int length;
+  int offset;
+};
+
+extern LVar *locals;
+
 typedef struct Node Node;
 struct Node {
   NodeKind kind;
@@ -53,13 +64,13 @@ struct Node {
   Node *left;
   Node *right;
   long value; // Used if kind == ND_NUM
-  char name; // Used if kind == ND_NUM
+  LVar *lvar;
 };
 
 typedef struct Function Function;
 struct Function {
   Node *node;
-  int offset;
+  LVar *lvar;
 };
 
 Function *program(Token *token);

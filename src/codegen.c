@@ -38,8 +38,7 @@ static void gen_addr(Node *node) {
   if (node->kind != ND_VAR) {
     error("Left side is expected a variable.");
   }
-  int offset = (node->name - 'a' + 1) * 8;
-  printf("  lea rax, [rbp-%d]\n", offset); // load the address of the actual value of (rbp - offset)
+  printf("  lea rax, [rbp-%d]\n", node->lvar->offset); // load the address of the actual value of (rbp - offset)
   printf("  push rax\n");         // push rbp - offset
 }
 
@@ -133,7 +132,8 @@ void code_generate(Function *func) {
   printf(".globl main\n");
   printf("main:\n");
 
-  prologue(func->offset);
+  int offset = func->lvar ? (func->lvar->offset + 8) : 0;
+  prologue(offset);
 
   for(Node *n = func->node; n; n = n->next) {
     gen(n);
