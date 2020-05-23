@@ -10,6 +10,8 @@ static char *node_kind_str(Node *node) {
     case ND_NE:  return("!=");
     case ND_LT:  return("<");
     case ND_LE:  return("<=");
+    case ND_ASSIGN: return("=");
+    case ND_VAR: return("Variable");
     case ND_NUM: return("Integer");
     default : error("unexpected node->kind");
   }
@@ -26,6 +28,12 @@ static void print_node(FILE *logfile, Node *node, int depth) {
     fprintf(logfile, "%ld\n",node->value);
     return;
   }
+
+  if (node->kind == ND_VAR) {
+    fprintf(logfile, "%c\n",node->name);
+    return;
+  }
+
   fprintf(logfile, "%s\n", node_kind_str(node));
 }
 

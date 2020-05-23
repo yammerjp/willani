@@ -7,6 +7,37 @@ static void gen_num(Node *node) {
   printf("  push %ld\n", node->value); // push constant
 }
 
+// change the stack top from addr to value
+static void load(void) {
+  printf("  # load() : change the stack top from addr to value\n");
+  printf("  pop rax\n");          // load the stack top to rax
+  printf("  mov rax, [rax]\n");   // load the actual value of rax to rax
+  printf("  push rax\n");         // store rax to the stack top
+}
+
+// store value to the variable.
+static void store(void) {
+  // stack
+  // before : (top) value, (variable's address), ...
+  // after  : (top) value, ...
+  printf("  # store(): store value to the variable.\n");
+  printf("  pop rdi\n");          // load the stack top to rdi
+  printf("  pop rax\n");          // load the stack top to rax
+  printf("  mov [rax], rdi\n");   // copy rdi's value to the address pointed by rax
+  printf("  push rdi\n");         // store rdi to the stack top
+}
+
+// load the address of node's variable to the stack top
+static void gen_addr(Node *node) {
+  if (node->kind != ND_VAR) {
+    error("expected variable");
+  }
+  int offset = (node->name - 'a' + 1) * 8;
+  printf("  # gen_addr(): load the address of node's variable to the stack top\n");
+  printf("  lea rax, [rbp-%d]\n", offset); // load the address of the actual value of (rbp - offset)
+  printf("  push rax\n");         // push rbp - offset
+}
+
 static void gen_binary_operator(Node *node) {
   printf("  # gen_op2 left\n");
   gen(node->left);
@@ -61,6 +92,15 @@ static void gen(Node *node) {
   switch (node->kind) {
   case ND_NUM:
     gen_num(node);
+    return;
+  case ND_VAR:
+    gen_addr(node);
+    load();
+    return;
+  case ND_ASSIGN:
+    gen_addr(node->left);
+    gen(node->right);
+    store();
     return;
   }
 

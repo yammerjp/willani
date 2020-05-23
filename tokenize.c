@@ -7,7 +7,7 @@ static FILE *tokenize_log_file;
 static char *token_kind_str(Token *token) {
   switch (token->kind) {
     case TK_RESERVED: return("TK_RESERVED");
-//    case TK_INDENT:   return("TK_INDENT  ");
+    case TK_IDENT:    return("TK_INDENT  ");
     case TK_NUM:      return("TK_NUM     ");
     case TK_EOF:      return("TK_EOF     ");
     default : error("unexpected token->kind");
@@ -20,6 +20,9 @@ static void tokenize_log(Token *token) {
   fprintf(tokenize_log_file, "%.*s\n",token->length ,token->location);
 }
 
+bool is_identifer_token(Token *token) {
+  return token->kind == TK_IDENT;
+}
 
 bool is_number_token(Token *token) {
   return token->kind == TK_NUM;
@@ -28,6 +31,12 @@ bool is_number_token(Token *token) {
 bool equal(Token *token, char *str) {
   return strlen(str) == token->length &&
           !strncmp(token->location, str, token->length);
+}
+
+char get_identifer(Token *token) {
+  if (token->kind != TK_IDENT)
+    error_at(token, "expected a variable");
+  return *(token->location);
 }
 
 long get_number(Token *token) {
@@ -53,7 +62,7 @@ static Token *new_token(TokenKind kind, Token *current, char *location, int leng
 
 // To return 0 is not reserved token
 static int reserved_token_length(char *p) {
-  char tokens[][3] = { "==", "!=", "<=", ">=", "+", "-", "*", "/", "(", ")", ">", "<", ";"};
+  char tokens[][3] = { "==", "!=", "<=", ">=", "+", "-", "*", "/", "(", ")", ">", "<", ";", "="};
   for (int i=0; i<sizeof(tokens); i++) {
     if ( strncmp(p, tokens[i], strlen(tokens[i])) == 0 )
       return strlen(tokens[i]);
@@ -81,6 +90,11 @@ Token *tokenize(char *p) {
       char *p_old = p;
       long value = strtol(p, &p, 10); // with update p
       current = new_token(TK_NUM, current, p_old, p - p_old, value);
+      continue;
+    }
+
+    if ('a' <= *p && *p <= 'z' ) {
+      current = new_token(TK_IDENT, current,p++, 1, 0);
       continue;
     }
 
