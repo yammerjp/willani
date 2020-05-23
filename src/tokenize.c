@@ -46,12 +46,19 @@ static int digit_token_length(char *p) {
   return i;
 }
 
+static bool is_alnum(char c) {
+  return ( 'a' <= c && c <= 'z' ) ||
+         ( 'A' <= c && c <= 'Z' ) ||
+         ( '0' <= c && c <= '9' ) ||
+         ( c == '_' ) ;
+}
+
 static int identifer_token_length(char *p) {
   if (!isalpha(*p)) {
     return 0;
   }
   int i = 1;
-  while (isalnum(*(p+i))) {
+  while (is_alnum(*(p+i))) {
     i++;
   }
   return i;
