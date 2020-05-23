@@ -9,6 +9,7 @@ static char *token_kind_str(Token *token) {
     case TK_IDENT:    return("TK_INDENT  ");
     case TK_NUM:      return("TK_NUM     ");
     case TK_EOF:      return("TK_EOF     ");
+    case TK_RETURN:   return("TK_RETURN  ");
     default : error("unexpected token->kind");
   }
 }
@@ -120,13 +121,6 @@ Token *tokenize(char *p) {
       continue;
     }
 
-    int ilen = identifer_token_length(p);
-    if (ilen > 0) {
-      current = new_token(TK_IDENT, current, p, ilen);
-      p += ilen;
-      continue;
-    }
-
     int rlen = reserved_token_length(p);
     if (rlen > 0) {
       current = new_token(TK_RESERVED, current, p, rlen);
@@ -137,6 +131,13 @@ Token *tokenize(char *p) {
     if (is_reserved_alpha_token("return" ,p)) {
       current = new_token(TK_RETURN, current, p, 6);
       p += 6;
+      continue;
+    }
+
+    int ilen = identifer_token_length(p);
+    if (ilen > 0) {
+      current = new_token(TK_IDENT, current, p, ilen);
+      p += ilen;
       continue;
     }
 
