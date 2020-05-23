@@ -10,7 +10,7 @@ static Node *mul(Token **rest, Token *token);
 static Node *unary(Token **rest, Token *token);
 static Node *primary(Token **rest, Token *token);
 
-static Node *new_node_op2(NodeKind kind, Node *left, Node *right) {
+static Node *new_node_op2(Token *token, NodeKind kind, Node *left, Node *right) {
   Node *node = calloc(1, sizeof(Node));
   node->kind = kind;
   node->next = NULL;
@@ -18,11 +18,12 @@ static Node *new_node_op2(NodeKind kind, Node *left, Node *right) {
   node->right = right;
   node->value = 0;
   node->lvar = NULL;
+  node->token = token; // for debug
 
   return node;
 }
 
-static Node *new_node_num(long value) {
+static Node *new_node_num(long value, Token *token) {
   Node *node = calloc(1, sizeof(Node));
   node->kind = ND_NUM;
   node->next = NULL;
@@ -30,6 +31,7 @@ static Node *new_node_num(long value) {
   node->right = NULL;
   node->value = value;
   node->lvar = NULL;
+  node->token = token;
 
   return node;
 }
@@ -69,6 +71,7 @@ static Node *new_node_var(Token *token) {
   node->right = NULL;
   node->value = 0;
   node->lvar = lvar;
+  node->token = token;
 
   return node;
 }
@@ -113,7 +116,7 @@ static Node *assign(Token **rest, Token *token) {
 
   if(equal(token, "=")) {
     token = token->next;
-    node = new_node_op2( ND_ASSIGN, node, assign(&token, token));
+    node = new_node_op2(token, ND_ASSIGN, node, assign(&token, token));
   }
 
   *rest = token;
@@ -126,10 +129,10 @@ static Node *equality(Token **rest, Token *token) {
   for(;;) {
     if (equal(token, "==")){
       token = token->next;
-      node = new_node_op2(ND_EQ, node, relational(&token, token));
+      node = new_node_op2(token, ND_EQ, node, relational(&token, token));
     } else if (equal(token, "!=")) {
       token = token->next;
-      node = new_node_op2(ND_NE, node, relational(&token, token));
+      node = new_node_op2(token, ND_NE, node, relational(&token, token));
     } else {
       *rest = token;
       return node;
@@ -143,22 +146,22 @@ static Node *relational(Token **rest, Token *token) {
   for(;;) {
     if (equal(token, "<")){
       token = token->next;
-      node = new_node_op2(ND_LT, node, add(&token, token));
+      node = new_node_op2(token, ND_LT, node, add(&token, token));
       continue;
     }
     if (equal(token, "<=")) {
       token = token->next;
-      node = new_node_op2(ND_LE, node, add(&token, token));
+      node = new_node_op2(token, ND_LE, node, add(&token, token));
       continue;
     }
     if (equal(token, ">")){
       token = token->next;
-      node = new_node_op2(ND_LT, add(&token, token), node);
+      node = new_node_op2(token, ND_LT, add(&token, token), node);
       continue;
     }
     if (equal(token, ">=")) {
       token = token->next;
-      node = new_node_op2(ND_LE, add(&token, token), node);
+      node = new_node_op2(token, ND_LE, add(&token, token), node);
       continue;
     }
     *rest = token;
@@ -172,10 +175,10 @@ static Node *add(Token **rest, Token *token) {
   for(;;) {
     if (equal(token, "+")){
       token = token->next;
-      node = new_node_op2(ND_ADD, node, mul(&token, token));
+      node = new_node_op2(token, ND_ADD, node, mul(&token, token));
     } else if (equal(token, "-")) {
       token = token->next;
-      node = new_node_op2(ND_SUB, node, mul(&token, token));
+      node = new_node_op2(token, ND_SUB, node, mul(&token, token));
     } else {
       *rest = token;
       return node;
@@ -190,10 +193,10 @@ static Node *mul(Token **rest, Token *token) {
   for(;;) {
     if (equal(token, "*")) {
       token = token->next;
-      node = new_node_op2(ND_MUL, node, unary(&token, token));
+      node = new_node_op2(token, ND_MUL, node, unary(&token, token));
     } else if (equal(token, "/")) {
       token = token->next;
-      node = new_node_op2(ND_DIV, node, unary(&token, token));
+      node = new_node_op2(token, ND_DIV, node, unary(&token, token));
     } else {
       *rest = token;
       return node;
@@ -211,7 +214,7 @@ static Node *unary(Token **rest, Token *token) {
   }
   if (equal(token,"-")) {
     token = token->next;
-    Node *node = new_node_op2(ND_SUB, new_node_num(0), primary(&token, token));
+    Node *node = new_node_op2(token, ND_SUB, new_node_num(0, token), primary(&token, token));
     *rest = token;
     return node;
   }
@@ -223,7 +226,7 @@ static Node *unary(Token **rest, Token *token) {
 // primary    = num | ident | "(" expr ")"
 static Node *primary(Token **rest, Token *token) {
   if (is_number_token(token)) {
-    Node *node = new_node_num(get_number(token));
+    Node *node = new_node_num(get_number(token), token);
     token = token->next;
     *rest = token;
     return node;

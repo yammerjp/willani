@@ -2,14 +2,19 @@
 
 static void gen(Node *node);
 
+static void print_token_comment(Token *token) {
+  printf("  # %.*s\n", token->length, token->location);
+}
+
 static void gen_num(Node *node) {
-  printf("  # gen_num\n");
+  // printf("  # gen_num\n");
+  print_token_comment(node->token);
   printf("  push %ld\n", node->value); // push constant
 }
 
 // change the stack top from addr to value
 static void load(void) {
-  printf("  # load() : change the stack top from addr to value\n");
+  // printf("  # load() : change the stack top from addr to value\n");
   printf("  pop rax\n");          // load the stack top to rax
   printf("  mov rax, [rax]\n");   // load the actual value of rax to rax
   printf("  push rax\n");         // store rax to the stack top
@@ -20,7 +25,7 @@ static void store(void) {
   // stack
   // before : (top) value, (variable's address), ...
   // after  : (top) value, ...
-  printf("  # store(): store value to the variable.\n");
+  // printf("  # store(): store value to the variable.\n");
   printf("  pop rdi\n");          // load the stack top to rdi
   printf("  pop rax\n");          // load the stack top to rax
   printf("  mov [rax], rdi\n");   // copy rdi's value to the address pointed by rax
@@ -32,17 +37,19 @@ static void gen_addr(Node *node) {
   if (node->kind != ND_VAR) {
     error("Left side is expected a variable.");
   }
-  printf("  # gen_addr(): load the address of node's variable to the stack top\n");
+  // printf("  # gen_addr(): load the address of node's variable to the stack top\n");
+  print_token_comment(node->token);
   printf("  lea rax, [rbp-%d]\n", node->lvar->offset); // load the address of the actual value of (rbp - offset)
   printf("  push rax\n");         // push rbp - offset
 }
 
 static void gen_binary_operator(Node *node) {
-  printf("  # gen_op2 left\n");
+  print_token_comment(node->token);
+  // printf("  # gen_op2 left\n");
   gen(node->left);
-  printf("  # gen_op2 right\n");
+  // printf("  # gen_op2 right\n");
   gen(node->right);
-  printf("  # gen_op2 operator\n");
+  // printf("  # gen_op2 operator\n");
 
   printf("  pop rdi\n");          // load the stack top to rdi to calculate
   printf("  pop rax\n");          // load the stack top to rax to calculate
@@ -111,7 +118,7 @@ static void prologue(void) {
   printf("  # prologue\n");
   printf("  push rbp\n");         // record caller's rbp
   printf("  mov rbp, rsp\n");     // set current stack top to rbp
-  printf("  sub rsp, %d\n", locals == NULL ? 0 : locals->offset);     // allocate memory for a-z variables
+  printf("  sub rsp, %d\n", locals == NULL ? 0 : locals->offset + 8);     // allocate memory for a-z variables
 }
 
 static void epilogue(void) {

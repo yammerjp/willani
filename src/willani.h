@@ -63,6 +63,7 @@ struct Node {
   Node *right;
   long value; // Used if kind == ND_NUM
   LVar *lvar; // Used if kind == ND_VAR
+  Token *token; // for debug
 };
 
 Node *program(Token **rest, Token *token);
