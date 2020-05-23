@@ -75,7 +75,7 @@ void parse_log(Node* head);
 
 //======================================
 // gen.c
-void code_generate(Node *node);
+void code_generate(Node *node, int offset);
 
 
 //======================================

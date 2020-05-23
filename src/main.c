@@ -20,7 +20,7 @@ int main(int argc, char **argv) {
   }
   parse_log(node);
 
-  code_generate(node);
+  code_generate(node, offset);
 
   return 0;
 }
