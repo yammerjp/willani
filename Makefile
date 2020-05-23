@@ -1,15 +1,15 @@
 CFLAGS=-std=c11 -g -static
-SRCS=$(wildcard *.c)
+SRCS=$(wildcard src/*.c)
 OBJS=$(SRCS:.c=.o)
 
 willani: $(OBJS)
 	$(CC) -o willani $(OBJS) $(LDFLAGS)
 
-$(OBJS): willani.h
+$(OBJS): src/willani.h
 
 test: willani
 	./test.sh
 
 clean:
-	rm -f willani *.o *~ tmp* *.log core
+	rm -f willani src/*.o *~ tmp* *.log core
 .PHONY: test clean
