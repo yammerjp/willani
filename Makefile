@@ -11,5 +11,5 @@ test: willani
 	./test.sh
 
 clean:
-	rm -f willani *.o *~ tmp* *.log
+	rm -f willani *.o *~ tmp* *.log core
 .PHONY: test clean
