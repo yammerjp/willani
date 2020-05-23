@@ -2,9 +2,9 @@
 
 Willani is a compiler for the C programming language inspired by [Compilerbook](https://www.sigbus.info/compilerbook).
 
-This is in under developping.
+This is under developping.
 
-Now, Willani can compile the following code.
+Now, willani can compile such as the following code.
 
 ```
 foo123=3;
@@ -14,18 +14,24 @@ return foo123+bar;
 
 ## Usage
 
+### Linux
+
 ```sh
-# linux
 $ git clone https://github.com/basd4g/willani.git
 $ cd willani
 $ make
-$ ./willani
-# willani read C language code from stdin, and write assembly language code to stdout.
 
-# MacOS
+$ ./willani 'return 0;' > asm.s
+# Willani read C language code from a commandline argument, and write assembly language code to stdout.
+
+$ make test   # Run test.
+```
+
+### macOS
+```
 $ git clone https://github.com/basd4g/willani.git
 $ cd willani
 $ ./docker.sh pull
-$ ./docker.sh run # compile and run test
+$ ./docker.sh run   # compile and run test
 ```
 
