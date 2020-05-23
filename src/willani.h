@@ -19,16 +19,14 @@ typedef struct Token Token;
 struct Token {
   TokenKind kind;
   Token *next;
-  long value; // If kind is TK_NUM, its value.
   char *location;
   int length;
 };
 
 bool is_number_token(Token *token);
 bool is_identifer_token(Token *token);
+bool is_eof_token(Token *token);
 bool equal(Token *token, char *str);
-long get_number(Token *token);
-char get_identifer(Token *token);
 Token *tokenize(char *p);
 
 
@@ -48,18 +46,34 @@ typedef enum {
   ND_NUM, // Integer
 } NodeKind;
 
-typedef struct Node Node;
 
+typedef struct LVar LVar;
+struct LVar {
+  LVar *next;
+  char *name;
+  int length;
+  int offset;
+};
+
+extern LVar *locals;
+
+typedef struct Node Node;
 struct Node {
   NodeKind kind;
   Node *next;
   Node *left;
   Node *right;
   long value; // Used if kind == ND_NUM
-  char name; // Used if kind == ND_NUM
+  LVar *lvar;
 };
 
-Node *program(Token **rest, Token *token);
+typedef struct Function Function;
+struct Function {
+  Node *node;
+  LVar *lvar;
+};
+
+Function *program(Token *token);
 
 
 //======================================
@@ -69,7 +83,7 @@ void parse_log(Node* head);
 
 //======================================
 // gen.c
-void code_generate(Node *node);
+void code_generate(Function *func);
 
 
 //======================================

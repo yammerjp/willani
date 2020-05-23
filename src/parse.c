@@ -10,43 +10,76 @@ static Node *mul(Token **rest, Token *token);
 static Node *unary(Token **rest, Token *token);
 static Node *primary(Token **rest, Token *token);
 
-static Node *new_node( NodeKind kind, Node *next, Node *left, Node *right, long value, char name) {
+// ========== lvar ==========
+
+LVar *locals = NULL;
+
+static LVar *find_lvar(char *name, int length) {
+  for (LVar *lvar = locals; lvar; lvar = lvar->next) {
+    if (length == lvar->length && !strncmp(name, lvar->name, length)) {
+      return lvar;
+    }
+  }
+  return NULL;
+}
+
+static LVar *new_lvar(char *name, int length) {
+  LVar *lvar = calloc(1, sizeof(LVar));
+  lvar->next = locals;
+  lvar->name = name;
+  lvar->length = length;
+  lvar->offset = locals ? (locals->offset + 8) : 0;
+
+  locals = lvar;
+  return lvar;
+}
+
+// ========== new node ==========
+static Node *new_node( NodeKind kind, Node *next, Node *left, Node *right, long value, LVar *lvar) {
   Node *node = calloc(1, sizeof(Node));
   node->kind = kind;
   node->next = next;
   node->left = left;
   node->right = right;
   node->value = value;
-  node->name = name;
+  node->lvar = lvar;
 
   return node;
 }
 
 static Node *new_node_op2(NodeKind kind, Node *left, Node *right) {
-  return new_node( kind, NULL, left, right, 0, 0);
+  return new_node( kind, NULL, left, right, 0, NULL);
 }
 
 static Node *new_node_num(long value) {
-  return new_node( ND_NUM, NULL, NULL, NULL, value, 0);
+  return new_node( ND_NUM, NULL, NULL, NULL, value, NULL);
 }
 
-static Node *new_node_var(char c) {
-  return new_node( ND_VAR, NULL, NULL, NULL, 0, c);
+static Node *new_node_var(char *name, int length) {
+  LVar *lvar = find_lvar(name, length);
+  if (!lvar) {
+    lvar = new_lvar(name, length);
+  }
+  return new_node( ND_VAR, NULL, NULL, NULL, 0, lvar);
 }
 
+// ========== parse ==========
 
 // program = stmt*
-Node *program(Token **rest, Token *token) {
+Function *program(Token *token) {
   Node head = {};
   Node *current = &head;
 
-  while (token->kind != TK_EOF) {
+  while (!is_eof_token(token)) {
     current->next = stmt(&token, token);
     current = current->next;
- }
+  }
 
-  *rest = token;
-  return head.next;
+  Function *func = calloc(1, sizeof(Function));
+  func->node = head.next;
+  func->lvar = locals;
+
+  return func;
 }
 
 // stmt       = expr ";"
@@ -184,14 +217,14 @@ static Node *unary(Token **rest, Token *token) {
 // primary    = num | ident | "(" expr ")"
 static Node *primary(Token **rest, Token *token) {
   if (is_number_token(token)) {
-    Node *node = new_node_num(get_number(token));
+    Node *node = new_node_num(strtol(token->location, NULL, 10));
     token = token->next;
     *rest = token;
     return node;
   }
 
   if (is_identifer_token(token)) {
-    Node *node = new_node_var(get_identifer(token));
+    Node *node = new_node_var(token->location, token->length);
     token = token->next;
     *rest = token;
     return node;

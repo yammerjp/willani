@@ -30,7 +30,7 @@ static void print_node(FILE *logfile, Node *node, int depth) {
   }
 
   if (node->kind == ND_VAR) {
-    fprintf(logfile, "%c\n",node->name);
+    fprintf(logfile, "%.*s\n",node->lvar->length, node->lvar->name);
     return;
   }
 
