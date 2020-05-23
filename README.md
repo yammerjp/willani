@@ -7,7 +7,7 @@ This is in under developping.
 Now, Willani can compile the following code.
 
 ```
-2<=1
+i=100*(2+3); i+5;
 ```
 
 ## Usage
