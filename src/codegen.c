@@ -1,10 +1,19 @@
 #include "willani.h"
 
+static void gen_num(Node *node);
+static void load(void);
+static void store(void);
+static void gen_addr(Node *node);
 static void gen(Node *node);
+static void gen_binary_operator(Node *node);
+static void prologue(int offset);
+static void epilogue(void);
+
 
 static void gen_num(Node *node) {
   printf("  push %ld\n", node->value); // push constant
 }
+
 
 // change the stack top from addr to value
 static void load(void) {
@@ -33,6 +42,28 @@ static void gen_addr(Node *node) {
   printf("  lea rax, [rbp-%d]\n", offset); // load the address of the actual value of (rbp - offset)
   printf("  push rax\n");         // push rbp - offset
 }
+
+
+static void gen(Node *node) {
+  switch (node->kind) {
+  case ND_NUM:
+    gen_num(node);
+    return;
+  case ND_VAR:
+    gen_addr(node);
+    load();
+    return;
+  case ND_ASSIGN:
+    gen_addr(node->left);
+    gen(node->right);
+    store();
+    return;
+  }
+
+  // expect binary operator node
+  gen_binary_operator(node);
+}
+
 
 static void gen_binary_operator(Node *node) {
   gen(node->left);
@@ -81,25 +112,6 @@ static void gen_binary_operator(Node *node) {
   printf("  push rax\n");         // store result to stack top
 }
 
-static void gen(Node *node) {
-  switch (node->kind) {
-  case ND_NUM:
-    gen_num(node);
-    return;
-  case ND_VAR:
-    gen_addr(node);
-    load();
-    return;
-  case ND_ASSIGN:
-    gen_addr(node->left);
-    gen(node->right);
-    store();
-    return;
-  }
-
-  // expect binary operator node
-  gen_binary_operator(node);
-}
 
 static void prologue(int offset) {
   printf("  push rbp\n");         // record caller's rbp
@@ -112,6 +124,7 @@ static void epilogue(void) {
   printf("  pop rbp\n");        // set caller's rbp to rsp
   printf("  ret\n");
 }
+
 
 void code_generate(Function *func) {
 

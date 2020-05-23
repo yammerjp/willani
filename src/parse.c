@@ -35,13 +35,14 @@ static Node *new_node_var(Token *token) {
   return new_node( ND_VAR, NULL, NULL, NULL, 0, c);
 }
 
+// ========== parse ==========
 
 // program = stmt*
 Function *program(Token *token) {
   Node head = {};
   Node *current = &head;
 
-  while (token->kind != TK_EOF) {
+  while (!is_eof_token(token)) {
     current->next = stmt(&token, token);
     current = current->next;
   }

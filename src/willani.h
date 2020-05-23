@@ -25,6 +25,7 @@ struct Token {
 
 bool is_number_token(Token *token);
 bool is_identifer_token(Token *token);
+bool is_eof_token(Token *token);
 bool equal(Token *token, char *str);
 Token *tokenize(char *p);
 
@@ -46,7 +47,6 @@ typedef enum {
 } NodeKind;
 
 typedef struct Node Node;
-
 struct Node {
   NodeKind kind;
   Node *next;
