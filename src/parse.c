@@ -23,13 +23,22 @@ static Node *new_node_op2(Token *token, NodeKind kind, Node *left, Node *right) 
   return node;
 }
 
-static Node *new_node_num(long value, Token *token) {
+Token *zero_token(void) {
+  Token *token = calloc(1, sizeof(Token));
+  token->kind=TK_NUM;
+  token->location = "0";
+  token->length = 1;
+  token->next = NULL;
+  return token;
+}
+
+static Node *new_node_num(Token *token) {
   Node *node = calloc(1, sizeof(Node));
   node->kind = ND_NUM;
   node->next = NULL;
   node->left = NULL;
   node->right = NULL;
-  node->value = value;
+  node->value = strtol(token->location, NULL, 10);
   node->lvar = NULL;
   node->token = token;
 
@@ -212,7 +221,7 @@ static Node *unary(Token **rest, Token *token) {
   }
   if (equal(token,"-")) {
     token = token->next;
-    Node *node = new_node_op2(token, ND_SUB, new_node_num(0, token), primary(&token, token));
+    Node *node = new_node_op2(token, ND_SUB, new_node_num(zero_token()), primary(&token, token));
     *rest = token;
     return node;
   }
@@ -224,7 +233,7 @@ static Node *unary(Token **rest, Token *token) {
 // primary    = num | ident | "(" expr ")"
 static Node *primary(Token **rest, Token *token) {
   if (is_number_token(token)) {
-    Node *node = new_node_num(get_number(token), token);
+    Node *node = new_node_num(token);
     token = token->next;
     *rest = token;
     return node;

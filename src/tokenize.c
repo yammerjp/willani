@@ -33,19 +33,12 @@ bool equal(Token *token, char *str) {
           !strncmp(token->location, str, token->length);
 }
 
-long get_number(Token *token) {
-  if (token->kind != TK_NUM)
-    error_at(token, "expected a number");
-  return token->value;
-}
-
 // Create new (tail) token, Connect to the current token and Return new (tail) token.
-static Token *new_token(TokenKind kind, Token *current, char *location, int length, long value) {
+static Token *new_token(TokenKind kind, Token *current, char *location, int length) {
   Token *newtoken = calloc(1, sizeof(Token));
   newtoken->kind = kind;
   newtoken->location = location;
   newtoken->length = length;
-  newtoken->value = value;
   current->next = newtoken;
 
   // for debug
@@ -62,6 +55,14 @@ static int reserved_token_length(char *p) {
       return strlen(tokens[i]);
   }
   return 0;
+}
+
+static int digit_token_length(char *p) {
+  int i = 0;
+  while (isdigit(*(p+i))) {
+    i++;
+  }
+  return i;
 }
 
 static int identifer_token_length(char *p) {
@@ -91,23 +92,23 @@ Token *tokenize(char *p) {
       continue;
     }
 
-    if (isdigit(*p)) {
-      char *p_old = p;
-      long value = strtol(p, &p, 10); // with update p
-      current = new_token(TK_NUM, current, p_old, p - p_old, value);
+    int dlen = digit_token_length(p);
+    if (dlen != 0) {
+      current = new_token(TK_NUM, current, p, dlen);
+      p += dlen;
       continue;
     }
 
     int ilen = identifer_token_length(p);
     if (ilen != 0) {
-      current = new_token(TK_IDENT, current, p, ilen, 0);
+      current = new_token(TK_IDENT, current, p, ilen);
       p += ilen;
       continue;
     }
 
     int rlen = reserved_token_length(p);
     if (rlen != 0) {
-      current = new_token(TK_RESERVED, current, p, rlen, 0);
+      current = new_token(TK_RESERVED, current, p, rlen);
       p += rlen;
       continue;
     }
@@ -115,7 +116,7 @@ Token *tokenize(char *p) {
     error_at(current, "Invalid token");
   }
 
-  new_token(TK_EOF, current, p, 0, 0);
+  new_token(TK_EOF, current, p, 0);
 
   // for debug
   fclose(tokenize_log_file);
