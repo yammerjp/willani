@@ -11,16 +11,9 @@ int main(int argc, char **argv) {
   Token *token = tokenize(user_input);
 
   // parse
-  Node *node = program(&token, token);
+  Function *func = program(&token, token);
 
-  int offset = 0;
-  for ( LVar *lvar = locals; lvar; lvar = lvar->next ) {
-    offset += 8;
-    lvar->offset = offset;
-  }
-  parse_log(node);
-
-  code_generate(node, offset);
+  code_generate(func);
 
   return 0;
 }

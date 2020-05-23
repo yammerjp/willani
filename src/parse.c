@@ -47,9 +47,9 @@ static Node *new_node_num(Token *token) {
 
 LVar *locals = NULL;
 
-static LVar *find_lvar(Token *token) {
+static LVar *find_lvar(char *name, int length) {
   for (LVar *var = locals; var; var = var->next) {
-    if (var->length == token->length && strncmp(token->location, var->name, token->length)) {
+    if (var->length == length && !strncmp(name, var->name, length)) {
       return var;
     }
   }
@@ -61,14 +61,17 @@ static LVar *new_lvar(char *name, int length) {
   lvar->next = locals;
   lvar->name = name;
   lvar->length = length;
+  lvar->offset = locals == NULL ? 0 : locals->offset + 8;
+  locals = lvar;
   return lvar;
 }
 
 static Node *new_node_var(Token *token) {
-  LVar *lvar = find_lvar(token);
+  LVar *lvar = find_lvar(token->location, token->length);
   if (lvar==NULL) {
     // create new lvar
     lvar = new_lvar(token->location, token->length);
+    fprintf(stderr, "create new lvar %.*s\n", token->length, token->location);
   }
 
   Node *node = calloc(1, sizeof(Node));
@@ -83,9 +86,16 @@ static Node *new_node_var(Token *token) {
   return node;
 }
 
+static int locals_offset(LVar *locals) {
+  int offset = 0;
+  for(LVar *var = locals; var; var = var->next) {
+    offset +=8;
+  }
+  return offset;
+}
 
 // program = stmt*
-Node *program(Token **rest, Token *token) {
+Function *program(Token **rest, Token *token) {
   Node head = {};
   Node *current = &head;
 
@@ -93,9 +103,14 @@ Node *program(Token **rest, Token *token) {
     current->next = stmt(&token, token);
     current = current->next;
  }
-
   *rest = token;
-  return head.next;
+
+  Function *func = calloc(1, sizeof(Function));
+  func->node = head.next;
+  func->locals = locals;
+  func->stack_size = locals_offset(func->locals);
+
+  return func;
 }
 
 // stmt       = expr ";"

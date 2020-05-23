@@ -128,16 +128,16 @@ static void epilogue(void) {
   printf("  ret\n");
 }
 
-void code_generate(Node *node, int offset) {
+void code_generate(Function *func) {
 
   // assembly code header
   printf(".intel_syntax noprefix\n");
   printf(".globl main\n");
   printf("main:\n");
 
-  prologue(offset);
+  prologue(func->stack_size);
 
-  for(Node *n = node; n; n = n->next) {
+  for(Node *n = func->node; n; n = n->next) {
     gen(n);
     printf("  pop rax\n"); // load result(stack top) to rax
   }

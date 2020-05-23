@@ -64,8 +64,14 @@ struct Node {
   Token *token; // for debug
 };
 
-Node *program(Token **rest, Token *token);
-extern LVar *locals;
+typedef struct Function Function;
+struct Function {
+  Node *node;
+  LVar *locals;
+  int stack_size;
+};
+
+Function *program(Token **rest, Token *token);
 
 
 //======================================
@@ -75,7 +81,7 @@ void parse_log(Node* head);
 
 //======================================
 // gen.c
-void code_generate(Node *node, int offset);
+void code_generate(Function *func);
 
 
 //======================================
