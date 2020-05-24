@@ -13,7 +13,7 @@ int main(int argc, char **argv) {
   // parse
   Function *func = program(token);
 
-  parse_log(func->node);
+  parse_log(func);
 
   code_generate(func);
 

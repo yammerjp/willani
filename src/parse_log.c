@@ -54,13 +54,28 @@ static void print_nodes(FILE *logfile, Node *node, int depth) {
   print_nodes(logfile, node->next, depth);
 }
 
-void parse_log(Node* head) {
+static void parse_lvar(LVar *lvar) {
+  FILE *logfile;
+  logfile = fopen("lvar.log","w");
+  if (logfile == NULL) {
+    error("fail to open lvar.log");
+  }
+  for( LVar *cur = lvar; cur; cur = cur->next) {
+    fprintf(logfile, "name: %.*s, offset: %d\n", cur->length, cur->name, cur->offset);
+  }
+  fclose(logfile);
+}
+
+void parse_log(Function *func) {
+  parse_lvar(func->lvar);
+
   FILE *logfile;
   logfile = fopen("parse.log","w");
   if (logfile == NULL) {
     error("fail to open parse.log");
   }
-  Node *node = head;
+  Node *node = func->node;
+
   print_nodes(logfile, node, 0);
 
   fclose(logfile);

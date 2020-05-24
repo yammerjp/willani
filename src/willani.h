@@ -84,7 +84,7 @@ Function *program(Token *token);
 
 //======================================
 // parse_log.c
-void parse_log(Node* head);
+void parse_log(Function *function);
 
 
 //======================================
