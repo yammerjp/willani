@@ -43,10 +43,10 @@ static void gen_addr(Node *node) {
   printf("  push rax\n");         // push rbp - offset
 }
 
-int if_count = 0;
+int label_count = 0;
 
 static void gen_if(Node *node) {
-  int ifct = if_count ++;
+  int labct = label_count ++;
   if (node->kind != ND_IF) {
     error("expected node->kind is ND_IF");
   }
@@ -55,19 +55,19 @@ static void gen_if(Node *node) {
   printf("  cmp rax,0\n");       // evaluate result
 
   if (node->els) 
-    printf("  je .Lelse%05d\n", ifct); // jump if result is false
+    printf("  je .Lelse%05d\n", labct); // jump if result is false
   else 
-    printf("  je .Lend%05d\n", ifct); // jump if result is false
+    printf("  je .Lend%05d\n", labct); // jump if result is false
 
   gen(node->then);
-  printf("  jmp .Lend%05d\n", ifct); // end then stmt
+  printf("  jmp .Lend%05d\n", labct); // end then stmt
 
   if (node->els) {
-    printf(".Lelse%05d:\n", ifct); // end else stmt
+    printf(".Lelse%05d:\n", labct); // label
     gen(node->els);
   }
 
-  printf(".Lend%05d:\n", ifct);   // jump label
+  printf(".Lend%05d:\n", labct);   // label
 }
 
 
