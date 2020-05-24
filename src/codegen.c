@@ -74,7 +74,7 @@ static void gen_if(Node *node) {
 static void gen_while(Node *node) {
   int labct = label_count ++;
   if (node->kind != ND_WHILE) {
-    error("expected node->kind is ND_IF");
+    error("expected node->kind is ND_WHILE");
   }
   printf(".L.begin.%d:\n", labct); // label
   gen(node->cond);               // calculate condition
@@ -88,6 +88,28 @@ static void gen_while(Node *node) {
 
   printf(".L.end.%d:\n", labct);   // label
 }
+
+static void gen_for(Node *node) {
+  int labct = label_count ++;
+  if (node->kind != ND_FOR) {
+    error("expected node->kind is ND_FOR");
+  }
+  gen(node->init);
+
+  printf(".L.begin.%d:\n", labct); // label
+  gen(node->cond);               // calculate condition
+  printf("  pop rax\n");         // load result to the stach top
+  printf("  cmp rax, 0\n");       // evaluate result
+
+  printf("  je  .L.end.%d\n", labct); // jump if result is false
+
+  gen(node->then);
+  gen(node->increment);
+  printf("  jmp .L.begin.%d\n", labct); // jump cond
+
+  printf(".L.end.%d:\n", labct);   // label
+}
+
 
 static void gen_block(Node *node) {
   if (node->kind != ND_BLOCK) {
@@ -125,6 +147,9 @@ static void gen(Node *node) {
     return;
   case ND_WHILE:
     gen_while(node);
+    return;
+  case ND_FOR:
+    gen_for(node);
     return;
   case ND_BLOCK:
     gen_block(node);

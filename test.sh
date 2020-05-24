@@ -64,5 +64,6 @@ assert 2 'if (2-1) return 2; else return 3;'
 assert 10 'i=0;while(i<10)i=i+1; return i;'
 assert 10 'i=0;j=0;while(i<10) { i=i+1; j = i;} return i;'
 assert 7 '{1;p=100/(10+10);i=p+2;i;}'
+assert 100 'j=0;for(i=0;i<50;i=i+1){j= j+2;}return j;'
 
 echo OK

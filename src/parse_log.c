@@ -16,6 +16,7 @@ static char *node_kind_str(Node *node) {
     case ND_RETURN: return("return");
     case ND_IF: return("if");
     case ND_WHILE: return("while");
+    case ND_FOR: return("for");
     case ND_BLOCK: return("{}");
     default : error("unexpected node->kind");
   }
@@ -48,6 +49,14 @@ static void print_nodes(FILE *logfile, Node *node, int depth) {
   if (node->kind == ND_BLOCK) {
     print_node(logfile, node, depth);
     print_nodes(logfile, node->body, depth+1);
+    return;
+  }
+  if (node->kind == ND_FOR) {
+    print_node(logfile, node, depth);
+    print_nodes(logfile, node->init, depth+1);
+    print_nodes(logfile, node->cond, depth+1);
+    print_nodes(logfile, node->increment, depth+1);
+    print_nodes(logfile, node->then, depth+1);
     return;
   }
 

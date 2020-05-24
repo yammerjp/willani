@@ -3,6 +3,7 @@
 static Node *stmt(Token **rest, Token *token);
 static Node *ifstmt(Token **rest, Token *token);
 static Node *whilestmt(Token **rest, Token *token);
+static Node *forstmt(Token **rest, Token *token);
 static Node *blockstmt(Token **rest, Token *token);
 static Node *expr(Token **rest, Token *token);
 static Node *assign(Token **rest, Token *token);
@@ -88,6 +89,16 @@ static Node *new_node_while(Node *cond, Node *then) {
   return node;
 }
 
+static Node *new_node_for(Node *init, Node *cond, Node* increment, Node *then) {
+  Node *node = calloc(1, sizeof(Node));
+  node->kind = ND_FOR;
+  node->init = init;
+  node->increment = increment;
+  node->cond = cond;
+  node->then = then;
+  return node;
+}
+
 static Node *new_node_block(Node *body) {
   Node *node = calloc(1, sizeof(Node));
   node->kind = ND_BLOCK;
@@ -117,6 +128,7 @@ Function *program(Token *token) {
 
 // stmt       = ifstmt
 //            | whilestmt
+//            | forstmt
 //            | blockstmt
 //            | (return)? expr ";
 static Node *stmt(Token **rest, Token *token) {
@@ -128,6 +140,11 @@ static Node *stmt(Token **rest, Token *token) {
   }
   if (equal(token, "while")) {
     node = whilestmt(&token, token);
+    *rest = token;
+    return node;
+  }
+  if (equal(token, "for")) {
+    node = forstmt(&token, token);
     *rest = token;
     return node;
   }
@@ -205,6 +222,58 @@ static Node *whilestmt(Token **rest, Token *token) {
   Node *then = stmt(&token, token);
 
   Node *node = new_node_while(cond, then);
+
+  *rest = token;
+  return node;
+}
+
+// forstmt = "for" "(" expr? ";" expr? ";" expr? ")" stmt
+static Node *forstmt(Token **rest, Token *token) {
+  // "for"
+  if (!equal(token, "for")) {
+    error_at(token, "expected for");
+  }
+  token = token->next;
+
+  // "("
+  if (!equal(token, "(")) {
+    error_at(token, "expected (");
+  }
+  token = token->next;
+
+  // expr? ";"
+  Node *init = NULL;
+  if (!equal(token, ";")) {
+    init = expr(&token, token);
+  }
+  if (!equal(token, ";")) {
+    error_at(token, "expected ;");
+  }
+  token = token->next;
+
+  // expr? ";"
+  Node *cond = NULL;
+  if (!equal(token, ";")) {
+    cond = expr(&token, token);
+  }
+  if (!equal(token, ";")) {
+    error_at(token, "expected ;");
+  }
+  token = token->next;
+
+  // expr? ")"
+  Node *increment = NULL;
+  if (!equal(token, ")")) {
+    increment = expr(&token, token);
+  }
+  if (!equal(token, ")")) {
+    error_at(token, "expected )");
+  }
+  token = token->next;
+
+  // stmt
+  Node *then = stmt(&token, token);
+  Node *node = new_node_for(init, cond, increment, then);
 
   *rest = token;
   return node;
