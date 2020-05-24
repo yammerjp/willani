@@ -9,7 +9,6 @@ static char *token_kind_str(Token *token) {
     case TK_IDENT:    return("TK_INDENT  ");
     case TK_NUM:      return("TK_NUM     ");
     case TK_EOF:      return("TK_EOF     ");
-    case TK_RETURN:   return("TK_RETURN  ");
     default : error("unexpected token->kind");
   }
 }
@@ -41,7 +40,7 @@ bool equal(Token *token, char *str) {
 // ==========  read input and check token ==========
 static int digit_token_length(char *p) {
   int i = 0;
-  while (isdigit(*(p+i))) {
+  while (isdigit(p[i])) {
     i++;
   }
   return i;
@@ -54,32 +53,38 @@ static bool is_alnum(char c) {
          ( c == '_' ) ;
 }
 
+static bool is_all_alnum(char *c) {
+  for (int i=0; i < strlen(c); i++){
+    if (!is_alnum(c[i])) {
+      return false;
+    }
+  }
+  return true;
+}
+
 static int identifer_token_length(char *p) {
   if (!isalpha(*p)) {
     return 0;
   }
   int i = 1;
-  while (is_alnum(*(p+i))) {
+  while (is_alnum(p[i])) {
     i++;
   }
   return i;
 }
 
 static int reserved_token_length(char *p) {
-  char tokens[][3] = { "==", "!=", "<=", ">=", "+", "-", "*", "/", "(", ")", ">", "<", ";", "="};
+  char tokens[][7] = { "return", "==", "!=", "<=", ">=", "+", "-", "*", "/", "(", ")", ">", "<", ";", "="};
   for (int i=0; i<sizeof(tokens); i++) {
-    if ( strncmp(p, tokens[i], strlen(tokens[i])) == 0 )
-      return strlen(tokens[i]);
+    int len = strlen(tokens[i]);
+    if ( strncmp(p, tokens[i], len) == 0
+      && ( !is_all_alnum(tokens[i]) || !is_alnum(p[len]) ) // not include 'ifn' and so on
+    ) {
+      return len;
+    }
   }
   return 0;
 }
-
-static bool is_reserved_alpha_token(char *reserved,char *p) {
-  // not includes 'returnhogehoge'
-  int len = strlen(reserved);
-  return strncmp(p, reserved, len) == 0 && !is_alnum(p[len]);
-}
-
 
 // ========== new token ==========
 // Create new (tail) token, Connect to the current token and Return new (tail) token.
@@ -125,12 +130,6 @@ Token *tokenize(char *p) {
     if (rlen > 0) {
       current = new_token(TK_RESERVED, current, p, rlen);
       p += rlen;
-      continue;
-    }
-
-    if (is_reserved_alpha_token("return" ,p)) {
-      current = new_token(TK_RETURN, current, p, 6);
-      p += 6;
       continue;
     }
 

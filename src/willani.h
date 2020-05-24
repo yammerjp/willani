@@ -10,7 +10,6 @@
 // tokenize.c
 typedef enum {
   TK_RESERVED,  // Keywords or punctuators
-  TK_RETURN,    // return
   TK_IDENT,     // Identifers
   TK_NUM,       // Numeric literals
   TK_EOF,       // End-of-file markers
