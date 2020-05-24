@@ -15,6 +15,7 @@ static char *node_kind_str(Node *node) {
     case ND_NUM: return("Integer");
     case ND_RETURN: return("return");
     case ND_IF: return("if");
+    case ND_WHILE: return("while");
     default : error("unexpected node->kind");
   }
 }

@@ -2,6 +2,7 @@
 
 static Node *stmt(Token **rest, Token *token);
 static Node *ifstmt(Token **rest, Token *token);
+static Node *whilestmt(Token **rest, Token *token);
 static Node *expr(Token **rest, Token *token);
 static Node *assign(Token **rest, Token *token);
 static Node *equality(Token **rest, Token *token);
@@ -78,6 +79,15 @@ static Node *new_node_if(Node *cond, Node *then, Node *els) {
   return node;
 }
 
+static Node *new_node_while(Node *cond, Node *then) {
+  Node *node = calloc(1, sizeof(Node));
+  node->kind = ND_WHILE;
+  node->cond = cond;
+  node->then = then;
+  return node;
+}
+
+
 
 // ========== parse ==========
 
@@ -99,11 +109,17 @@ Function *program(Token *token) {
 }
 
 // stmt       = ifstmt
+//            | whilestmt
 //            | (return)? expr ";
 static Node *stmt(Token **rest, Token *token) {
   Node *node;
   if (equal(token, "if")) {
     node = ifstmt(&token, token);
+    *rest = token;
+    return node;
+  }
+  if (equal(token, "while")) {
+    node = whilestmt(&token, token);
     *rest = token;
     return node;
   }
@@ -124,7 +140,7 @@ static Node *stmt(Token **rest, Token *token) {
   return node;
 }
 
-// ifstmt = ""if" "(" expr ")" stmt ( "else" stmt ) ?
+// ifstmt = "if" "(" expr ")" stmt ( "else" stmt ) ?
 static Node *ifstmt(Token **rest, Token *token) {
   if (!equal(token, "if" )) {
     error_at(token, "expected if");
@@ -150,6 +166,32 @@ static Node *ifstmt(Token **rest, Token *token) {
     els = stmt(&token, token);
   }
   Node *node = new_node_if(cond, then, els);
+
+  *rest = token;
+  return node;
+}
+
+// whilestmt = "while" "(" expr ")" stmt
+static Node *whilestmt(Token **rest, Token *token) {
+  if (!equal(token, "while" )) {
+    error_at(token, "expected if");
+  }
+  token = token->next;
+  if (!equal(token, "(")) {
+    error_at(token, "expected (");
+  }
+  token = token->next;
+
+  Node *cond = expr(&token, token);
+
+  if (!equal(token, ")")) {
+    error_at(token, "expected )");
+  }
+  token = token->next;
+
+  Node *then = stmt(&token, token);
+
+  Node *node = new_node_while(cond, then);
 
   *rest = token;
   return node;

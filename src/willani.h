@@ -46,6 +46,7 @@ typedef enum {
   ND_NUM,     // Integer
   ND_RETURN,  // return
   ND_IF,      // if
+  ND_WHILE,   // while
 } NodeKind;
 
 
@@ -67,8 +68,8 @@ struct Node {
   Node *right;
   long value; // Used if kind == ND_NUM
   LVar *lvar; // Used if kind == ND_VAR
-  Node *cond; // Used if kind == ND_IF
-  Node *then; // Used if kind == ND_IF
+  Node *cond; // Used if kind is ND_IF or ND_WHILE
+  Node *then; // Used if kind is ND_IF or ND_WHILE
   Node *els;  // Used if kind == ND_IF
 };
 

@@ -4,6 +4,7 @@ static void gen_num(Node *node);
 static void load(void);
 static void store(void);
 static void gen_if(Node *node);
+static void gen_while(Node *node);
 static void gen_addr(Node *node);
 static void gen(Node *node);
 static void gen_binary_operator(Node *node);
@@ -70,6 +71,24 @@ static void gen_if(Node *node) {
   printf(".Lend%05d:\n", labct);   // label
 }
 
+static void gen_while(Node *node) {
+  int labct = label_count ++;
+  if (node->kind != ND_WHILE) {
+    error("expected node->kind is ND_IF");
+  }
+  printf(".Lbigin%05d:\n", labct); // label
+  gen(node->cond);               // calculate condition
+  printf("  pop rax\n");         // load result to the stach top
+  printf("  cmp rax,0\n");       // evaluate result
+
+  printf("  je .Lend%05d\n", labct); // jump if result is false
+
+  gen(node->then);
+  printf("  jmp .Lbigin%05d\n", labct); // jump cond
+
+  printf(".Lend%05d:\n", labct);   // label
+}
+
 
 static void gen(Node *node) {
   switch (node->kind) {
@@ -92,6 +111,9 @@ static void gen(Node *node) {
     return;
   case ND_IF:
     gen_if(node);
+    return;
+  case ND_WHILE:
+    gen_while(node);
     return;
   }
 
