@@ -44,7 +44,7 @@ static void gen_addr(Node *node) {
   printf("  push rax\n");         // push rbp - offset
 }
 
-int label_count = 0;
+int label_count = 1;
 
 static void gen_if(Node *node) {
   int labct = label_count ++;
@@ -53,22 +53,22 @@ static void gen_if(Node *node) {
   }
   gen(node->cond);               // calculate condition
   printf("  pop rax\n");         // load result to the stach top
-  printf("  cmp rax,0\n");       // evaluate result
+  printf("  cmp rax, 0\n");       // evaluate result
 
   if (node->els) 
-    printf("  je .Lelse%05d\n", labct); // jump if result is false
+    printf("  je  .L.else.%d\n", labct); // jump if result is false
   else 
-    printf("  je .Lend%05d\n", labct); // jump if result is false
+    printf("  je  .L.end.%d\n", labct); // jump if result is false
 
   gen(node->then);
-  printf("  jmp .Lend%05d\n", labct); // end then stmt
+  printf("  jmp .L.end.%d\n", labct); // end then stmt
 
   if (node->els) {
-    printf(".Lelse%05d:\n", labct); // label
+    printf(".L.else.%d:\n", labct); // label
     gen(node->els);
   }
 
-  printf(".Lend%05d:\n", labct);   // label
+  printf(".L.end.%d:\n", labct);   // label
 }
 
 static void gen_while(Node *node) {
@@ -76,17 +76,17 @@ static void gen_while(Node *node) {
   if (node->kind != ND_WHILE) {
     error("expected node->kind is ND_IF");
   }
-  printf(".Lbigin%05d:\n", labct); // label
+  printf(".L.begin.%d:\n", labct); // label
   gen(node->cond);               // calculate condition
   printf("  pop rax\n");         // load result to the stach top
-  printf("  cmp rax,0\n");       // evaluate result
+  printf("  cmp rax, 0\n");       // evaluate result
 
-  printf("  je .Lend%05d\n", labct); // jump if result is false
+  printf("  je  .L.end.%d\n", labct); // jump if result is false
 
   gen(node->then);
-  printf("  jmp .Lbigin%05d\n", labct); // jump cond
+  printf("  jmp .L.begin.%d\n", labct); // jump cond
 
-  printf(".Lend%05d:\n", labct);   // label
+  printf(".L.end.%d:\n", labct);   // label
 }
 
 
@@ -107,7 +107,7 @@ static void gen(Node *node) {
   case ND_RETURN:
     gen(node->left);
     printf("  pop rax\n");
-    epilogue();
+    printf("  jmp .L.return\n");
     return;
   case ND_IF:
     gen_if(node);
@@ -177,6 +177,7 @@ static void prologue(int offset) {
 }
 
 static void epilogue(void) {
+  printf(".L.return:\n");
   printf("  mov rsp, rbp\n");   // ignore the remanig data in the stack
   printf("  pop rbp\n");        // set caller's rbp to rsp
   printf("  ret\n");
