@@ -69,11 +69,12 @@ static Node *new_node_return(Node *left) {
   return node;
 }
 
-static Node *new_node_if(Node *cond, Node *then) {
+static Node *new_node_if(Node *cond, Node *then, Node *els) {
   Node *node = calloc(1, sizeof(Node));
   node->kind = ND_IF;
   node->cond = cond;
   node->then = then;
+  node->els = els;
   return node;
 }
 
@@ -123,7 +124,7 @@ static Node *stmt(Token **rest, Token *token) {
   return node;
 }
 
-// ifstmt = ""if" "(" expr ")" stmt
+// ifstmt = ""if" "(" expr ")" stmt ( "else" stmt ) ?
 static Node *ifstmt(Token **rest, Token *token) {
   if (!equal(token, "if" )) {
     error_at(token, "expected if");
@@ -142,7 +143,13 @@ static Node *ifstmt(Token **rest, Token *token) {
   token = token->next;
 
   Node *then = stmt(&token, token);
-  Node *node = new_node_if(cond, then);
+
+  Node *els = NULL;
+  if (equal(token, "else")) {
+    token = token->next;
+    els = stmt(&token, token);
+  }
+  Node *node = new_node_if(cond, then, els);
 
   *rest = token;
   return node;

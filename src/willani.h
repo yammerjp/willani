@@ -69,6 +69,7 @@ struct Node {
   LVar *lvar; // Used if kind == ND_VAR
   Node *cond; // Used if kind == ND_IF
   Node *then; // Used if kind == ND_IF
+  Node *els;  // Used if kind == ND_IF
 };
 
 typedef struct Function Function;

@@ -53,8 +53,20 @@ static void gen_if(Node *node) {
   gen(node->cond);               // calculate condition
   printf("  pop rax\n");         // load result to the stach top
   printf("  cmp rax,0\n");       // evaluate result
-  printf("  je .Lend%05d\n", ifct); // jump if result is false
+
+  if (node->els) 
+    printf("  je .Lelse%05d\n", ifct); // jump if result is false
+  else 
+    printf("  je .Lend%05d\n", ifct); // jump if result is false
+
   gen(node->then);
+  printf("  jmp .Lend%05d\n", ifct); // end then stmt
+
+  if (node->els) {
+    printf(".Lelse%05d:\n", ifct); // end else stmt
+    gen(node->els);
+  }
+
   printf(".Lend%05d:\n", ifct);   // jump label
 }
 
