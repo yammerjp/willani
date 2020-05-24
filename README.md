@@ -9,12 +9,15 @@ This is under developping.
 Now, willani can compile such as the following code.
 
 ```
+i = 0;
+while(i<10)
+  i = i + 1;
 foo123=3;
 bar=5;
 if (foo123 == 0)
   return 0;
 else
-  return foo123+bar;
+  return foo123+bar+i;
 ```
 
 ```sh
