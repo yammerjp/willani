@@ -1,0 +1,6 @@
+foo123=3;
+bar=5;
+if (foo123 == 0)
+  return 0;
+else
+  return foo123+bar;

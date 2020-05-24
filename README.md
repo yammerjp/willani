@@ -4,12 +4,27 @@ Willani is a compiler for the C programming language inspired by [Compilerbook](
 
 This is under developping.
 
+## Demo
+
 Now, willani can compile such as the following code.
 
 ```
 foo123=3;
 bar=5;
-return foo123+bar;
+if (foo123 == 0)
+  return 0;
+else
+  return foo123+bar;
+```
+
+```sh
+$ git clone https://github.com/basd4g/willani.git
+$ cd willani
+$ make
+$ cat samplecode | xargs -0 ./willani > tmp.s
+$ cc tmp.s
+$ ./tmp
+$ echo "$?"
 ```
 
 ## Usage
