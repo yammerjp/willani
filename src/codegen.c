@@ -3,6 +3,7 @@
 static void gen_num(Node *node);
 static void load(void);
 static void store(void);
+static void gen_if(Node *node);
 static void gen_addr(Node *node);
 static void gen(Node *node);
 static void gen_binary_operator(Node *node);
@@ -42,6 +43,21 @@ static void gen_addr(Node *node) {
   printf("  push rax\n");         // push rbp - offset
 }
 
+int if_count = 0;
+
+static void gen_if(Node *node) {
+  int ifct = if_count ++;
+  if (node->kind != ND_IF) {
+    error("expected node->kind is ND_IF");
+  }
+  gen(node->cond);               // calculate condition
+  printf("  pop rax\n");         // load result to the stach top
+  printf("  cmp rax,0\n");       // evaluate result
+  printf("  je .Lend%05d\n", ifct); // jump if result is false
+  gen(node->then);
+  printf(".Lend%05d:\n", ifct);   // jump label
+}
+
 
 static void gen(Node *node) {
   switch (node->kind) {
@@ -61,6 +77,9 @@ static void gen(Node *node) {
     gen(node->left);
     printf("  pop rax\n");
     epilogue();
+    return;
+  case ND_IF:
+    gen_if(node);
     return;
   }
 

@@ -14,6 +14,7 @@ static char *node_kind_str(Node *node) {
     case ND_VAR: return("Variable");
     case ND_NUM: return("Integer");
     case ND_RETURN: return("return");
+    case ND_IF: return("if");
     default : error("unexpected node->kind");
   }
 }
@@ -44,8 +45,10 @@ static void print_nodes(FILE *logfile, Node *node, int depth) {
   }
 
   print_nodes(logfile, node->left, depth+1);
+  print_nodes(logfile, node->cond, depth+1);
   print_node(logfile, node, depth);
   print_nodes(logfile, node->right, depth+1);
+  print_nodes(logfile, node->then, depth+1);
 
   print_nodes(logfile, node->next, depth);
 }

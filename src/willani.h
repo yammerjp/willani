@@ -45,6 +45,7 @@ typedef enum {
   ND_VAR,     // Variable
   ND_NUM,     // Integer
   ND_RETURN,  // return
+  ND_IF,      // if
 } NodeKind;
 
 
@@ -65,7 +66,9 @@ struct Node {
   Node *left;
   Node *right;
   long value; // Used if kind == ND_NUM
-  LVar *lvar;
+  LVar *lvar; // Used if kind == ND_VAR
+  Node *cond; // Used if kind == ND_IF
+  Node *then; // Used if kind == ND_IF
 };
 
 typedef struct Function Function;

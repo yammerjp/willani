@@ -76,9 +76,10 @@ static int identifer_token_length(char *p) {
 static int reserved_token_length(char *p) {
   char tokens[][7] = { "return", "if", "==", "!=", "<=", ">=", "+", "-", "*", "/", "(", ")", ">", "<", ";", "="};
   for (int i=0; i<sizeof(tokens); i++) {
-    int len = strlen(tokens[i]);
-    if ( strncmp(p, tokens[i], len) == 0
-      && ( !is_all_alnum(tokens[i]) || !is_alnum(p[len]) ) // not include 'ifn' and so on
+    char *str = tokens[i];
+    int len = strlen(str);
+    if ( strncmp(p, str, len) == 0
+      && ( !is_all_alnum(str) || !is_alnum(p[len]) ) // not include 'ifn' and so on
     ) {
       return len;
     }

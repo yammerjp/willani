@@ -55,5 +55,9 @@ assert 8 'foo_123=3; bar=5; foo_123+bar;'
 assert 10 'return 10;'
 assert 3 'returnp=3; return returnp; 150;'
 assert 0 'a = 3 ; if(a<0) return 1; return 0;'
+assert 3 'if (0) return 2; return 3;'
+assert 3 'if (1-1) return 2; return 3;'
+assert 2 'if (1) return 2; return 3;'
+assert 2 'if (2-1) return 2; return 3;'
 
 echo OK

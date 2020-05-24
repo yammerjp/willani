@@ -1,6 +1,7 @@
 #include "willani.h"
 
 static Node *stmt(Token **rest, Token *token);
+static Node *ifstmt(Token **rest, Token *token);
 static Node *expr(Token **rest, Token *token);
 static Node *assign(Token **rest, Token *token);
 static Node *equality(Token **rest, Token *token);
@@ -35,7 +36,7 @@ static LVar *new_lvar(char *name, int length) {
 }
 
 // ========== new node ==========
-static Node *new_node( NodeKind kind, Node *next, Node *left, Node *right, long value, LVar *lvar) {
+static Node *new_node( NodeKind kind, Node *next, Node *left, Node *right, long value, LVar *lvar, Node *cond, Node *then) {
   Node *node = calloc(1, sizeof(Node));
   node->kind = kind;
   node->next = next;
@@ -43,16 +44,18 @@ static Node *new_node( NodeKind kind, Node *next, Node *left, Node *right, long 
   node->right = right;
   node->value = value;
   node->lvar = lvar;
+  node->cond = cond;
+  node->then = then;
 
   return node;
 }
 
 static Node *new_node_op2(NodeKind kind, Node *left, Node *right) {
-  return new_node( kind, NULL, left, right, 0, NULL);
+  return new_node( kind, NULL, left, right, 0, NULL, NULL, NULL);
 }
 
 static Node *new_node_num(long value) {
-  return new_node( ND_NUM, NULL, NULL, NULL, value, NULL);
+  return new_node( ND_NUM, NULL, NULL, NULL, value, NULL, NULL, NULL);
 }
 
 static Node *new_node_var(char *name, int length) {
@@ -60,8 +63,17 @@ static Node *new_node_var(char *name, int length) {
   if (!lvar) {
     lvar = new_lvar(name, length);
   }
-  return new_node( ND_VAR, NULL, NULL, NULL, 0, lvar);
+  return new_node( ND_VAR, NULL, NULL, NULL, 0, lvar, NULL, NULL);
 }
+
+static Node *new_node_return(Node *left) {
+  return new_node(ND_RETURN, NULL, left , NULL, 0 ,NULL, NULL, NULL);
+}
+
+static Node *new_node_if(Node *cond, Node *then) {
+  return new_node(ND_IF, NULL, NULL, NULL, 0, NULL, cond, then);
+}
+
 
 // ========== parse ==========
 
@@ -82,12 +94,19 @@ Function *program(Token *token) {
   return func;
 }
 
-// stmt       = (return)? expr ";"
+// stmt       = ifstmt
+//            | (return)? expr ";
 static Node *stmt(Token **rest, Token *token) {
   Node *node;
+  if (equal(token, "if")) {
+    node = ifstmt(&token, token);
+    *rest = token;
+    return node;
+  }
+
   if (equal(token, "return")) {
     token = token->next;
-    node = new_node(ND_RETURN, NULL, expr(&token, token) , NULL, 0 ,NULL);
+    node = new_node_return(expr(&token, token));
   } else {
     node = expr(&token, token);
   }
@@ -96,6 +115,31 @@ static Node *stmt(Token **rest, Token *token) {
     error_at(token, "expected ;");
   }
   token = token->next;
+
+  *rest = token;
+  return node;
+}
+
+// ifstmt = ""if" "(" expr ")" stmt
+static Node *ifstmt(Token **rest, Token *token) {
+  if (!equal(token, "if" )) {
+    error_at(token, "expected if");
+  }
+  token = token->next;
+  if (!equal(token, "(")) {
+    error_at(token, "expected (");
+  }
+  token = token->next;
+
+  Node *cond = expr(&token, token);
+
+  if (!equal(token, ")")) {
+    error_at(token, "expected )");
+  }
+  token = token->next;
+
+  Node *then = stmt(&token, token);
+  Node *node = new_node_if(cond, then);
 
   *rest = token;
   return node;
