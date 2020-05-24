@@ -110,7 +110,6 @@ static void gen_for(Node *node) {
   printf(".L.end.%d:\n", labct);   // label
 }
 
-
 static void gen_block(Node *node) {
   if (node->kind != ND_BLOCK) {
     error("expected { ... }");
@@ -120,6 +119,14 @@ static void gen_block(Node *node) {
     gen(n);
     printf("  pop rax\n"); // load result(stack top) to rax
   }
+}
+
+static void gen_func_call(Node *node) {
+  if (node->kind != ND_FUNC_CALL) {
+    error("expected function call");
+  }
+  printf("  call %.*s\n", node->funcnamelen, node->funcname);
+  printf("  push rax\n");
 }
 
 
@@ -153,6 +160,9 @@ static void gen(Node *node) {
     return;
   case ND_BLOCK:
     gen_block(node);
+    return;
+  case ND_FUNC_CALL:
+    gen_func_call(node);
     return;
   }
 
@@ -221,7 +231,6 @@ static void epilogue(void) {
   printf("  pop rbp\n");        // set caller's rbp to rsp
   printf("  ret\n");
 }
-
 
 void code_generate(Function *func) {
 

@@ -1,11 +1,13 @@
 #!/bin/bash
 
+echo 'int ret3(){return 3;}int ret5(){return 5;}' | gcc -xc -c  -o tmp2.o -
+
 assert() {
   expected="$1"
   input="$2"
 
   ./willani "$input" > tmp.s
-  cc -o tmp tmp.s
+  gcc -static -o tmp tmp.s tmp2.o
   ./tmp
   actual="$?"
 
@@ -38,7 +40,7 @@ assert 1 '0<=1;'
 assert 1 '1<=1;'
 assert 0 '2<=1;'
 
-assert 1 '1>0;'
+ssert 1 '1>0;'
 assert 0 '1>1;'
 assert 0 '1>2;'
 assert 1 '1>=0;'
@@ -65,5 +67,7 @@ assert 10 'i=0;while(i<10)i=i+1; return i;'
 assert 10 'i=0;j=0;while(i<10) { i=i+1; j = i;} return i;'
 assert 7 '{1;p=100/(10+10);i=p+2;i;}'
 assert 100 'j=0;for(i=0;i<50;i=i+1){j= j+2;}return j;'
+assert 3 'return ret3();'
+assert 5 'return ret5();'
 
 echo OK

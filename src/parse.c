@@ -106,6 +106,14 @@ static Node *new_node_block(Node *body) {
   return node;
 }
 
+static Node *new_node_func_call(char *funcname, int funcnamelen) {
+  Node *node = calloc(1, sizeof(Node));
+  node->kind = ND_FUNC_CALL;
+  node->funcname = funcname;
+  node->funcnamelen = funcnamelen;
+  return node;
+}
+
 
 // ========== parse ==========
 
@@ -422,18 +430,29 @@ static Node *unary(Token **rest, Token *token) {
   return node;
 }
 
-// primary    = num | ident | "(" expr ")"
+// primary    = num | ident ( "(" ")" )? | "(" expr ")"
 static Node *primary(Token **rest, Token *token) {
+  Node *node;
   if (is_number_token(token)) {
-    Node *node = new_node_num(strtol(token->location, NULL, 10));
+    node = new_node_num(strtol(token->location, NULL, 10));
     token = token->next;
     *rest = token;
     return node;
   }
 
   if (is_identifer_token(token)) {
-    Node *node = new_node_var(token->location, token->length);
-    token = token->next;
+
+    if (!equal(token->next, "(")) {
+      node = new_node_var(token->location, token->length);
+      token = token->next;
+    } else {
+      node = new_node_func_call(token->location, token->length);
+      token = token->next->next;
+      if (!equal(token, ")")) {
+        error_at(token, "expected )");
+      }
+      token = token->next;
+    }
     *rest = token;
     return node;
   }
@@ -443,7 +462,7 @@ static Node *primary(Token **rest, Token *token) {
   }
 
   token = token->next;
-  Node *node = expr(&token, token);
+  node = expr(&token, token);
 
   if (!equal(token,")")) {
     error_at(token, "expected )");

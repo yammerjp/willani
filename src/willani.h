@@ -33,22 +33,23 @@ Token *tokenize(char *p);
 //======================================
 // parse.c
 typedef enum {
-  ND_ADD,     // +
-  ND_SUB,     // -
-  ND_MUL,     // *
-  ND_DIV,     // /
-  ND_EQ,      // ==
-  ND_NE,      // !=
-  ND_LT,      // <
-  ND_LE,      // <=
-  ND_ASSIGN,  // =
-  ND_VAR,     // Variable
-  ND_NUM,     // Integer
-  ND_RETURN,  // return
-  ND_IF,      // if
-  ND_WHILE,   // while
-  ND_FOR,     // for
-  ND_BLOCK,   // { ... }
+  ND_ADD,       // +
+  ND_SUB,       // -
+  ND_MUL,       // *
+  ND_DIV,       // /
+  ND_EQ,        // ==
+  ND_NE,        // !=
+  ND_LT,        // <
+  ND_LE,        // <=
+  ND_ASSIGN,    // =
+  ND_VAR,       // Variable
+  ND_NUM,       // Integer
+  ND_RETURN,    // return
+  ND_IF,        // if
+  ND_WHILE,     // while
+  ND_FOR,       // for
+  ND_BLOCK,     // { ... }
+  ND_FUNC_CALL, // Function call
 } NodeKind;
 
 
@@ -68,14 +69,16 @@ struct Node {
   Node *next;
   Node *left;
   Node *right;
-  long value; // Used if kind == ND_NUM
-  LVar *lvar; // Used if kind == ND_VAR
-  Node *cond; // Used if kind is ND_IF or ND_WHILE or ND_FOR
-  Node *then; // Used if kind is ND_IF or ND_WHILE or ND_FOR
-  Node *els;  // Used if kind == ND_IF
-  Node *init; // Used if kind == ND_FOR
-  Node *increment; // Used id kind == ND_FOR
-  Node *body; // Used if kind == ND_BLOCK
+  long value;       // Used if kind == ND_NUM
+  LVar *lvar;       // Used if kind == ND_VAR
+  Node *cond;       // Used if kind is ND_IF or ND_WHILE or ND_FOR
+  Node *then;       // Used if kind is ND_IF or ND_WHILE or ND_FOR
+  Node *els;        // Used if kind == ND_IF
+  Node *init;       // Used if kind == ND_FOR
+  Node *increment;  // Used id kind == ND_FOR
+  Node *body;       // Used if kind == ND_BLOCK
+  char *funcname;   // Used if kind == ND_FUNC_CALL
+  int funcnamelen;  // Used if kind == ND_FUNC_CALL
 };
 
 typedef struct Function Function;

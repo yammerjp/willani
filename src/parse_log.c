@@ -18,6 +18,7 @@ static char *node_kind_str(Node *node) {
     case ND_WHILE: return("while");
     case ND_FOR: return("for");
     case ND_BLOCK: return("{}");
+    case ND_FUNC_CALL: return("func call");
     default : error("unexpected node->kind");
   }
 }
@@ -38,6 +39,10 @@ static void print_node(FILE *logfile, Node *node, int depth) {
     fprintf(logfile, "%.*s\n",node->lvar->length, node->lvar->name);
     return;
   }
+  if (node->kind == ND_FUNC_CALL) {
+    fprintf(logfile, "%s\n",node->funcname);
+  }
+
 
   fprintf(logfile, "%s\n", node_kind_str(node));
 }
@@ -59,7 +64,6 @@ static void print_nodes(FILE *logfile, Node *node, int depth) {
     print_nodes(logfile, node->then, depth+1);
     return;
   }
-
   print_nodes(logfile, node->left, depth+1);
   print_nodes(logfile, node->cond, depth+1);
   print_node(logfile, node, depth);
