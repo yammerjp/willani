@@ -63,6 +63,12 @@ struct LVar {
 
 extern LVar *locals;
 
+typedef struct FuncCall FuncCall;
+struct FuncCall {
+  char *name;
+  int length;
+};
+
 typedef struct Node Node;
 struct Node {
   NodeKind kind;
@@ -77,8 +83,7 @@ struct Node {
   Node *init;       // Used if kind == ND_FOR
   Node *increment;  // Used id kind == ND_FOR
   Node *body;       // Used if kind == ND_BLOCK
-  char *funcname;   // Used if kind == ND_FUNC_CALL
-  int funcnamelen;  // Used if kind == ND_FUNC_CALL
+  FuncCall *fncl;   // Used if kind == ND_FUNC_CALL
 };
 
 typedef struct Function Function;

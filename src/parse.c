@@ -106,11 +106,13 @@ static Node *new_node_block(Node *body) {
   return node;
 }
 
-static Node *new_node_func_call(char *funcname, int funcnamelen) {
+static Node *new_node_func_call(char *name, int len) {
+  FuncCall *fncl = calloc(1, sizeof(FuncCall));
+  fncl->name = name;
+  fncl->length = len;
   Node *node = calloc(1, sizeof(Node));
   node->kind = ND_FUNC_CALL;
-  node->funcname = funcname;
-  node->funcnamelen = funcnamelen;
+  node->fncl = fncl;
   return node;
 }
 

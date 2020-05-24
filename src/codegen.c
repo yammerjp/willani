@@ -125,7 +125,7 @@ static void gen_func_call(Node *node) {
   if (node->kind != ND_FUNC_CALL) {
     error("expected function call");
   }
-  printf("  call %.*s\n", node->funcnamelen, node->funcname);
+  printf("  call %.*s\n", node->fncl->length, node->fncl->name);
   printf("  push rax\n");
 }
 

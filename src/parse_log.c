@@ -40,7 +40,7 @@ static void print_node(FILE *logfile, Node *node, int depth) {
     return;
   }
   if (node->kind == ND_FUNC_CALL) {
-    fprintf(logfile, "%s\n",node->funcname);
+    fprintf(logfile, "%.*s\n",node->fncl->length, node->fncl->name);
   }
 
 
