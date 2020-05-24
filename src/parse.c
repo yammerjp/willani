@@ -174,7 +174,7 @@ static Node *ifstmt(Token **rest, Token *token) {
 // whilestmt = "while" "(" expr ")" stmt
 static Node *whilestmt(Token **rest, Token *token) {
   if (!equal(token, "while" )) {
-    error_at(token, "expected if");
+    error_at(token, "expected while");
   }
   token = token->next;
   if (!equal(token, "(")) {
