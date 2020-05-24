@@ -54,5 +54,6 @@ assert 8 'foo123=3; bar=5; foo123+bar;'
 assert 8 'foo_123=3; bar=5; foo_123+bar;'
 assert 10 'return 10;'
 assert 3 'returnp=3; return returnp; 150;'
+assert 0 'a = 3 ; if(a<0) return 1; return 0;'
 
 echo OK
