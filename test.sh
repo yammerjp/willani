@@ -1,13 +1,14 @@
 #!/bin/bash
 
-echo 'int ret3(){return 3;}int ret5(){return 5;}' | gcc -xc -c  -o tmp2.o -
+echo 'int ret3(){return 3;}int ret5(){return 5;} int add(int a,int b){return a+b;}' | gcc -xc -c  -o tmp2.o -
+echo 'int sum(int a,int b,int c,int d,int e,int f){return a+b+c+d+e+f;}' | gcc -xc -c  -o tmp3.o -
 
 assert() {
   expected="$1"
   input="$2"
 
   ./willani "$input" > tmp.s
-  gcc -static -o tmp tmp.s tmp2.o
+  gcc -static -o tmp tmp.s tmp2.o tmp3.o
   ./tmp
   actual="$?"
 
@@ -69,5 +70,7 @@ assert 7 '{1;p=100/(10+10);i=p+2;i;}'
 assert 100 'j=0;for(i=0;i<50;i=i+1){j= j+2;}return j;'
 assert 3 'return ret3();'
 assert 5 'return ret5();'
+assert 3 'return add(1,2);'
+assert 21 'return sum(1,2,3,4,5,6);'
 
 echo OK

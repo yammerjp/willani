@@ -63,13 +63,15 @@ struct LVar {
 
 extern LVar *locals;
 
+typedef struct Node Node;
+
 typedef struct FuncCall FuncCall;
 struct FuncCall {
   char *name;
   int length;
+  Node *args;
 };
 
-typedef struct Node Node;
 struct Node {
   NodeKind kind;
   Node *next;

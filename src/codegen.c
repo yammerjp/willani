@@ -122,9 +122,18 @@ static void gen_block(Node *node) {
 }
 
 static void gen_func_call(Node *node) {
+  char registers[][4] = { "rdi", "rsi", "rdx", "rcx", "r8", "r9" };
   if (node->kind != ND_FUNC_CALL) {
     error("expected function call");
   }
+
+  int i = 0;
+  for (Node *cur = node->fncl->args; cur; cur = cur->next) {
+    gen(cur);
+    printf("  pop  %s\n", registers[i++]);
+  }
+
+  printf("  pop rax\n");
   printf("  call %.*s\n", node->fncl->length, node->fncl->name);
   printf("  push rax\n");
 }

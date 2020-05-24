@@ -106,9 +106,10 @@ static Node *new_node_block(Node *body) {
   return node;
 }
 
-static Node *new_node_func_call(char *name, int len) {
+static Node *new_node_func_call(char *name, int len, Node *args) {
   FuncCall *fncl = calloc(1, sizeof(FuncCall));
   fncl->name = name;
+  fncl->args = args;
   fncl->length = len;
   Node *node = calloc(1, sizeof(Node));
   node->kind = ND_FUNC_CALL;
@@ -448,12 +449,27 @@ static Node *primary(Token **rest, Token *token) {
       node = new_node_var(token->location, token->length);
       token = token->next;
     } else {
-      node = new_node_func_call(token->location, token->length);
+      char *name = token->location;
+      int length = token->length;
       token = token->next->next;
+      Node args_head = {};
+      Node *args_current = &args_head;
+      for(int i=0;i<6;i++) {
+        if (equal(token, ")")) {
+          break;
+        }
+        args_current->next = expr(&token, token);
+        args_current = args_current->next;
+        if (!equal(token, ",")) {
+          break;
+        }
+        token = token->next;
+      }
       if (!equal(token, ")")) {
         error_at(token, "expected )");
       }
       token = token->next;
+      node = new_node_func_call(name, length, args_head.next);
     }
     *rest = token;
     return node;
