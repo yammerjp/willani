@@ -191,7 +191,7 @@ void code_generate(Function *func) {
   printf(".globl main\n");
   printf("main:\n");
 
-  int offset = func->lvar ? (func->lvar->offset + 8) : 0;
+  int offset = func->lvar ? (func->lvar->offset) : 0;
   prologue(offset);
 
   for(Node *n = func->node; n; n = n->next) {

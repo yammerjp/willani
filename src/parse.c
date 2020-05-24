@@ -30,7 +30,7 @@ static LVar *new_lvar(char *name, int length) {
   lvar->next = locals;
   lvar->name = name;
   lvar->length = length;
-  lvar->offset = locals ? (locals->offset + 8) : 0;
+  lvar->offset = locals ? (locals->offset + 8) : 8;
 
   locals = lvar;
   return lvar;
