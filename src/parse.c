@@ -36,26 +36,19 @@ static LVar *new_lvar(char *name, int length) {
 }
 
 // ========== new node ==========
-static Node *new_node( NodeKind kind, Node *next, Node *left, Node *right, long value, LVar *lvar, Node *cond, Node *then) {
+static Node *new_node_op2(NodeKind kind, Node *left, Node *right) {
   Node *node = calloc(1, sizeof(Node));
   node->kind = kind;
-  node->next = next;
   node->left = left;
   node->right = right;
-  node->value = value;
-  node->lvar = lvar;
-  node->cond = cond;
-  node->then = then;
-
   return node;
 }
 
-static Node *new_node_op2(NodeKind kind, Node *left, Node *right) {
-  return new_node( kind, NULL, left, right, 0, NULL, NULL, NULL);
-}
-
 static Node *new_node_num(long value) {
-  return new_node( ND_NUM, NULL, NULL, NULL, value, NULL, NULL, NULL);
+  Node *node = calloc(1, sizeof(Node));
+  node->kind = ND_NUM;
+  node->value = value;
+  return node;
 }
 
 static Node *new_node_var(char *name, int length) {
@@ -63,15 +56,25 @@ static Node *new_node_var(char *name, int length) {
   if (!lvar) {
     lvar = new_lvar(name, length);
   }
-  return new_node( ND_VAR, NULL, NULL, NULL, 0, lvar, NULL, NULL);
+  Node *node = calloc(1, sizeof(Node));
+  node->kind = ND_VAR;
+  node->lvar = lvar;
+  return node;
 }
 
 static Node *new_node_return(Node *left) {
-  return new_node(ND_RETURN, NULL, left , NULL, 0 ,NULL, NULL, NULL);
+  Node *node = calloc(1, sizeof(Node));
+  node->kind = ND_RETURN;
+  node->left = left;
+  return node;
 }
 
 static Node *new_node_if(Node *cond, Node *then) {
-  return new_node(ND_IF, NULL, NULL, NULL, 0, NULL, cond, then);
+  Node *node = calloc(1, sizeof(Node));
+  node->kind = ND_IF;
+  node->cond = cond;
+  node->then = then;
+  return node;
 }
 
 
