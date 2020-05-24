@@ -3,6 +3,7 @@
 static Node *stmt(Token **rest, Token *token);
 static Node *ifstmt(Token **rest, Token *token);
 static Node *whilestmt(Token **rest, Token *token);
+static Node *blockstmt(Token **rest, Token *token);
 static Node *expr(Token **rest, Token *token);
 static Node *assign(Token **rest, Token *token);
 static Node *equality(Token **rest, Token *token);
@@ -87,6 +88,12 @@ static Node *new_node_while(Node *cond, Node *then) {
   return node;
 }
 
+static Node *new_node_block(Node *body) {
+  Node *node = calloc(1, sizeof(Node));
+  node->kind = ND_BLOCK;
+  node->body = body;
+  return node;
+}
 
 
 // ========== parse ==========
@@ -110,6 +117,7 @@ Function *program(Token *token) {
 
 // stmt       = ifstmt
 //            | whilestmt
+//            | blockstmt
 //            | (return)? expr ";
 static Node *stmt(Token **rest, Token *token) {
   Node *node;
@@ -120,6 +128,11 @@ static Node *stmt(Token **rest, Token *token) {
   }
   if (equal(token, "while")) {
     node = whilestmt(&token, token);
+    *rest = token;
+    return node;
+  }
+  if (equal(token, "{")) {
+    node = blockstmt(&token, token);
     *rest = token;
     return node;
   }
@@ -196,6 +209,29 @@ static Node *whilestmt(Token **rest, Token *token) {
   *rest = token;
   return node;
 }
+
+// blockstmt = "{" stmt* "}"
+static Node *blockstmt(Token **rest, Token *token) {
+  if (!equal(token, "{")) {
+    error_at(token, "expected {");
+  }
+  token = token->next;
+
+  Node head = {};
+  Node *current = &head;
+  
+  while (!equal(token, "}")) {
+    current->next = stmt(&token, token);
+    current = current->next;
+  }
+  token = token->next;
+
+  Node *node = new_node_block(head.next);
+
+  *rest = token;
+  return node;
+}
+
 
 // expr       = assign
 static Node *expr(Token **rest, Token *token) {

@@ -47,6 +47,7 @@ typedef enum {
   ND_RETURN,  // return
   ND_IF,      // if
   ND_WHILE,   // while
+  ND_BLOCK,   // { ... }
 } NodeKind;
 
 
@@ -71,6 +72,7 @@ struct Node {
   Node *cond; // Used if kind is ND_IF or ND_WHILE
   Node *then; // Used if kind is ND_IF or ND_WHILE
   Node *els;  // Used if kind == ND_IF
+  Node *body; // Used if kind == ND_BLOCK
 };
 
 typedef struct Function Function;

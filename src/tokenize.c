@@ -74,7 +74,7 @@ static int identifer_token_length(char *p) {
 }
 
 static int reserved_token_length(char *p) {
-  char tokens[][7] = { "return", "while", "else", "if", "==", "!=", "<=", ">=", "+", "-", "*", "/", "(", ")", ">", "<", ";", "="};
+  char tokens[][7] = { "return", "while", "else", "if", "==", "!=", "<=", ">=", "+", "-", "*", "/", "(", ")", ">", "<", ";", "=", "{", "}"};
   for (int i=0; i<sizeof(tokens); i++) {
     char *str = tokens[i];
     int len = strlen(str);

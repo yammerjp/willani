@@ -89,6 +89,17 @@ static void gen_while(Node *node) {
   printf(".L.end.%d:\n", labct);   // label
 }
 
+static void gen_block(Node *node) {
+  if (node->kind != ND_BLOCK) {
+    error("expected { ... }");
+  }
+
+  for(Node *n = node->body; n; n = n->next) {
+    gen(n);
+    printf("  pop rax\n"); // load result(stack top) to rax
+  }
+}
+
 
 static void gen(Node *node) {
   switch (node->kind) {
@@ -114,6 +125,9 @@ static void gen(Node *node) {
     return;
   case ND_WHILE:
     gen_while(node);
+    return;
+  case ND_BLOCK:
+    gen_block(node);
     return;
   }
 
