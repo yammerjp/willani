@@ -61,8 +61,6 @@ struct LVar {
   int offset;
 };
 
-extern LVar *locals;
-
 typedef struct Node Node;
 
 typedef struct FuncCall FuncCall;

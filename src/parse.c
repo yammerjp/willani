@@ -1,25 +1,23 @@
 #include "willani.h"
 
-static Node *stmt(Token **rest, Token *token);
-static Node *ifstmt(Token **rest, Token *token);
-static Node *whilestmt(Token **rest, Token *token);
-static Node *forstmt(Token **rest, Token *token);
-static Node *blockstmt(Token **rest, Token *token);
-static Node *expr(Token **rest, Token *token);
-static Node *assign(Token **rest, Token *token);
-static Node *equality(Token **rest, Token *token);
-static Node *relational(Token **rest, Token *token);
-static Node *add(Token **rest, Token *token);
-static Node *mul(Token **rest, Token *token);
-static Node *unary(Token **rest, Token *token);
-static Node *primary(Token **rest, Token *token);
+static Node *stmt(Token **rest, Token *token, LVar **lvarsp);
+static Node *ifstmt(Token **rest, Token *token, LVar **lvarsp);
+static Node *whilestmt(Token **rest, Token *token, LVar **lvarsp);
+static Node *forstmt(Token **rest, Token *token, LVar **lvarsp);
+static Node *blockstmt(Token **rest, Token *token, LVar **lvarsp);
+static Node *expr(Token **rest, Token *token, LVar **lvarsp);
+static Node *assign(Token **rest, Token *token, LVar **lvarsp);
+static Node *equality(Token **rest, Token *token, LVar **lvarsp);
+static Node *relational(Token **rest, Token *token, LVar **lvarsp);
+static Node *add(Token **rest, Token *token, LVar **lvarsp);
+static Node *mul(Token **rest, Token *token, LVar **lvarsp);
+static Node *unary(Token **rest, Token *token, LVar **lvarsp);
+static Node *primary(Token **rest, Token *token, LVar **lvarsp);
 
 // ========== lvar ==========
 
-LVar *locals = NULL;
-
-static LVar *find_lvar(char *name, int length) {
-  for (LVar *lvar = locals; lvar; lvar = lvar->next) {
+static LVar *find_lvar(char *name, int length, LVar *lvars) {
+  for (LVar *lvar = lvars; lvar; lvar = lvar->next) {
     if (length == lvar->length && !strncmp(name, lvar->name, length)) {
       return lvar;
     }
@@ -27,15 +25,14 @@ static LVar *find_lvar(char *name, int length) {
   return NULL;
 }
 
-static LVar *new_lvar(char *name, int length) {
+void *new_lvar(char *name, int length, LVar **lvarsp) {
   LVar *lvar = calloc(1, sizeof(LVar));
-  lvar->next = locals;
+  lvar->next = *lvarsp;
   lvar->name = name;
   lvar->length = length;
-  lvar->offset = locals ? (locals->offset + 8) : 8;
+  lvar->offset = *lvarsp ? ((*lvarsp)->offset + 8) : 8;
 
-  locals = lvar;
-  return lvar;
+  *lvarsp = lvar;
 }
 
 // ========== new node ==========
@@ -54,10 +51,11 @@ static Node *new_node_num(long value) {
   return node;
 }
 
-static Node *new_node_var(char *name, int length) {
-  LVar *lvar = find_lvar(name, length);
+static Node *new_node_var(char *name, int length, LVar **lvarsp) {
+  LVar *lvar = find_lvar(name, length, *lvarsp);
   if (!lvar) {
-    lvar = new_lvar(name, length);
+    new_lvar(name, length, lvarsp);
+    lvar = *lvarsp;
   }
   Node *node = calloc(1, sizeof(Node));
   node->kind = ND_VAR;
@@ -120,19 +118,20 @@ static Node *new_node_func_call(char *name, int len, Node *args) {
 
 // ========== parse ==========
 
-// program = stmt*
 Function *program(Token *token) {
+
+  LVar *lvars = NULL;
   Node head = {};
   Node *current = &head;
 
   while (!is_eof_token(token)) {
-    current->next = stmt(&token, token);
+    current->next = stmt(&token, token, &lvars);
     current = current->next;
   }
 
   Function *func = calloc(1, sizeof(Function));
   func->node = head.next;
-  func->lvar = locals;
+  func->lvar = lvars;
 
   return func;
 }
@@ -142,34 +141,34 @@ Function *program(Token *token) {
 //            | forstmt
 //            | blockstmt
 //            | (return)? expr ";
-static Node *stmt(Token **rest, Token *token) {
+static Node *stmt(Token **rest, Token *token, LVar **lvarsp) {
   Node *node;
   if (equal(token, "if")) {
-    node = ifstmt(&token, token);
+    node = ifstmt(&token, token, lvarsp);
     *rest = token;
     return node;
   }
   if (equal(token, "while")) {
-    node = whilestmt(&token, token);
+    node = whilestmt(&token, token, lvarsp);
     *rest = token;
     return node;
   }
   if (equal(token, "for")) {
-    node = forstmt(&token, token);
+    node = forstmt(&token, token, lvarsp);
     *rest = token;
     return node;
   }
   if (equal(token, "{")) {
-    node = blockstmt(&token, token);
+    node = blockstmt(&token, token, lvarsp);
     *rest = token;
     return node;
   }
 
   if (equal(token, "return")) {
     token = token->next;
-    node = new_node_return(expr(&token, token));
+    node = new_node_return(expr(&token, token, lvarsp));
   } else {
-    node = expr(&token, token);
+    node = expr(&token, token, lvarsp);
   }
 
   if (!equal(token, ";")) {
@@ -182,7 +181,7 @@ static Node *stmt(Token **rest, Token *token) {
 }
 
 // ifstmt = "if" "(" expr ")" stmt ( "else" stmt ) ?
-static Node *ifstmt(Token **rest, Token *token) {
+static Node *ifstmt(Token **rest, Token *token, LVar **lvarsp) {
   if (!equal(token, "if" )) {
     error_at(token, "expected if");
   }
@@ -192,19 +191,19 @@ static Node *ifstmt(Token **rest, Token *token) {
   }
   token = token->next;
 
-  Node *cond = expr(&token, token);
+  Node *cond = expr(&token, token, lvarsp);
 
   if (!equal(token, ")")) {
     error_at(token, "expected )");
   }
   token = token->next;
 
-  Node *then = stmt(&token, token);
+  Node *then = stmt(&token, token, lvarsp);
 
   Node *els = NULL;
   if (equal(token, "else")) {
     token = token->next;
-    els = stmt(&token, token);
+    els = stmt(&token, token, lvarsp);
   }
   Node *node = new_node_if(cond, then, els);
 
@@ -213,7 +212,7 @@ static Node *ifstmt(Token **rest, Token *token) {
 }
 
 // whilestmt = "while" "(" expr ")" stmt
-static Node *whilestmt(Token **rest, Token *token) {
+static Node *whilestmt(Token **rest, Token *token, LVar **lvarsp) {
   if (!equal(token, "while" )) {
     error_at(token, "expected while");
   }
@@ -223,14 +222,14 @@ static Node *whilestmt(Token **rest, Token *token) {
   }
   token = token->next;
 
-  Node *cond = expr(&token, token);
+  Node *cond = expr(&token, token, lvarsp);
 
   if (!equal(token, ")")) {
     error_at(token, "expected )");
   }
   token = token->next;
 
-  Node *then = stmt(&token, token);
+  Node *then = stmt(&token, token, lvarsp);
 
   Node *node = new_node_while(cond, then);
 
@@ -239,7 +238,7 @@ static Node *whilestmt(Token **rest, Token *token) {
 }
 
 // forstmt = "for" "(" expr? ";" expr? ";" expr? ")" stmt
-static Node *forstmt(Token **rest, Token *token) {
+static Node *forstmt(Token **rest, Token *token, LVar **lvarsp) {
   // "for"
   if (!equal(token, "for")) {
     error_at(token, "expected for");
@@ -255,7 +254,7 @@ static Node *forstmt(Token **rest, Token *token) {
   // expr? ";"
   Node *init = NULL;
   if (!equal(token, ";")) {
-    init = expr(&token, token);
+    init = expr(&token, token, lvarsp);
   }
   if (!equal(token, ";")) {
     error_at(token, "expected ;");
@@ -265,7 +264,7 @@ static Node *forstmt(Token **rest, Token *token) {
   // expr? ";"
   Node *cond = NULL;
   if (!equal(token, ";")) {
-    cond = expr(&token, token);
+    cond = expr(&token, token, lvarsp);
   }
   if (!equal(token, ";")) {
     error_at(token, "expected ;");
@@ -275,7 +274,7 @@ static Node *forstmt(Token **rest, Token *token) {
   // expr? ")"
   Node *increment = NULL;
   if (!equal(token, ")")) {
-    increment = expr(&token, token);
+    increment = expr(&token, token, lvarsp);
   }
   if (!equal(token, ")")) {
     error_at(token, "expected )");
@@ -283,7 +282,7 @@ static Node *forstmt(Token **rest, Token *token) {
   token = token->next;
 
   // stmt
-  Node *then = stmt(&token, token);
+  Node *then = stmt(&token, token, lvarsp);
   Node *node = new_node_for(init, cond, increment, then);
 
   *rest = token;
@@ -291,7 +290,7 @@ static Node *forstmt(Token **rest, Token *token) {
 }
 
 // blockstmt = "{" stmt* "}"
-static Node *blockstmt(Token **rest, Token *token) {
+static Node *blockstmt(Token **rest, Token *token, LVar **lvarsp) {
   if (!equal(token, "{")) {
     error_at(token, "expected {");
   }
@@ -301,7 +300,7 @@ static Node *blockstmt(Token **rest, Token *token) {
   Node *current = &head;
   
   while (!equal(token, "}")) {
-    current->next = stmt(&token, token);
+    current->next = stmt(&token, token, lvarsp);
     current = current->next;
   }
   token = token->next;
@@ -314,19 +313,19 @@ static Node *blockstmt(Token **rest, Token *token) {
 
 
 // expr       = assign
-static Node *expr(Token **rest, Token *token) {
-  Node *node = assign(&token, token);
+static Node *expr(Token **rest, Token *token, LVar **lvarsp) {
+  Node *node = assign(&token, token, lvarsp);
   *rest = token;
   return node;
 }
 
 // assign     = equality ("=" assign)?
-static Node *assign(Token **rest, Token *token) {
-  Node *node = equality(&token, token);
+static Node *assign(Token **rest, Token *token, LVar **lvarsp) {
+  Node *node = equality(&token, token, lvarsp);
 
   if(equal(token, "=")) {
     token = token->next;
-    node = new_node_op2( ND_ASSIGN, node, assign(&token, token));
+    node = new_node_op2( ND_ASSIGN, node, assign(&token, token, lvarsp));
   }
 
   *rest = token;
@@ -334,15 +333,15 @@ static Node *assign(Token **rest, Token *token) {
 }
 
 // equality = relational ("==" relational | "!=" relational)*
-static Node *equality(Token **rest, Token *token) {
-  Node *node = relational(&token, token);
+static Node *equality(Token **rest, Token *token, LVar **lvarsp) {
+  Node *node = relational(&token, token, lvarsp);
   for(;;) {
     if (equal(token, "==")){
       token = token->next;
-      node = new_node_op2(ND_EQ, node, relational(&token, token));
+      node = new_node_op2(ND_EQ, node, relational(&token, token, lvarsp));
     } else if (equal(token, "!=")) {
       token = token->next;
-      node = new_node_op2(ND_NE, node, relational(&token, token));
+      node = new_node_op2(ND_NE, node, relational(&token, token, lvarsp));
     } else {
       *rest = token;
       return node;
@@ -351,27 +350,27 @@ static Node *equality(Token **rest, Token *token) {
 }
 
 // relational = add ("<" add | "<=" add | ">" add | ">=" add)*
-static Node *relational(Token **rest, Token *token) {
-  Node *node = add(&token, token);
+static Node *relational(Token **rest, Token *token, LVar ** lvarsp) {
+  Node *node = add(&token, token, lvarsp);
   for(;;) {
     if (equal(token, "<")){
       token = token->next;
-      node = new_node_op2(ND_LT, node, add(&token, token));
+      node = new_node_op2(ND_LT, node, add(&token, token, lvarsp));
       continue;
     }
     if (equal(token, "<=")) {
       token = token->next;
-      node = new_node_op2(ND_LE, node, add(&token, token));
+      node = new_node_op2(ND_LE, node, add(&token, token, lvarsp));
       continue;
     }
     if (equal(token, ">")){
       token = token->next;
-      node = new_node_op2(ND_LT, add(&token, token), node);
+      node = new_node_op2(ND_LT, add(&token, token, lvarsp), node);
       continue;
     }
     if (equal(token, ">=")) {
       token = token->next;
-      node = new_node_op2(ND_LE, add(&token, token), node);
+      node = new_node_op2(ND_LE, add(&token, token, lvarsp), node);
       continue;
     }
     *rest = token;
@@ -380,15 +379,15 @@ static Node *relational(Token **rest, Token *token) {
 }
 
 // add = mul ("+" mul | "-" mul)*
-static Node *add(Token **rest, Token *token) {
-  Node *node = mul(&token, token);
+static Node *add(Token **rest, Token *token, LVar **lvarsp) {
+  Node *node = mul(&token, token, lvarsp);
   for(;;) {
     if (equal(token, "+")){
       token = token->next;
-      node = new_node_op2(ND_ADD, node, mul(&token, token));
+      node = new_node_op2(ND_ADD, node, mul(&token, token, lvarsp));
     } else if (equal(token, "-")) {
       token = token->next;
-      node = new_node_op2(ND_SUB, node, mul(&token, token));
+      node = new_node_op2(ND_SUB, node, mul(&token, token, lvarsp));
     } else {
       *rest = token;
       return node;
@@ -397,16 +396,16 @@ static Node *add(Token **rest, Token *token) {
 }
 
 // mul = unary ("*" unary | "/" unary)*
-static Node *mul(Token **rest, Token *token) {
-  Node *node = unary(&token, token);
+static Node *mul(Token **rest, Token *token, LVar **lvarsp) {
+  Node *node = unary(&token, token, lvarsp);
 
   for(;;) {
     if (equal(token, "*")) {
       token = token->next;
-      node = new_node_op2(ND_MUL, node, unary(&token, token));
+      node = new_node_op2(ND_MUL, node, unary(&token, token, lvarsp));
     } else if (equal(token, "/")) {
       token = token->next;
-      node = new_node_op2(ND_DIV, node, unary(&token, token));
+      node = new_node_op2(ND_DIV, node, unary(&token, token, lvarsp));
     } else {
       *rest = token;
       return node;
@@ -415,26 +414,26 @@ static Node *mul(Token **rest, Token *token) {
 }
 
 // unary = ("+" | "-")? primary
-static Node *unary(Token **rest, Token *token) {
+static Node *unary(Token **rest, Token *token, LVar **lvarsp) {
   if (equal(token,"+")) {
     token = token->next;
-    Node *node = primary(&token, token);
+    Node *node = primary(&token, token, lvarsp);
     *rest = token;
     return node;
   }
   if (equal(token,"-")) {
     token = token->next;
-    Node *node = new_node_op2(ND_SUB, new_node_num(0), primary(&token, token));
+    Node *node = new_node_op2(ND_SUB, new_node_num(0), primary(&token, token, lvarsp));
     *rest = token;
     return node;
   }
-  Node *node = primary(&token, token);
+  Node *node = primary(&token, token, lvarsp);
   *rest = token;
   return node;
 }
 
 // primary    = num | ident ( "(" ")" )? | "(" expr ")"
-static Node *primary(Token **rest, Token *token) {
+static Node *primary(Token **rest, Token *token, LVar **lvarsp) {
   Node *node;
   if (is_number_token(token)) {
     node = new_node_num(strtol(token->location, NULL, 10));
@@ -446,7 +445,7 @@ static Node *primary(Token **rest, Token *token) {
   if (is_identifer_token(token)) {
 
     if (!equal(token->next, "(")) {
-      node = new_node_var(token->location, token->length);
+      node = new_node_var(token->location, token->length, lvarsp);
       token = token->next;
     } else {
       char *name = token->location;
@@ -458,7 +457,7 @@ static Node *primary(Token **rest, Token *token) {
         if (equal(token, ")")) {
           break;
         }
-        args_current->next = expr(&token, token);
+        args_current->next = expr(&token, token, lvarsp);
         args_current = args_current->next;
         if (!equal(token, ",")) {
           break;
@@ -480,7 +479,7 @@ static Node *primary(Token **rest, Token *token) {
   }
 
   token = token->next;
-  node = expr(&token, token);
+  node = expr(&token, token, lvarsp);
 
   if (!equal(token,")")) {
     error_at(token, "expected )");
