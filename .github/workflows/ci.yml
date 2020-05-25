@@ -1,0 +1,21 @@
+name: CI
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Install required packages
+      run : sudo apt install -y gcc make git binutils libc6-dev
+
+    - name: Build and test
+      run : cd ${GITHUB_WORKSPACE} && make test
+
