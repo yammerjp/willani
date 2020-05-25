@@ -1,5 +1,8 @@
 #include "willani.h"
 
+FILE *lvar_logfile;
+FILE *parse_logfile;
+
 static char *node_kind_str(Node *node) {
   switch (node->kind) {
     case ND_ADD: return("+");
@@ -40,67 +43,68 @@ void print_node(FILE *file, Node *node) {
   fprintf(file, "%s\n", node_kind_str(node));
 }
 
-static void parse_log_node(FILE *logfile, Node *node, int depth) {
+static void parse_log_node(Node *node, int depth) {
   if (node == NULL) {
     return;
   }
 
-  fprintf(logfile, "%*s",depth*2, "");
+  fprintf(parse_logfile, "%*s",depth*2, "");
 
-  print_node(logfile, node);
+  print_node(parse_logfile, node);
 }
 
-static void parse_log_nodes(FILE *logfile, Node *node, int depth) {
+static void parse_log_nodes(Node *node, int depth) {
   if (node == NULL) {
     return;
   }
   if (node->kind == ND_BLOCK) {
-    parse_log_node(logfile, node, depth);
-    parse_log_nodes(logfile, node->body, depth+1);
+    parse_log_node(node, depth);
+    parse_log_nodes(node->body, depth+1);
     return;
   }
   if (node->kind == ND_FOR) {
-    parse_log_node(logfile, node, depth);
-    parse_log_nodes(logfile, node->init, depth+1);
-    parse_log_nodes(logfile, node->cond, depth+1);
-    parse_log_nodes(logfile, node->increment, depth+1);
-    parse_log_nodes(logfile, node->then, depth+1);
+    parse_log_node(node, depth);
+    parse_log_nodes(node->init, depth+1);
+    parse_log_nodes(node->cond, depth+1);
+    parse_log_nodes(node->increment, depth+1);
+    parse_log_nodes(node->then, depth+1);
     return;
   }
-  parse_log_nodes(logfile, node->left, depth+1);
-  parse_log_nodes(logfile, node->cond, depth+1);
-  parse_log_node(logfile, node, depth);
-  parse_log_nodes(logfile, node->right, depth+1);
-  parse_log_nodes(logfile, node->then, depth+1);
+  parse_log_nodes(node->left, depth+1);
+  parse_log_nodes(node->cond, depth+1);
+  parse_log_node(node, depth);
+  parse_log_nodes(node->right, depth+1);
+  parse_log_nodes(node->then, depth+1);
 
-  parse_log_nodes(logfile, node->next, depth);
+  parse_log_nodes(node->next, depth);
 }
 
 static void parse_lvar(LVar *lvar, char *func_name, int func_name_len) {
-  FILE *logfile;
-  logfile = fopen("lvar.log","w");
-  if (logfile == NULL) {
-    error("fail to open lvar.log");
-  }
-
-  fprintf(logfile, "%.*s:\n", func_name_len, func_name);
+  fprintf(lvar_logfile, "%.*s:\n", func_name_len, func_name);
   for( LVar *cur = lvar; cur; cur = cur->next) {
-    fprintf(logfile, "  %.*s (offset: %d\n)", cur->length, cur->name, cur->offset);
+    fprintf(lvar_logfile, "  %.*s (offset: %d)\n", cur->length, cur->name, cur->offset);
   }
-  fclose(logfile);
+}
+
+void parse_log_func(Function *func) {
+  parse_lvar(func->lvar, func->name, func->namelen);
+  parse_log_nodes(func->node, 0);
 }
 
 void parse_log(Function *func) {
-  parse_lvar(func->lvar, func->name, func->namelen);
-
-  FILE *logfile;
-  logfile = fopen("parse.log","w");
-  if (logfile == NULL) {
+  lvar_logfile = fopen("lvar.log","w");
+  if (lvar_logfile == NULL) {
+    error("fail to open lvar.log");
+  }
+  parse_logfile = fopen("parse.log","w");
+  if (parse_logfile == NULL) {
     error("fail to open parse.log");
   }
-  Node *node = func->node;
 
-  parse_log_nodes(logfile, node, 0);
-
-  fclose(logfile);
+  for (Function *current = func; current; current = current->next) {
+    parse_log_func(current);
+  }
+ 
+  fclose(parse_logfile);
+  fclose(lvar_logfile);
 }
