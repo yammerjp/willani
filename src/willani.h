@@ -101,6 +101,7 @@ Function *program(Token *token);
 
 //======================================
 // parse_log.c
+void print_node(FILE *file, Node *node);
 void parse_log(Function *function);
 
 

@@ -11,8 +11,17 @@ static void gen_binary_operator(Node *node);
 static void prologue(Function *func);
 static void epilogue(void);
 
+static void print_node_with_comment_begin(Node *node) {
+  printf ("  # >>> "); print_node(stdout, node);
+}
+static void print_node_with_comment_end(Node *node) {
+  printf ("  # <<< "); print_node(stdout, node);
+}
+
 static void gen_num(Node *node) {
+  print_node_with_comment_begin(node);
   printf("  push %ld\n", node->value); // push constant
+  print_node_with_comment_end(node);
 }
 
 char *funcname = NULL;
@@ -52,6 +61,7 @@ static void gen_if(Node *node) {
   if (node->kind != ND_IF) {
     error("expected node->kind is ND_IF");
   }
+  print_node_with_comment_begin(node);
   gen(node->cond);               // calculate condition
   printf("  pop rax\n");         // load result to the stach top
   printf("  cmp rax, 0\n");       // evaluate result
@@ -70,9 +80,11 @@ static void gen_if(Node *node) {
   }
 
   printf(".L.end.%d:\n", labct);   // label
+  print_node_with_comment_end(node);
 }
 
 static void gen_while(Node *node) {
+  print_node_with_comment_begin(node);
   int labct = label_count ++;
   if (node->kind != ND_WHILE) {
     error("expected node->kind is ND_WHILE");
@@ -88,9 +100,12 @@ static void gen_while(Node *node) {
   printf("  jmp .L.begin.%d\n", labct); // jump cond
 
   printf(".L.end.%d:\n", labct);   // label
+
+  print_node_with_comment_end(node);
 }
 
 static void gen_for(Node *node) {
+  print_node_with_comment_begin(node);
   int labct = label_count ++;
   if (node->kind != ND_FOR) {
     error("expected node->kind is ND_FOR");
@@ -109,9 +124,11 @@ static void gen_for(Node *node) {
   printf("  jmp .L.begin.%d\n", labct); // jump cond
 
   printf(".L.end.%d:\n", labct);   // label
+  print_node_with_comment_end(node);
 }
 
 static void gen_block(Node *node) {
+  print_node_with_comment_begin(node);
   if (node->kind != ND_BLOCK) {
     error("expected { ... }");
   }
@@ -120,9 +137,11 @@ static void gen_block(Node *node) {
     gen(n);
     printf("  pop rax\n"); // load result(stack top) to rax
   }
+  print_node_with_comment_end(node);
 }
 
 static void gen_func_call(Node *node) {
+  print_node_with_comment_begin(node);
 //  printf("  pop rax\n");      // save rax
   char registers[][4] = { "rdi", "rsi", "rdx", "rcx", "r8", "r9" };
   if (node->kind != ND_FUNC_CALL) {
@@ -153,6 +172,28 @@ static void gen_func_call(Node *node) {
   printf("  push rax\n");    // restore saved rax
 }
 
+static void gen_var(Node *node) {
+  print_node_with_comment_begin(node);
+  gen_addr(node);
+  load();
+  print_node_with_comment_end(node);
+}
+
+static void gen_assign(Node *node) {
+  print_node_with_comment_begin(node);
+  gen_addr(node->left);
+  gen(node->right);
+  store();
+  print_node_with_comment_end(node);
+}
+
+static void gen_return(Node *node) {
+  print_node_with_comment_begin(node);
+  gen(node->left);
+  printf("  pop rax\n");
+  printf("  jmp .L.return.%.*s\n", funcnamelen, funcname);
+  print_node_with_comment_end(node);
+}
 
 static void gen(Node *node) {
   switch (node->kind) {
@@ -160,18 +201,13 @@ static void gen(Node *node) {
     gen_num(node);
     return;
   case ND_VAR:
-    gen_addr(node);
-    load();
+    gen_var(node);
     return;
   case ND_ASSIGN:
-    gen_addr(node->left);
-    gen(node->right);
-    store();
+    gen_var(node);
     return;
   case ND_RETURN:
-    gen(node->left);
-    printf("  pop rax\n");
-    printf("  jmp .L.return.%.*s\n", funcnamelen, funcname);
+    gen_return(node);
     return;
   case ND_IF:
     gen_if(node);
@@ -196,6 +232,7 @@ static void gen(Node *node) {
 
 
 static void gen_binary_operator(Node *node) {
+  print_node_with_comment_begin(node);
   gen(node->left);
   gen(node->right);
 
@@ -240,6 +277,7 @@ static void gen_binary_operator(Node *node) {
     break;
   }
   printf("  push rax\n");         // store result to stack top
+  print_node_with_comment_end(node);
 }
 
 void gen_func_set_args(int offset, int arg_length) {

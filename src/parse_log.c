@@ -23,70 +23,75 @@ static char *node_kind_str(Node *node) {
   }
 }
 
-static void print_node(FILE *logfile, Node *node, int depth) {
+void print_node(FILE *file, Node *node) {
+  if (node->kind == ND_NUM) {
+    fprintf(file, "%ld\n",node->value);
+    return;
+  }
+
+  if (node->kind == ND_VAR) {
+    fprintf(file, "%.*s\n",node->lvar->length, node->lvar->name);
+    return;
+  }
+  if (node->kind == ND_FUNC_CALL) {
+    fprintf(file, "%.*s\n",node->fncl->length, node->fncl->name);
+    return;
+  }
+  fprintf(file, "%s\n", node_kind_str(node));
+}
+
+static void parse_log_node(FILE *logfile, Node *node, int depth) {
   if (node == NULL) {
     return;
   }
 
   fprintf(logfile, "%*s",depth*2, "");
 
-  if (node->kind == ND_NUM) {
-    fprintf(logfile, "%ld\n",node->value);
-    return;
-  }
-
-  if (node->kind == ND_VAR) {
-    fprintf(logfile, "%.*s\n",node->lvar->length, node->lvar->name);
-    return;
-  }
-  if (node->kind == ND_FUNC_CALL) {
-    fprintf(logfile, "%.*s\n",node->fncl->length, node->fncl->name);
-  }
-
-
-  fprintf(logfile, "%s\n", node_kind_str(node));
+  print_node(logfile, node);
 }
 
-static void print_nodes(FILE *logfile, Node *node, int depth) {
+static void parse_log_nodes(FILE *logfile, Node *node, int depth) {
   if (node == NULL) {
     return;
   }
   if (node->kind == ND_BLOCK) {
-    print_node(logfile, node, depth);
-    print_nodes(logfile, node->body, depth+1);
+    parse_log_node(logfile, node, depth);
+    parse_log_nodes(logfile, node->body, depth+1);
     return;
   }
   if (node->kind == ND_FOR) {
-    print_node(logfile, node, depth);
-    print_nodes(logfile, node->init, depth+1);
-    print_nodes(logfile, node->cond, depth+1);
-    print_nodes(logfile, node->increment, depth+1);
-    print_nodes(logfile, node->then, depth+1);
+    parse_log_node(logfile, node, depth);
+    parse_log_nodes(logfile, node->init, depth+1);
+    parse_log_nodes(logfile, node->cond, depth+1);
+    parse_log_nodes(logfile, node->increment, depth+1);
+    parse_log_nodes(logfile, node->then, depth+1);
     return;
   }
-  print_nodes(logfile, node->left, depth+1);
-  print_nodes(logfile, node->cond, depth+1);
-  print_node(logfile, node, depth);
-  print_nodes(logfile, node->right, depth+1);
-  print_nodes(logfile, node->then, depth+1);
+  parse_log_nodes(logfile, node->left, depth+1);
+  parse_log_nodes(logfile, node->cond, depth+1);
+  parse_log_node(logfile, node, depth);
+  parse_log_nodes(logfile, node->right, depth+1);
+  parse_log_nodes(logfile, node->then, depth+1);
 
-  print_nodes(logfile, node->next, depth);
+  parse_log_nodes(logfile, node->next, depth);
 }
 
-static void parse_lvar(LVar *lvar) {
+static void parse_lvar(LVar *lvar, char *func_name, int func_name_len) {
   FILE *logfile;
   logfile = fopen("lvar.log","w");
   if (logfile == NULL) {
     error("fail to open lvar.log");
   }
+
+  fprintf(logfile, "%.*s:\n", func_name_len, func_name);
   for( LVar *cur = lvar; cur; cur = cur->next) {
-    fprintf(logfile, "name: %.*s, offset: %d\n", cur->length, cur->name, cur->offset);
+    fprintf(logfile, "  %.*s (offset: %d\n)", cur->length, cur->name, cur->offset);
   }
   fclose(logfile);
 }
 
 void parse_log(Function *func) {
-  parse_lvar(func->lvar);
+  parse_lvar(func->lvar, func->name, func->namelen);
 
   FILE *logfile;
   logfile = fopen("parse.log","w");
@@ -95,7 +100,7 @@ void parse_log(Function *func) {
   }
   Node *node = func->node;
 
-  print_nodes(logfile, node, 0);
+  parse_log_nodes(logfile, node, 0);
 
   fclose(logfile);
 }
