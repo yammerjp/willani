@@ -11,11 +11,12 @@ static void gen_binary_operator(Node *node);
 static void prologue(Function *func);
 static void epilogue(void);
 
-
 static void gen_num(Node *node) {
   printf("  push %ld\n", node->value); // push constant
 }
 
+char *funcname = NULL;
+int funcnamelen = 0;
 
 // change the stack top from addr to value
 static void load(void) {
@@ -122,7 +123,7 @@ static void gen_block(Node *node) {
 }
 
 static void gen_func_call(Node *node) {
-  printf("  pop rax\n");      // save rax
+//  printf("  pop rax\n");      // save rax
   char registers[][4] = { "rdi", "rsi", "rdx", "rcx", "r8", "r9" };
   if (node->kind != ND_FUNC_CALL) {
     error("expected function call");
@@ -137,7 +138,7 @@ static void gen_func_call(Node *node) {
   // align RSP to a 16 bite boundary
   int labct = label_count ++;
   printf("  mov rax, rsp\n");
-  printf("  cmp rax, 0\n");
+  printf("  and rax, 15\n");
   printf("  jne .L.needAlign.%d\n", labct);
 
   printf("  call %.*s\n", node->fncl->length, node->fncl->name);
@@ -170,7 +171,7 @@ static void gen(Node *node) {
   case ND_RETURN:
     gen(node->left);
     printf("  pop rax\n");
-    printf("  jmp .L.return\n");
+    printf("  jmp .L.return.%.*s\n", funcnamelen, funcname);
     return;
   case ND_IF:
     gen_if(node);
@@ -263,13 +264,15 @@ static void prologue(Function *func) {
 }
 
 static void epilogue(void) {
-  printf(".L.return:\n");
+  printf(".L.return.%.*s:\n", funcnamelen, funcname);
   printf("  mov rsp, rbp\n");   // ignore the remanig data in the stack
   printf("  pop rbp\n");        // set caller's rbp to rsp
   printf("  ret\n");
 }
 
 void gen_function(Function *func) {
+  funcname = func->name;
+  funcnamelen = func->namelen;
   printf("%.*s:\n", func->namelen, func->name);
   prologue(func);
 
@@ -279,15 +282,21 @@ void gen_function(Function *func) {
 }
 
 void gen_func_names(Function *head) {
+  bool isHead = true;
   for (Function *current = head; current; current = current->next) {
-    printf(" %.*s", current->namelen, current->name);
+    if (isHead) {
+      isHead = false;
+    } else {
+      printf(", ");
+    }
+    printf("%.*s", current->namelen, current->name);
   }
 }
 
 void code_generate(Function *func) {
   // assembly code header
   printf(".intel_syntax noprefix\n");
-  printf(".globl"); gen_func_names(func); printf("\n");
+  printf(".global "); gen_func_names(func); printf("\n");
 
   for (Function *current = func; current; current = current->next) {
     gen_function(current);
