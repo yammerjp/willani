@@ -118,6 +118,7 @@ static Node *new_node_func_call(char *name, int len, Node *args) {
 
 // ========== parse ==========
 
+// program = function*
 Function *program(Token *token) {
 
   LVar *lvars = NULL;
@@ -135,6 +136,30 @@ Function *program(Token *token) {
 
   return func;
 }
+
+
+// blockstmt = "{" stmt* "}"
+static Node *blockstmt(Token **rest, Token *token, LVar **lvarsp) {
+  if (!equal(token, "{")) {
+    error_at(token, "expected {");
+  }
+  token = token->next;
+
+  Node head = {};
+  Node *current = &head;
+  
+  while (!equal(token, "}")) {
+    current->next = stmt(&token, token, lvarsp);
+    current = current->next;
+  }
+  token = token->next;
+
+  Node *node = new_node_block(head.next);
+
+  *rest = token;
+  return node;
+}
+
 
 // stmt       = ifstmt
 //            | whilestmt
@@ -284,28 +309,6 @@ static Node *forstmt(Token **rest, Token *token, LVar **lvarsp) {
   // stmt
   Node *then = stmt(&token, token, lvarsp);
   Node *node = new_node_for(init, cond, increment, then);
-
-  *rest = token;
-  return node;
-}
-
-// blockstmt = "{" stmt* "}"
-static Node *blockstmt(Token **rest, Token *token, LVar **lvarsp) {
-  if (!equal(token, "{")) {
-    error_at(token, "expected {");
-  }
-  token = token->next;
-
-  Node head = {};
-  Node *current = &head;
-  
-  while (!equal(token, "}")) {
-    current->next = stmt(&token, token, lvarsp);
-    current = current->next;
-  }
-  token = token->next;
-
-  Node *node = new_node_block(head.next);
 
   *rest = token;
   return node;
