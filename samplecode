@@ -1,3 +1,9 @@
 main () {
-  return 111;
+  i = 5;
+  j = 1;
+  return sum(i,j);
+}
+
+sum(i,j) {
+  return i+j;
 }
