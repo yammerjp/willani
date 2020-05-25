@@ -204,7 +204,7 @@ static void gen(Node *node) {
     gen_var(node);
     return;
   case ND_ASSIGN:
-    gen_var(node);
+    gen_assign(node);
     return;
   case ND_RETURN:
     gen_return(node);
