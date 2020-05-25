@@ -90,6 +90,10 @@ typedef struct Function Function;
 struct Function {
   Node *node;
   LVar *lvar;
+  Function *next;
+  char *name;
+  int namelen;
+  int argc;
 };
 
 Function *program(Token *token);

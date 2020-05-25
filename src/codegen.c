@@ -8,7 +8,7 @@ static void gen_while(Node *node);
 static void gen_addr(Node *node);
 static void gen(Node *node);
 static void gen_binary_operator(Node *node);
-static void prologue(int offset);
+static void prologue(Function *func);
 static void epilogue(void);
 
 
@@ -241,11 +241,25 @@ static void gen_binary_operator(Node *node) {
   printf("  push rax\n");         // store result to stack top
 }
 
+void gen_func_set_args(int offset, int arg_length) {
+  char registers[][4] = { "rdi", "rsi", "rdx", "rcx", "r8", "r9" };
+  int current_argc = offset / 8 - 1;
+  if (current_argc >= arg_length) {
+    return;
+  }
+  printf("  mov [rbp-%d], %s\n", offset, registers[current_argc]);
+}
 
-static void prologue(int offset) {
+static void prologue(Function *func) {
+  int offset = func->lvar ? (func->lvar->offset) : 0;
+
   printf("  push rbp\n");         // record caller's rbp
   printf("  mov rbp, rsp\n");     // set current stack top to rbp
   printf("  sub rsp, %d\n", offset);     // allocate memory for a-z variables
+
+  for (LVar *current = func->lvar; current; current = current->next) {
+    gen_func_set_args(current->offset, func->argc);
+  }
 }
 
 static void epilogue(void) {
@@ -255,20 +269,27 @@ static void epilogue(void) {
   printf("  ret\n");
 }
 
-void code_generate(Function *func) {
+void gen_function(Function *func) {
+  printf("%.*s:\n", func->namelen, func->name);
+  prologue(func);
 
-  // assembly code header
-  printf(".intel_syntax noprefix\n");
-  printf(".globl main\n");
-  printf("main:\n");
-
-  int offset = func->lvar ? (func->lvar->offset) : 0;
-  prologue(offset);
-
-  for(Node *n = func->node; n; n = n->next) {
-    gen(n);
-    printf("  pop rax\n"); // load result(stack top) to rax
-  }
+  gen(func->node);
 
   epilogue();
+}
+
+void gen_func_names(Function *head) {
+  for (Function *current = head; current; current = current->next) {
+    printf(" %.*s", current->namelen, current->name);
+  }
+}
+
+void code_generate(Function *func) {
+  // assembly code header
+  printf(".intel_syntax noprefix\n");
+  printf(".globl"); gen_func_names(func); printf("\n");
+
+  for (Function *current = func; current; current = current->next) {
+    gen_function(current);
+  }
 }

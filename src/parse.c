@@ -1,5 +1,6 @@
 #include "willani.h"
 
+static Function *function(Token **rest, Token *token);
 static Node *stmt(Token **rest, Token *token, LVar **lvarsp);
 static Node *ifstmt(Token **rest, Token *token, LVar **lvarsp);
 static Node *whilestmt(Token **rest, Token *token, LVar **lvarsp);
@@ -122,21 +123,59 @@ static Node *new_node_func_call(char *name, int len, Node *args) {
 Function *program(Token *token) {
 
   LVar *lvars = NULL;
-  Node head = {};
-  Node *current = &head;
+  Function head = {};
+  Function *current = &head;
 
   while (!is_eof_token(token)) {
-    current->next = stmt(&token, token, &lvars);
+    current->next = function(&token, token);
     current = current->next;
   }
 
-  Function *func = calloc(1, sizeof(Function));
-  func->node = head.next;
-  func->lvar = lvars;
-
-  return func;
+  return head.next;
 }
 
+// function = ( ident "(" ( ( ident ( "," ident ) * ) ?  ")" blockstmt ) *
+
+Function *function(Token **rest, Token *token) {
+  LVar *lvars = NULL;
+  if (!is_identifer_token(token)) {
+    error_at(token, "expected identifer");
+  }
+  char *name = token->location;
+  int length = token->length;
+  token = token->next;
+
+  int argc = 0;
+  if (!equal(token, "(")) {
+    error_at(token, "expected (");
+  }
+  token = token->next;
+
+  while (is_identifer_token(token)) {
+    argc ++;
+    new_lvar(token->location, token->length, &lvars);
+    token = token->next;
+    if (!equal(token, ",")) {
+      break;
+    }
+    token = token->next;
+  }
+  if (!equal(token, ")")) {
+    error_at(token, "expected )");
+  }
+  token = token->next;
+
+  Node *node = blockstmt(&token, token, &lvars);
+
+  Function *func = calloc(1, sizeof(Function));
+  func->node = node;
+  func->lvar = lvars;
+  func->name = name;
+  func->namelen = length;
+
+  *rest = token;
+  return func;
+}
 
 // blockstmt = "{" stmt* "}"
 static Node *blockstmt(Token **rest, Token *token, LVar **lvarsp) {
