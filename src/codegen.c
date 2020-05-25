@@ -280,15 +280,6 @@ static void gen_binary_operator(Node *node) {
   print_node_with_comment_end(node);
 }
 
-void gen_func_set_args(int offset, int arg_length) {
-  char registers[][4] = { "rdi", "rsi", "rdx", "rcx", "r8", "r9" };
-  int current_argc = offset / 8 - 1;
-  if (current_argc >= arg_length) {
-    return;
-  }
-  printf("  mov [rbp-%d], %s\n", offset, registers[current_argc]);
-}
-
 static void prologue(Function *func) {
   int offset = func->lvar ? (func->lvar->offset) : 0;
 
@@ -297,7 +288,13 @@ static void prologue(Function *func) {
   printf("  sub rsp, %d\n", offset);     // allocate memory for a-z variables
 
   for (LVar *current = func->lvar; current; current = current->next) {
-    gen_func_set_args(current->offset, func->argc);
+    char registers[][4] = { "rdi", "rsi", "rdx", "rcx", "r8", "r9" };
+    int current_argc = (current->offset / 8) - 1;
+    fprintf(stderr, "current_argc: %d, func->argc: %d", current_argc, func->argc);
+    if (current_argc >= func->argc) {
+      return;
+    }
+    printf("  mov [rbp-%d], %s\n", current->offset, registers[current_argc]);
   }
 }
 

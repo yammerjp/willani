@@ -72,5 +72,6 @@ assert 3    'main(){return ret3();}'
 assert 5    'main(){return ret5();}'
 assert 3 'main(){return add(1,2);}'
 assert 21 'main(){return sum(1,2,3,4,5,6);}'
+assert 8 'main(){return sub(10,2);}sub(i,j){return i-j;}'
 
 echo OK

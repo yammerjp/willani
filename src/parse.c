@@ -171,6 +171,7 @@ Function *function(Token **rest, Token *token) {
   func->node = node;
   func->lvar = lvars;
   func->name = name;
+  func->argc = argc;
   func->namelen = length;
 
   *rest = token;
