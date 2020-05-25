@@ -122,6 +122,7 @@ static void gen_block(Node *node) {
 }
 
 static void gen_func_call(Node *node) {
+  printf("  pop rax\n");      // save rax
   char registers[][4] = { "rdi", "rsi", "rdx", "rcx", "r8", "r9" };
   if (node->kind != ND_FUNC_CALL) {
     error("expected function call");
@@ -133,9 +134,22 @@ static void gen_func_call(Node *node) {
     printf("  pop  %s\n", registers[i++]);
   }
 
-  printf("  pop rax\n");
+  // align RSP to a 16 bite boundary
+  int labct = label_count ++;
+  printf("  mov rax, rsp\n");
+  printf("  cmp rax, 0\n");
+  printf("  jne .L.needAlign.%d\n", labct);
+
   printf("  call %.*s\n", node->fncl->length, node->fncl->name);
-  printf("  push rax\n");
+  printf("  jmp .L.end.%d\n", labct);
+
+  printf(".L.needAlign.%d:\n", labct);
+  printf("  sub rsp, 8\n");
+  printf("  call %.*s\n", node->fncl->length, node->fncl->name);
+  printf("  add rsp, 8\n");
+
+  printf(".L.end.%d:\n", labct);
+  printf("  push rax\n");    // restore saved rax
 }
 
 
