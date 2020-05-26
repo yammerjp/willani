@@ -179,6 +179,9 @@ static void gen_var(Node *node) {
 }
 
 static void gen_assign(Node *node) {
+  if (node->kind != ND_ASSIGN) {
+    error("expected node->kind is ND_ASSIGN");
+  }
   print_node_with_comment_begin(node);
   gen_addr(node->left);
   gen(node->right);
@@ -187,6 +190,9 @@ static void gen_assign(Node *node) {
 }
 
 static void gen_return(Node *node) {
+  if (node->kind != ND_RETURN) {
+    error("expected node->kind is ND_RETURN");
+  }
   print_node_with_comment_begin(node);
   gen(node->left);
   printf("  pop rax\n");
@@ -194,17 +200,19 @@ static void gen_return(Node *node) {
   print_node_with_comment_end(node);
 }
 
+static void gen_expr_stmt(Node *node) {
+  if (node->kind != ND_EXPR_STMT) {
+    error("expected node->kind is ND_EXPR_STMT");
+  }
+  print_node_with_comment_begin(node);
+  gen(node->left);
+  printf("  add rsp, 8\n"); // stmt is not leave any values in the stack
+  print_node_with_comment_end(node);
+}
+
 static void gen(Node *node) {
   switch (node->kind) {
-  case ND_NUM:
-    gen_num(node);
-    return;
-  case ND_VAR:
-    gen_var(node);
-    return;
-  case ND_ASSIGN:
-    gen_assign(node);
-    return;
+  // statements
   case ND_RETURN:
     gen_return(node);
     return;
@@ -221,14 +229,25 @@ static void gen(Node *node) {
     gen_block(node);
     return;
   case ND_EXPR_STMT:
-    gen(node->left);
-    printf("  add rsp, 8\n"); // stmt is not leave any values in the stack
+    gen_expr_stmt(node);
+   return;
+
+  // expression
+  case ND_NUM:
+    gen_num(node);
+    return;
+  case ND_VAR:
+    gen_var(node);
+    return;
+  case ND_ASSIGN:
+    gen_assign(node);
     return;
   case ND_FUNC_CALL:
     gen_func_call(node);
     return;
   }
 
+  // expression
   // expect binary operator node
   gen_binary_operator(node);
 }

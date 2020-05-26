@@ -44,12 +44,12 @@ typedef enum {
   ND_ASSIGN,    // =
   ND_VAR,       // Variable
   ND_NUM,       // Integer
-  ND_RETURN,    // return
+  ND_FUNC_CALL, // Function call
+  ND_BLOCK,     // { ... }
   ND_IF,        // if
   ND_WHILE,     // while
   ND_FOR,       // for
-  ND_BLOCK,     // { ... }
-  ND_FUNC_CALL, // Function call
+  ND_RETURN,    // return
   ND_EXPR_STMT, // ... ;
 } NodeKind;
 
