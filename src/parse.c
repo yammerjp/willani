@@ -2,10 +2,10 @@
 
 static Function *function(Token **rest, Token *token);
 static Node *stmt(Token **rest, Token *token, LVar **lvarsp);
-static Node *ifstmt(Token **rest, Token *token, LVar **lvarsp);
-static Node *whilestmt(Token **rest, Token *token, LVar **lvarsp);
-static Node *forstmt(Token **rest, Token *token, LVar **lvarsp);
-static Node *blockstmt(Token **rest, Token *token, LVar **lvarsp);
+static Node *if_stmt(Token **rest, Token *token, LVar **lvarsp);
+static Node *while_stmt(Token **rest, Token *token, LVar **lvarsp);
+static Node *for_stmt(Token **rest, Token *token, LVar **lvarsp);
+static Node *block_stmt(Token **rest, Token *token, LVar **lvarsp);
 static Node *expr_stmt(Token **rest, Token *token, LVar **lvarsp);
 static Node *expr(Token **rest, Token *token, LVar **lvarsp);
 static Node *assign(Token **rest, Token *token, LVar **lvarsp);
@@ -143,7 +143,7 @@ Function *program(Token *token) {
   return head.next;
 }
 
-// function = ( ident "(" ( ( ident ( "," ident ) * ) ?  ")" blockstmt ) *
+// function = ( ident "(" ( ( ident ( "," ident ) * ) ?  ")" block_stmt ) *
 
 Function *function(Token **rest, Token *token) {
   LVar *lvars = NULL;
@@ -174,7 +174,7 @@ Function *function(Token **rest, Token *token) {
   }
   token = token->next;
 
-  Node *node = blockstmt(&token, token, &lvars);
+  Node *node = block_stmt(&token, token, &lvars);
 
   Function *func = calloc(1, sizeof(Function));
   func->node = node;
@@ -187,8 +187,8 @@ Function *function(Token **rest, Token *token) {
   return func;
 }
 
-// blockstmt = "{" stmt* "}"
-static Node *blockstmt(Token **rest, Token *token, LVar **lvarsp) {
+// block_stmt = "{" stmt* "}"
+static Node *block_stmt(Token **rest, Token *token, LVar **lvarsp) {
   if (!equal(token, "{")) {
     error_at(token, "expected {");
   }
@@ -210,31 +210,31 @@ static Node *blockstmt(Token **rest, Token *token, LVar **lvarsp) {
 }
 
 
-// stmt       = ifstmt
-//            | whilestmt
-//            | forstmt
-//            | blockstmt
+// stmt       = if_stmt
+//            | while_stmt
+//            | for_stmt
+//            | block_stmt
 //            | return expr ";"
 //            | expr_stmt
 static Node *stmt(Token **rest, Token *token, LVar **lvarsp) {
   Node *node;
   if (equal(token, "if")) {
-    node = ifstmt(&token, token, lvarsp);
+    node = if_stmt(&token, token, lvarsp);
     *rest = token;
     return node;
   }
   if (equal(token, "while")) {
-    node = whilestmt(&token, token, lvarsp);
+    node = while_stmt(&token, token, lvarsp);
     *rest = token;
     return node;
   }
   if (equal(token, "for")) {
-    node = forstmt(&token, token, lvarsp);
+    node = for_stmt(&token, token, lvarsp);
     *rest = token;
     return node;
   }
   if (equal(token, "{")) {
-    node = blockstmt(&token, token, lvarsp);
+    node = block_stmt(&token, token, lvarsp);
     *rest = token;
     return node;
   }
@@ -257,8 +257,8 @@ static Node *stmt(Token **rest, Token *token, LVar **lvarsp) {
   }
 }
 
-// ifstmt = "if" "(" expr ")" stmt ( "else" stmt ) ?
-static Node *ifstmt(Token **rest, Token *token, LVar **lvarsp) {
+// if_stmt = "if" "(" expr ")" stmt ( "else" stmt ) ?
+static Node *if_stmt(Token **rest, Token *token, LVar **lvarsp) {
   if (!equal(token, "if" )) {
     error_at(token, "expected if");
   }
@@ -288,8 +288,8 @@ static Node *ifstmt(Token **rest, Token *token, LVar **lvarsp) {
   return node;
 }
 
-// whilestmt = "while" "(" expr ")" stmt
-static Node *whilestmt(Token **rest, Token *token, LVar **lvarsp) {
+// while_stmt = "while" "(" expr ")" stmt
+static Node *while_stmt(Token **rest, Token *token, LVar **lvarsp) {
   if (!equal(token, "while" )) {
     error_at(token, "expected while");
   }
@@ -314,8 +314,8 @@ static Node *whilestmt(Token **rest, Token *token, LVar **lvarsp) {
   return node;
 }
 
-// forstmt = "for" "(" expr? ";" expr? ";" expr? ")" stmt
-static Node *forstmt(Token **rest, Token *token, LVar **lvarsp) {
+// for_stmt = "for" "(" expr? ";" expr? ";" expr? ")" stmt
+static Node *for_stmt(Token **rest, Token *token, LVar **lvarsp) {
   // "for"
   if (!equal(token, "for")) {
     error_at(token, "expected for");
