@@ -10,6 +10,12 @@ $(OBJS): src/willani.h
 test: willani
 	bin/test.sh
 
+sample: willani
+	bin/run-samplecode.sh
+
+debug: willani
+	bin/gdb-samplecode.sh
+
 clean:
 	rm -f willani src/*.o *~ tmp* *.log core
-.PHONY: test clean
+.PHONY: test clean sample debug
