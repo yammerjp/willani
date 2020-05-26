@@ -219,34 +219,21 @@ static Node *block_stmt(Token **rest, Token *token, LVar **lvarsp) {
 //            | expr_stmt
 static Node *stmt(Token **rest, Token *token, LVar **lvarsp) {
   Node *node;
+
   if (equal(token, "if")) {
     node = if_stmt(&token, token, lvarsp);
-    *rest = token;
-    return node;
-  }
-  if (equal(token, "while")) {
+  } else if (equal(token, "while")) {
     node = while_stmt(&token, token, lvarsp);
-    *rest = token;
-    return node;
-  }
-  if (equal(token, "for")) {
+  } else if (equal(token, "for")) {
     node = for_stmt(&token, token, lvarsp);
-    *rest = token;
-    return node;
-  }
-  if (equal(token, "{")) {
+  } else if (equal(token, "{")) {
     node = block_stmt(&token, token, lvarsp);
-    *rest = token;
-    return node;
-  }
-
-  if (equal(token, "return")) {
+  } else if (equal(token, "return")) {
     node = return_stmt(&token, token, lvarsp);
-    *rest = token;
-    return node;
+  } else {
+    node = expr_stmt(&token, token, lvarsp);
   }
 
-  node = expr_stmt(&token, token, lvarsp);
   *rest = token;
   return node;
 }
