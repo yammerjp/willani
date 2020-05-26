@@ -9,25 +9,22 @@ This is under developping.
 Now, willani can compile such as the following code.
 
 ```
-i = 0;
-while(i<10)
-  i = i + 1;
-foo123=3;
-bar=5;
-if (foo123 == 0)
-  return 0;
-else
-  return foo123+bar+i;
+main () {
+  return fibonacci(10);
+}
+
+fibonacci(n) {
+  if ( n <= 1 ) {
+    return n;
+  }
+  return n + fibonacci(n-1);
+}
 ```
 
 ```sh
 $ git clone https://github.com/basd4g/willani.git
 $ cd willani
-$ make
-$ cat samplecode | xargs -0 ./willani > tmp.s
-$ cc tmp.s
-$ ./tmp
-$ echo "$?"
+$ ./run-samplecode
 ```
 
 ## Usage
