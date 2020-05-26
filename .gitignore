@@ -5,3 +5,4 @@ a.out
 willani
 *.log
 core
+.gdb_history
