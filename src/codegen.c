@@ -135,7 +135,6 @@ static void gen_block(Node *node) {
 
   for(Node *n = node->body; n; n = n->next) {
     gen(n);
-    printf("  pop rax\n"); // load result(stack top) to rax
   }
   print_node_with_comment_end(node);
 }
