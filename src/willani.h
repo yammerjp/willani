@@ -50,6 +50,7 @@ typedef enum {
   ND_FOR,       // for
   ND_BLOCK,     // { ... }
   ND_FUNC_CALL, // Function call
+  ND_EXPR_STMT, // ... ;
 } NodeKind;
 
 

@@ -220,6 +220,10 @@ static void gen(Node *node) {
   case ND_BLOCK:
     gen_block(node);
     return;
+  case ND_EXPR_STMT:
+    gen(node->left);
+    printf("  add rsp, 8\n"); // stmt is not leave any values in the stack
+    return;
   case ND_FUNC_CALL:
     gen_func_call(node);
     return;

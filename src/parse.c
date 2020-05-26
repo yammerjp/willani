@@ -6,6 +6,7 @@ static Node *ifstmt(Token **rest, Token *token, LVar **lvarsp);
 static Node *whilestmt(Token **rest, Token *token, LVar **lvarsp);
 static Node *forstmt(Token **rest, Token *token, LVar **lvarsp);
 static Node *blockstmt(Token **rest, Token *token, LVar **lvarsp);
+static Node *expr_stmt(Token **rest, Token *token, LVar **lvarsp);
 static Node *expr(Token **rest, Token *token, LVar **lvarsp);
 static Node *assign(Token **rest, Token *token, LVar **lvarsp);
 static Node *equality(Token **rest, Token *token, LVar **lvarsp);
@@ -116,6 +117,14 @@ static Node *new_node_func_call(char *name, int len, Node *args) {
   return node;
 }
 
+static Node *new_node_expr_stmt(Node *stmt_node) {
+  Node *node = calloc(1, sizeof(Node));
+  node->kind = ND_EXPR_STMT;
+  node->left = stmt_node;
+  return node;
+}
+
+
 
 // ========== parse ==========
 
@@ -205,7 +214,8 @@ static Node *blockstmt(Token **rest, Token *token, LVar **lvarsp) {
 //            | whilestmt
 //            | forstmt
 //            | blockstmt
-//            | (return)? expr ";
+//            | return expr ";"
+//            | expr_stmt
 static Node *stmt(Token **rest, Token *token, LVar **lvarsp) {
   Node *node;
   if (equal(token, "if")) {
@@ -232,17 +242,19 @@ static Node *stmt(Token **rest, Token *token, LVar **lvarsp) {
   if (equal(token, "return")) {
     token = token->next;
     node = new_node_return(expr(&token, token, lvarsp));
+    if (!equal(token, ";")) {
+      error_at(token, "expected ;");
+    }
+    token = token->next;
+
+    *rest = token;
+    return node;
+
   } else {
-    node = expr(&token, token, lvarsp);
+    node = expr_stmt(&token, token, lvarsp);
+    *rest = token;
+    return node;
   }
-
-  if (!equal(token, ";")) {
-    error_at(token, "expected ;");
-  }
-  token = token->next;
-
-  *rest = token;
-  return node;
 }
 
 // ifstmt = "if" "(" expr ")" stmt ( "else" stmt ) ?
@@ -354,6 +366,18 @@ static Node *forstmt(Token **rest, Token *token, LVar **lvarsp) {
   return node;
 }
 
+// expr_stmt  =  expr ";"
+static Node *expr_stmt(Token **rest, Token *token, LVar **lvarsp) {
+  Node *node = new_node_expr_stmt(expr(&token, token, lvarsp));
+
+  if (!equal(token, ";")) {
+    error_at(token, "expected ;");
+  }
+  token = token->next;
+
+  *rest = token;
+  return node;
+}
 
 // expr       = assign
 static Node *expr(Token **rest, Token *token, LVar **lvarsp) {
