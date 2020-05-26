@@ -36,7 +36,7 @@ $ git clone https://github.com/basd4g/willani.git
 $ cd willani
 $ make
 
-$ ./willani 'return 0;' > asm.s
+$ ./willani 'main(){return 0;}' > asm.s
 # Willani read C language code from a commandline argument, and write assembly language code to stdout.
 
 $ make test   # Run test.
@@ -47,6 +47,14 @@ $ make test   # Run test.
 $ git clone https://github.com/basd4g/willani.git
 $ cd willani
 $ ./docker.sh pull
-$ ./docker.sh run   # compile and run test
+$ ./docker.sh sh
+# run interactive shell on a docker container.
+
+$ make
+
+$ ./willani 'main(){return 0;}' > asm.s
+# Willani read C language code from a commandline argument, and write assembly language code to stdout.
+
+$ make test   # Run test.
 ```
 
