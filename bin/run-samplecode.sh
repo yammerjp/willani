@@ -1,7 +1,7 @@
 #!/bin/bash
 
-SCRIPT_DIR=$(cd "$(dirname "$0")"; pwd)
-cd "$SCRIPT_DIR"
+REPO_DIR=$(cd "$(dirname "$0")/.."; pwd)
+cd "$REPO_DIR"
 
 echo "Build willani by gcc"
 make

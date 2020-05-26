@@ -1,5 +1,8 @@
 #!/bin/bash
 
+REPO_DIR=$(cd "$(dirname "$0")/.."; pwd)
+cd "$REPO_DIR"
+
 echo 'int ret3(){return 3;}int ret5(){return 5;} int add(int a,int b){return a+b;}' | gcc -xc -c  -o tmp2.o -
 echo 'int sum(int a,int b,int c,int d,int e,int f){return a+b+c+d+e+f;}' | gcc -xc -c  -o tmp3.o -
 

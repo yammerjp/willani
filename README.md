@@ -24,7 +24,7 @@ fibonacci(n) {
 ```sh
 $ git clone https://github.com/basd4g/willani.git
 $ cd willani
-$ ./run-samplecode
+$ bin/run-samplecode
 ```
 
 ## Usage
@@ -46,8 +46,8 @@ $ make test   # Run test.
 ```
 $ git clone https://github.com/basd4g/willani.git
 $ cd willani
-$ ./docker.sh pull
-$ ./docker.sh sh
+$ bin/docker.sh pull
+$ bin/docker.sh sh
 # run interactive shell on a docker container.
 
 $ make

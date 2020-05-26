@@ -8,7 +8,7 @@ willani: $(OBJS)
 $(OBJS): src/willani.h
 
 test: willani
-	./test.sh
+	bin/test.sh
 
 clean:
 	rm -f willani src/*.o *~ tmp* *.log core
