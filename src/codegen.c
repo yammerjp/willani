@@ -289,7 +289,6 @@ static void prologue(Function *func) {
   for (LVar *current = func->lvar; current; current = current->next) {
     char registers[][4] = { "rdi", "rsi", "rdx", "rcx", "r8", "r9" };
     int current_argc = (current->offset / 8) - 1;
-    fprintf(stderr, "current_argc: %d, func->argc: %d", current_argc, func->argc);
     if (current_argc >= func->argc) {
       return;
     }
