@@ -7,6 +7,7 @@ static Node *while_stmt(Token **rest, Token *token, LVar **lvarsp);
 static Node *for_stmt(Token **rest, Token *token, LVar **lvarsp);
 static Node *block_stmt(Token **rest, Token *token, LVar **lvarsp);
 static Node *expr_stmt(Token **rest, Token *token, LVar **lvarsp);
+static Node *return_stmt(Token **rest, Token *token, LVar **lvarsp);
 static Node *expr(Token **rest, Token *token, LVar **lvarsp);
 static Node *assign(Token **rest, Token *token, LVar **lvarsp);
 static Node *equality(Token **rest, Token *token, LVar **lvarsp);
@@ -210,11 +211,11 @@ static Node *block_stmt(Token **rest, Token *token, LVar **lvarsp) {
 }
 
 
-// stmt       = if_stmt
+// stmt       = block_stmt
+//            | if_stmt
 //            | while_stmt
 //            | for_stmt
-//            | block_stmt
-//            | return expr ";"
+//            | return_stmt
 //            | expr_stmt
 static Node *stmt(Token **rest, Token *token, LVar **lvarsp) {
   Node *node;
@@ -240,21 +241,14 @@ static Node *stmt(Token **rest, Token *token, LVar **lvarsp) {
   }
 
   if (equal(token, "return")) {
-    token = token->next;
-    node = new_node_return(expr(&token, token, lvarsp));
-    if (!equal(token, ";")) {
-      error_at(token, "expected ;");
-    }
-    token = token->next;
-
-    *rest = token;
-    return node;
-
-  } else {
-    node = expr_stmt(&token, token, lvarsp);
+    node = return_stmt(&token, token, lvarsp);
     *rest = token;
     return node;
   }
+
+  node = expr_stmt(&token, token, lvarsp);
+  *rest = token;
+  return node;
 }
 
 // if_stmt = "if" "(" expr ")" stmt ( "else" stmt ) ?
@@ -361,6 +355,24 @@ static Node *for_stmt(Token **rest, Token *token, LVar **lvarsp) {
   // stmt
   Node *then = stmt(&token, token, lvarsp);
   Node *node = new_node_for(init, cond, increment, then);
+
+  *rest = token;
+  return node;
+}
+
+// return_stmt = return expr ";"
+static Node *return_stmt(Token **rest, Token *token, LVar **lvarsp) {
+  if (!equal(token, "return")) {
+    error_at(token, "expected return");
+  }
+  token = token->next;
+
+  Node *node = new_node_return(expr(&token, token, lvarsp));
+
+  if (!equal(token, ";")) {
+    error_at(token, "expected ;");
+  }
+  token = token->next;
 
   *rest = token;
   return node;
