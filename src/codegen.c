@@ -322,14 +322,6 @@ static void gen_binary_operator(Node *node) {
   print_node_with_comment_end(node);
 }
 
-static int argc(LVar *args) {
-  int i = 0;
-  for (LVar *current = args; current; current = current->next) {
-    i ++;
-  }
-  return i;
-}
-
 static void prologue(Function *func) {
   int offset = func->lvar ? (func->lvar->offset) : 0;
 
@@ -337,11 +329,9 @@ static void prologue(Function *func) {
   printf("  mov rbp, rsp\n");     // set current stack top to rbp
   printf("  sub rsp, %d\n", offset);     // allocate memory for a-z variables
 
-  int i = 0;
-  int arglength = argc(func->args);
-  for (LVar *current = func->args; current; current = current->next) {
-    i ++;
-    printf("  mov [rbp-%d], %s\n", current->offset, arg_registers[arglength-i]);
+  int i = func->argc;
+  for (LVar *arg = func->args; arg; arg = arg->next) {
+    printf("  mov [rbp-%d], %s\n", arg->offset, arg_registers[--i]);
   }
 }
 

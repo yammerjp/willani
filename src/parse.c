@@ -191,8 +191,11 @@ Function *function(Token **rest, Token *token) {
   }
   token = token->next;
 
+  int argc = 0;
+
   while (equal(token, "int")) {
     token = token->next;
+    argc++;
 
     if(!is_identifer_token(token)) {
       error_at(token, "expected identifer");
@@ -220,6 +223,7 @@ Function *function(Token **rest, Token *token) {
   func->lvar = lvars;
   func->name = name;
   func->args = args;
+  func->argc = argc;
   func->namelen = length;
 
   *rest = token;
