@@ -51,6 +51,8 @@ typedef enum {
   ND_FOR,       // for
   ND_RETURN,    // return
   ND_EXPR_STMT, // ... ;
+  ND_ADDR,      // & ...
+  ND_DEREF      // * ...
 } NodeKind;
 
 

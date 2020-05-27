@@ -23,6 +23,8 @@ static char *node_kind_str(Node *node) {
     case ND_BLOCK: return("{}");
     case ND_FUNC_CALL: return("func call");
     case ND_EXPR_STMT: return(";");
+    case ND_ADDR: return("&");
+    case ND_DEREF: return("*");
     default : error("unexpected node->kind");
   }
 }

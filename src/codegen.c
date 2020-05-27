@@ -47,11 +47,16 @@ static void store(void) {
 
 // load the address of node's variable to the stack top
 static void gen_addr(Node *node) {
-  if (node->kind != ND_VAR) {
-    error("Left side is expected a variable.");
+  if (node->kind == ND_VAR) {
+    printf("  lea rax, [rbp-%d]\n", node->lvar->offset); // load the address of the actual value of (rbp - offset)
+    printf("  push rax\n");         // push rbp - offset
+    return;
   }
-  printf("  lea rax, [rbp-%d]\n", node->lvar->offset); // load the address of the actual value of (rbp - offset)
-  printf("  push rax\n");         // push rbp - offset
+  if (node->kind == ND_DEREF) {
+    gen(node->left);
+    return;
+  }
+  error("Left side is expected a variable or *variable.");
 }
 
 int label_count = 1;
@@ -244,6 +249,17 @@ static void gen(Node *node) {
     return;
   case ND_FUNC_CALL:
     gen_func_call(node);
+    return;
+  case ND_ADDR:
+    print_node_with_comment_begin(node);
+    gen_addr(node->left);
+    print_node_with_comment_end(node);
+    return;
+  case ND_DEREF:
+    print_node_with_comment_begin(node);
+    gen(node->left);
+    load();
+    print_node_with_comment_end(node);
     return;
   }
 

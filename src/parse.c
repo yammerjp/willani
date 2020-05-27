@@ -125,6 +125,19 @@ static Node *new_node_expr_stmt(Node *stmt_node) {
   return node;
 }
 
+static Node *new_node_addr(Node *unary_node) {
+  Node *node = calloc(1, sizeof(Node));
+  node->kind = ND_ADDR;
+  node->left = unary_node;
+  return node;
+}
+
+static Node *new_node_deref(Node *unary_node) {
+  Node *node = calloc(1, sizeof(Node));
+  node->kind = ND_DEREF;
+  node->left = unary_node;
+  return node;
+}
 
 
 // ========== parse ==========
@@ -479,21 +492,24 @@ static Node *mul(Token **rest, Token *token, LVar **lvarsp) {
   }
 }
 
-// unary = ("+" | "-")? primary
+// unary = ("+" | "-")? primary | ( "*" | "&" ) unary
 static Node *unary(Token **rest, Token *token, LVar **lvarsp) {
+  Node *node;
   if (equal(token,"+")) {
     token = token->next;
-    Node *node = primary(&token, token, lvarsp);
-    *rest = token;
-    return node;
-  }
-  if (equal(token,"-")) {
+    node = primary(&token, token, lvarsp);
+  } else if (equal(token,"-")) {
     token = token->next;
-    Node *node = new_node_op2(ND_SUB, new_node_num(0), primary(&token, token, lvarsp));
-    *rest = token;
-    return node;
+    node = new_node_op2(ND_SUB, new_node_num(0), primary(&token, token, lvarsp));
+  } else if (equal(token, "*")) {
+    token = token->next;
+    node = new_node_deref(unary(&token, token, lvarsp));
+  } else if (equal(token, "&")) {
+    token = token->next;
+    node = new_node_addr(unary(&token, token, lvarsp));
+  } else {
+    node = primary(&token, token, lvarsp);
   }
-  Node *node = primary(&token, token, lvarsp);
   *rest = token;
   return node;
 }
