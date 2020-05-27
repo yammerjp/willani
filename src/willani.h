@@ -105,6 +105,25 @@ Function *program(Token *token);
 
 
 //======================================
+// parse_new_node.c
+LVar *find_lvar(char *name, int length, LVar *lvars);
+void *new_lvar(char *name, int length, LVar **lvarsp);
+Node *new_node_op2(NodeKind kind, Node *left, Node *right);
+Node *new_node_num(long value);
+Node *new_node_var(char *name, int length, LVar *lvars);
+Node *new_node_declare_var(char *name, int length, LVar **lvarsp);
+Node *new_node_return(Node *left);
+Node *new_node_if(Node *cond, Node *then, Node *els);
+Node *new_node_while(Node *cond, Node *then);
+Node *new_node_for(Node *init, Node *cond, Node* increment, Node *then);
+Node *new_node_block(Node *body);
+Node *new_node_func_call(char *name, int len, Node *args);
+Node *new_node_expr_stmt(Node *stmt_node);
+Node *new_node_addr(Node *unary_node);
+Node *new_node_deref(Node *unary_node);
+
+
+//======================================
 // parse_log.c
 void print_node(FILE *file, Node *node);
 void parse_log(Function *function);
