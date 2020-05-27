@@ -332,7 +332,7 @@ static void prologue(Function *func) {
     char registers[][4] = { "rdi", "rsi", "rdx", "rcx", "r8", "r9" };
     int current_argc = (current->offset / 8) - 1;
     if (current_argc >= func->argc) {
-      return;
+      continue;
     }
     printf("  mov [rbp-%d], %s\n", current->offset, registers[current_argc]);
   }
