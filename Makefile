@@ -11,10 +11,10 @@ test: willani
 	bin/test.sh
 
 sample: willani
-	bin/run-samplecode.sh
+	bin/run-sample.sh
 
 debug: willani
-	bin/gdb-samplecode.sh
+	bin/gdb-sample.sh
 
 clean:
 	rm -f willani src/*.o *~ tmp* *.log core

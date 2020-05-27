@@ -5,10 +5,10 @@ cd "$REPO_DIR"
 
 echo "Build willani by gcc"
 make
-echo "Build samplecode by willani"
-cat samplecode | xargs -0 ./willani > tmp.s
+echo "Build sample.c by willani"
+cat sample.c | xargs -0 ./willani > tmp.s
 gcc tmp.s -o tmp > /dev/null
-echo "Run samplecode"
+echo "Run sample.c"
 ./tmp
-echo -e "\nsamplecode exitcode: $?\n"
+echo -e "\nsample.c exitcode: $?\n"
 # rm tmp.s tmp

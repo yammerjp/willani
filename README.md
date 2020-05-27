@@ -8,12 +8,12 @@ This is under developping.
 
 Now, willani can compile such as the following code.
 
-```
-main () {
+```sample.c
+int main () {
   return fibonacci(10);
 }
 
-fibonacci(n) {
+int fibonacci(int n) {
   if ( n <= 1 ) {
     return n;
   }
@@ -24,7 +24,7 @@ fibonacci(n) {
 ```sh
 $ git clone https://github.com/basd4g/willani.git
 $ cd willani
-$ bin/run-samplecode
+$ make sample
 ```
 
 ## Usage
@@ -36,7 +36,7 @@ $ git clone https://github.com/basd4g/willani.git
 $ cd willani
 $ make
 
-$ ./willani 'main(){return 0;}' > asm.s
+$ ./willani 'int main(){return 0;}' > asm.s
 # Willani read C language code from a commandline argument, and write assembly language code to stdout.
 
 $ make test   # Run test.
@@ -52,7 +52,7 @@ $ bin/docker.sh sh
 
 $ make
 
-$ ./willani 'main(){return 0;}' > asm.s
+$ ./willani 'int main(){return 0;}' > asm.s
 # Willani read C language code from a commandline argument, and write assembly language code to stdout.
 
 $ make test   # Run test.
