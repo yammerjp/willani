@@ -346,6 +346,7 @@ void gen_function(Function *func) {
   funcname = func->name;
   funcnamelen = func->namelen;
   printf("%.*s:\n", func->namelen, func->name);
+
   prologue(func);
 
   gen(func->node);
@@ -354,11 +355,8 @@ void gen_function(Function *func) {
 }
 
 void gen_func_names(Function *head) {
-  bool isHead = true;
   for (Function *current = head; current; current = current->next) {
-    if (isHead) {
-      isHead = false;
-    } else {
+    if (head != current) {
       printf(", ");
     }
     printf("%.*s", current->namelen, current->name);
