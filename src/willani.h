@@ -97,7 +97,7 @@ struct Function {
   Function *next;
   char *name;
   int namelen;
-  int argc;
+  LVar *args;
 };
 
 Function *program(Token *token);

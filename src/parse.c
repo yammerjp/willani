@@ -186,7 +186,6 @@ Function *function(Token **rest, Token *token) {
   int length = token->length;
   token = token->next;
 
-  int argc = 0;
   if (!equal(token, "(")) {
     error_at(token, "expected (");
   }
@@ -198,7 +197,6 @@ Function *function(Token **rest, Token *token) {
     if(!is_identifer_token(token)) {
       error_at(token, "expected identifer");
     }
-    argc ++;
     new_lvar(token->location, token->length, &lvars);
     token = token->next;
 
@@ -219,7 +217,7 @@ Function *function(Token **rest, Token *token) {
   func->node = node;
   func->lvar = lvars;
   func->name = name;
-  func->argc = argc;
+  func->args = lvars;
   func->namelen = length;
 
   *rest = token;
