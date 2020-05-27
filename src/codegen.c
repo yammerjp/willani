@@ -11,6 +11,8 @@ static void gen_binary_operator(Node *node);
 static void prologue(Function *func);
 static void epilogue(void);
 
+char arg_registers[][4] = { "rdi", "rsi", "rdx", "rcx", "r8", "r9" };
+
 static void print_node_with_comment_begin(Node *node) {
   printf ("  # >>> "); print_node(stdout, node);
 }
@@ -147,7 +149,6 @@ static void gen_block(Node *node) {
 static void gen_func_call(Node *node) {
   print_node_with_comment_begin(node);
 //  printf("  pop rax\n");      // save rax
-  char registers[][4] = { "rdi", "rsi", "rdx", "rcx", "r8", "r9" };
   if (node->kind != ND_FUNC_CALL) {
     error("expected function call");
   }
@@ -155,7 +156,7 @@ static void gen_func_call(Node *node) {
   int i = 0;
   for (Node *cur = node->fncl->args; cur; cur = cur->next) {
     gen(cur);
-    printf("  pop  %s\n", registers[i++]);
+    printf("  pop  %s\n", arg_registers[i++]);
   }
 
   // align RSP to a 16 bite boundary
@@ -329,12 +330,11 @@ static void prologue(Function *func) {
   printf("  sub rsp, %d\n", offset);     // allocate memory for a-z variables
 
   for (LVar *current = func->lvar; current; current = current->next) {
-    char registers[][4] = { "rdi", "rsi", "rdx", "rcx", "r8", "r9" };
     int current_argc = (current->offset / 8) - 1;
     if (current_argc >= func->argc) {
       continue;
     }
-    printf("  mov [rbp-%d], %s\n", current->offset, registers[current_argc]);
+    printf("  mov [rbp-%d], %s\n", current->offset, arg_registers[current_argc]);
   }
 }
 
