@@ -33,26 +33,27 @@ Token *tokenize(char *p);
 //======================================
 // parse.c
 typedef enum {
-  ND_ADD,       // +
-  ND_SUB,       // -
-  ND_MUL,       // *
-  ND_DIV,       // /
-  ND_EQ,        // ==
-  ND_NE,        // !=
-  ND_LT,        // <
-  ND_LE,        // <=
-  ND_ASSIGN,    // =
-  ND_VAR,       // Variable
-  ND_NUM,       // Integer
-  ND_FUNC_CALL, // Function call
-  ND_BLOCK,     // { ... }
-  ND_IF,        // if
-  ND_WHILE,     // while
-  ND_FOR,       // for
-  ND_RETURN,    // return
-  ND_EXPR_STMT, // ... ;
-  ND_ADDR,      // & ...
-  ND_DEREF      // * ...
+  ND_ADD,         // +
+  ND_SUB,         // -
+  ND_MUL,         // *
+  ND_DIV,         // /
+  ND_EQ,          // ==
+  ND_NE,          // !=
+  ND_LT,          // <
+  ND_LE,          // <=
+  ND_ASSIGN,      // =
+  ND_VAR,         // Variable
+  ND_NUM,         // Integer
+  ND_FUNC_CALL,   // Function call
+  ND_ADDR,        // & ...
+  ND_DEREF,       // * ...
+  ND_BLOCK,       // { ... }
+  ND_IF,          // if
+  ND_WHILE,       // while
+  ND_FOR,         // for
+  ND_RETURN,      // return
+  ND_EXPR_STMT,   // ... ;
+  ND_DECLARE_VAR, // int ... ;
 } NodeKind;
 
 

@@ -236,6 +236,9 @@ static void gen(Node *node) {
   case ND_EXPR_STMT:
     gen_expr_stmt(node);
    return;
+  case ND_DECLARE_VAR:
+    // skip
+    return;
 
   // expression
   case ND_NUM:

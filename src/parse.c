@@ -8,6 +8,7 @@ static Node *for_stmt(Token **rest, Token *token, LVar **lvarsp);
 static Node *block_stmt(Token **rest, Token *token, LVar **lvarsp);
 static Node *expr_stmt(Token **rest, Token *token, LVar **lvarsp);
 static Node *return_stmt(Token **rest, Token *token, LVar **lvarsp);
+static Node *declare_lvar_stmt(Token **rest, Token *token, LVar **lvarsp);
 static Node *expr(Token **rest, Token *token, LVar **lvarsp);
 static Node *assign(Token **rest, Token *token, LVar **lvarsp);
 static Node *equality(Token **rest, Token *token, LVar **lvarsp);
@@ -54,15 +55,27 @@ static Node *new_node_num(long value) {
   return node;
 }
 
-static Node *new_node_var(char *name, int length, LVar **lvarsp) {
-  LVar *lvar = find_lvar(name, length, *lvarsp);
+static Node *new_node_var(char *name, int length, LVar *lvars) {
+  LVar *lvar = find_lvar(name, length, lvars);
   if (!lvar) {
-    new_lvar(name, length, lvarsp);
-    lvar = *lvarsp;
+    error("use undeclared identifer '%.*s'", length, name);
   }
   Node *node = calloc(1, sizeof(Node));
   node->kind = ND_VAR;
   node->lvar = lvar;
+  return node;
+}
+
+static Node *new_node_declare_var(char *name, int length, LVar **lvarsp) {
+  if (find_lvar(name, length, *lvarsp)!= NULL) {
+    error("duplicate declarations '%.*s'", length, name);
+  }
+
+  new_lvar(name, length, lvarsp);
+
+  Node *node = calloc(1, sizeof(Node));
+  node->kind = ND_DECLARE_VAR;
+  node->lvar = *lvarsp;
   return node;
 }
 
@@ -157,10 +170,15 @@ Function *program(Token *token) {
   return head.next;
 }
 
-// function = ( ident "(" ( ( ident ( "," ident ) * ) ?  ")" block_stmt ) *
+// function = ( "int" ident "(" ( ( "int" ident ( "," "int" ident ) * ) ?  ")" block_stmt ) *
 
 Function *function(Token **rest, Token *token) {
   LVar *lvars = NULL;
+  if (!equal(token, "int")) {
+    error_at(token, "expected int");
+  }
+  token = token->next;
+
   if (!is_identifer_token(token)) {
     error_at(token, "expected identifer");
   }
@@ -174,15 +192,22 @@ Function *function(Token **rest, Token *token) {
   }
   token = token->next;
 
-  while (is_identifer_token(token)) {
+  while (equal(token, "int")) {
+    token = token->next;
+
+    if(!is_identifer_token(token)) {
+      error_at(token, "expected identifer");
+    }
     argc ++;
     new_lvar(token->location, token->length, &lvars);
     token = token->next;
+
     if (!equal(token, ",")) {
       break;
     }
     token = token->next;
   }
+
   if (!equal(token, ")")) {
     error_at(token, "expected )");
   }
@@ -224,12 +249,14 @@ static Node *block_stmt(Token **rest, Token *token, LVar **lvarsp) {
 }
 
 
+
 // stmt       = block_stmt
 //            | if_stmt
 //            | while_stmt
 //            | for_stmt
 //            | return_stmt
 //            | expr_stmt
+//            | declare_lvar_stmt
 static Node *stmt(Token **rest, Token *token, LVar **lvarsp) {
   Node *node;
 
@@ -243,6 +270,8 @@ static Node *stmt(Token **rest, Token *token, LVar **lvarsp) {
     node = block_stmt(&token, token, lvarsp);
   } else if (equal(token, "return")) {
     node = return_stmt(&token, token, lvarsp);
+  } else if (equal(token, "int")) {
+    node = declare_lvar_stmt(&token, token, lvarsp);
   } else {
     node = expr_stmt(&token, token, lvarsp);
   }
@@ -391,6 +420,29 @@ static Node *expr_stmt(Token **rest, Token *token, LVar **lvarsp) {
   return node;
 }
 
+// declare_lvar_stmt = "int" identifer ";"
+// declare node is skipped by codegen
+static Node *declare_lvar_stmt(Token **rest, Token *token, LVar **lvarsp) {
+  if (!equal(token, "int")) {
+    error_at(token, "expected int");
+  }
+  token = token->next;
+
+  if(!is_identifer_token(token)) {
+    error_at(token, "expected identifer");
+  }
+  Node *node = new_node_declare_var(token->location, token->length, lvarsp);
+  token = token->next;
+
+  if (!equal(token, ";")) {
+    error_at(token, "expected ;");
+  }
+  token = token->next;
+
+  *rest = token;
+  return node;
+}
+
 // expr       = assign
 static Node *expr(Token **rest, Token *token, LVar **lvarsp) {
   Node *node = assign(&token, token, lvarsp);
@@ -527,7 +579,7 @@ static Node *primary(Token **rest, Token *token, LVar **lvarsp) {
   if (is_identifer_token(token)) {
 
     if (!equal(token->next, "(")) {
-      node = new_node_var(token->location, token->length, lvarsp);
+      node = new_node_var(token->location, token->length, *lvarsp);
       token = token->next;
     } else {
       char *name = token->location;

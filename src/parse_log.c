@@ -16,6 +16,8 @@ static char *node_kind_str(Node *node) {
     case ND_ASSIGN: return("=");
     case ND_VAR: return("Variable");
     case ND_NUM: return("Integer");
+    case ND_ADDR: return("&");
+    case ND_DEREF: return("*");
     case ND_RETURN: return("return");
     case ND_IF: return("if");
     case ND_WHILE: return("while");
@@ -23,8 +25,7 @@ static char *node_kind_str(Node *node) {
     case ND_BLOCK: return("{}");
     case ND_FUNC_CALL: return("func call");
     case ND_EXPR_STMT: return(";");
-    case ND_ADDR: return("&");
-    case ND_DEREF: return("*");
+    case ND_DECLARE_VAR: return("int");
     default : error("unexpected node->kind");
   }
 }
