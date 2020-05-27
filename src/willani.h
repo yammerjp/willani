@@ -31,6 +31,24 @@ Token *tokenize(char *p);
 
 
 //======================================
+// type.c
+typedef enum {
+  TP_INT,
+  TP_PTR,
+} TypeKind;
+
+typedef struct Type Type;
+struct Type {
+  TypeKind kind;
+  Type *ptr_to; // Use if kind is TP_INT
+};
+
+Type *new_type(TypeKind kind, int pointer_depth);
+bool is_type_token(Token *token);
+int type_size(Type *type);
+
+
+//======================================
 // parse.c
 typedef enum {
   ND_ADD,         // +
@@ -63,6 +81,7 @@ struct LVar {
   char *name;
   int length;
   int offset;
+  Type *type;
 };
 
 typedef struct Node Node;
@@ -98,6 +117,7 @@ struct Function {
   char *name;
   int namelen;
   int argc;
+  Type *type;
 };
 
 Function *program(Token *token);

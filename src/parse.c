@@ -18,6 +18,23 @@ static Node *mul(Token **rest, Token *token, LVar **lvarsp);
 static Node *unary(Token **rest, Token *token, LVar **lvarsp);
 static Node *primary(Token **rest, Token *token, LVar **lvarsp);
 
+// ========== type ==========
+static Type *identifer_type(Token **rest,Token *token) {
+  if (!is_type_token(token)) {
+    error_at(token, "expected type");
+  }
+  token = token->next;
+
+  int pointer_depth = 0;
+  while(equal(token, "*")) {
+    pointer_depth++;
+    token = token->next;
+  }
+
+  *rest = token;
+  return new_type(TP_INT, pointer_depth);
+}
+
 // ========== lvar ==========
 
 static LVar *find_lvar(char *name, int length, LVar *lvars) {
@@ -29,12 +46,14 @@ static LVar *find_lvar(char *name, int length, LVar *lvars) {
   return NULL;
 }
 
-void *new_lvar(char *name, int length, LVar **lvarsp) {
+void *new_lvar(char *name, int length, Type *type, LVar **lvarsp) {
+  int lvar_size = type_size(type);
   LVar *lvar = calloc(1, sizeof(LVar));
   lvar->next = *lvarsp;
   lvar->name = name;
   lvar->length = length;
-  lvar->offset = *lvarsp ? ((*lvarsp)->offset + 8) : 8;
+  lvar->offset = lvar_size + (*lvarsp ? (*lvarsp)->offset : 0);
+  lvar->type = type;
 
   *lvarsp = lvar;
 }
@@ -66,12 +85,12 @@ static Node *new_node_var(char *name, int length, LVar *lvars) {
   return node;
 }
 
-static Node *new_node_declare_var(char *name, int length, LVar **lvarsp) {
+static Node *new_node_declare_var(char *name, int length, Type *type, LVar **lvarsp) {
   if (find_lvar(name, length, *lvarsp)!= NULL) {
     error("duplicate declarations '%.*s'", length, name);
   }
 
-  new_lvar(name, length, lvarsp);
+  new_lvar(name, length, type, lvarsp);
 
   Node *node = calloc(1, sizeof(Node));
   node->kind = ND_DECLARE_VAR;
@@ -174,11 +193,11 @@ Function *program(Token *token) {
 
 Function *function(Token **rest, Token *token) {
   LVar *lvars = NULL;
-  if (!equal(token, "int")) {
-    error_at(token, "expected int");
-  }
-  token = token->next;
 
+  // type
+  Type *type = identifer_type(&token, token);
+
+  // identifer
   if (!is_identifer_token(token)) {
     error_at(token, "expected identifer");
   }
@@ -186,20 +205,21 @@ Function *function(Token **rest, Token *token) {
   int length = token->length;
   token = token->next;
 
+  // arguments
   int argc = 0;
   if (!equal(token, "(")) {
     error_at(token, "expected (");
   }
   token = token->next;
 
-  while (equal(token, "int")) {
-    token = token->next;
+  while (!equal(token, ")")) {
+    Type *arg_type = identifer_type(&token, token);
 
     if(!is_identifer_token(token)) {
       error_at(token, "expected identifer");
     }
     argc ++;
-    new_lvar(token->location, token->length, &lvars);
+    new_lvar(token->location, token->length, arg_type, &lvars);
     token = token->next;
 
     if (!equal(token, ",")) {
@@ -213,6 +233,7 @@ Function *function(Token **rest, Token *token) {
   }
   token = token->next;
 
+  // block statement
   Node *node = block_stmt(&token, token, &lvars);
 
   Function *func = calloc(1, sizeof(Function));
@@ -221,6 +242,7 @@ Function *function(Token **rest, Token *token) {
   func->name = name;
   func->argc = argc;
   func->namelen = length;
+  func->type = type;
 
   *rest = token;
   return func;
@@ -270,7 +292,7 @@ static Node *stmt(Token **rest, Token *token, LVar **lvarsp) {
     node = block_stmt(&token, token, lvarsp);
   } else if (equal(token, "return")) {
     node = return_stmt(&token, token, lvarsp);
-  } else if (equal(token, "int")) {
+  } else if (is_type_token(token)) {
     node = declare_lvar_stmt(&token, token, lvarsp);
   } else {
     node = expr_stmt(&token, token, lvarsp);
@@ -423,15 +445,10 @@ static Node *expr_stmt(Token **rest, Token *token, LVar **lvarsp) {
 // declare_lvar_stmt = "int" identifer ";"
 // declare node is skipped by codegen
 static Node *declare_lvar_stmt(Token **rest, Token *token, LVar **lvarsp) {
-  if (!equal(token, "int")) {
-    error_at(token, "expected int");
-  }
-  token = token->next;
+  
+  Type *type = identifer_type(&token, token);
 
-  if(!is_identifer_token(token)) {
-    error_at(token, "expected identifer");
-  }
-  Node *node = new_node_declare_var(token->location, token->length, lvarsp);
+  Node *node = new_node_declare_var(token->location, token->length, type, lvarsp);
   token = token->next;
 
   if (!equal(token, ";")) {
