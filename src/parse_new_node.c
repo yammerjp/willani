@@ -36,18 +36,18 @@ Node *new_node_num(long value) {
   return node;
 }
 
-Node *new_node_var(char *name, int length, LVar *lvars) {
+Node *new_node_lvar(char *name, int length, LVar *lvars) {
   LVar *lvar = find_lvar(name, length, lvars);
   if (!lvar) {
     error("use undeclared identifer '%.*s'", length, name);
   }
   Node *node = calloc(1, sizeof(Node));
-  node->kind = ND_VAR;
+  node->kind = ND_LVAR;
   node->lvar = lvar;
   return node;
 }
 
-Node *new_node_declare_var(char *name, int length, LVar **lvarsp) {
+Node *new_node_declare_lvar(char *name, int length, LVar **lvarsp) {
   if (find_lvar(name, length, *lvarsp)!= NULL) {
     error("duplicate declarations '%.*s'", length, name);
   }
@@ -55,7 +55,7 @@ Node *new_node_declare_var(char *name, int length, LVar **lvarsp) {
   new_lvar(name, length, lvarsp);
 
   Node *node = calloc(1, sizeof(Node));
-  node->kind = ND_DECLARE_VAR;
+  node->kind = ND_DECLARE_LVAR;
   node->lvar = *lvarsp;
   return node;
 }

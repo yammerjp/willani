@@ -42,7 +42,7 @@ typedef enum {
   ND_LT,          // <
   ND_LE,          // <=
   ND_ASSIGN,      // =
-  ND_VAR,         // Variable
+  ND_LVAR,         // Variable
   ND_NUM,         // Integer
   ND_FUNC_CALL,   // Function call
   ND_ADDR,        // & ...
@@ -53,7 +53,7 @@ typedef enum {
   ND_FOR,         // for
   ND_RETURN,      // return
   ND_EXPR_STMT,   // ... ;
-  ND_DECLARE_VAR, // int ... ;
+  ND_DECLARE_LVAR, // int ... ;
 } NodeKind;
 
 
@@ -80,7 +80,7 @@ struct Node {
   Node *left;
   Node *right;
   long value;       // Used if kind == ND_NUM
-  LVar *lvar;       // Used if kind == ND_VAR
+  LVar *lvar;       // Used if kind == ND_LVAR
   Node *cond;       // Used if kind is ND_IF or ND_WHILE or ND_FOR
   Node *then;       // Used if kind is ND_IF or ND_WHILE or ND_FOR
   Node *els;        // Used if kind == ND_IF
@@ -110,8 +110,8 @@ LVar *find_lvar(char *name, int length, LVar *lvars);
 void *new_lvar(char *name, int length, LVar **lvarsp);
 Node *new_node_op2(NodeKind kind, Node *left, Node *right);
 Node *new_node_num(long value);
-Node *new_node_var(char *name, int length, LVar *lvars);
-Node *new_node_declare_var(char *name, int length, LVar **lvarsp);
+Node *new_node_lvar(char *name, int length, LVar *lvars);
+Node *new_node_declare_lvar(char *name, int length, LVar **lvarsp);
 Node *new_node_return(Node *left);
 Node *new_node_if(Node *cond, Node *then, Node *els);
 Node *new_node_while(Node *cond, Node *then);

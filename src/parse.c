@@ -302,7 +302,7 @@ static Node *declare_lvar_stmt(Token **rest, Token *token, LVar **lvarsp) {
   if(!is_identifer_token(token)) {
     error_at(token, "expected identifer");
   }
-  Node *node = new_node_declare_var(token->location, token->length, lvarsp);
+  Node *node = new_node_declare_lvar(token->location, token->length, lvarsp);
   token = token->next;
 
   if (!equal(token, ";")) {
@@ -450,7 +450,7 @@ static Node *primary(Token **rest, Token *token, LVar **lvarsp) {
   if (is_identifer_token(token)) {
 
     if (!equal(token->next, "(")) {
-      node = new_node_var(token->location, token->length, *lvarsp);
+      node = new_node_lvar(token->location, token->length, *lvarsp);
       token = token->next;
     } else {
       char *name = token->location;

@@ -41,7 +41,7 @@ static void store(void) {
 
 // load the address of node's variable to the stack top
 static void gen_addr(Node *node) {
-  if (node->kind == ND_VAR) {
+  if (node->kind == ND_LVAR) {
     printf("  lea rax, [rbp-%d]\n", node->lvar->offset); // load the address of the actual value of (rbp - offset)
     printf("  push rax\n");         // push rbp - offset
     return;
@@ -152,7 +152,7 @@ static void gen_func_call(Node *node) {
   printf("  push rax\n");    // restore saved rax
 }
 
-static void gen_var(Node *node) {
+static void gen_lvar(Node *node) {
   gen_addr(node);
   load();
 }
@@ -207,7 +207,7 @@ static void gen(Node *node) {
   case ND_EXPR_STMT:
     gen_expr_stmt(node);
     break;
-  case ND_DECLARE_VAR:
+  case ND_DECLARE_LVAR:
     // skip
     break;
 
@@ -215,8 +215,8 @@ static void gen(Node *node) {
   case ND_NUM:
     gen_num(node);
     break;
-  case ND_VAR:
-    gen_var(node);
+  case ND_LVAR:
+    gen_lvar(node);
     break;
   case ND_ASSIGN:
     gen_assign(node);

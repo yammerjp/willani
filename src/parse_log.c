@@ -14,7 +14,7 @@ static char *node_kind_str(Node *node) {
     case ND_LT:  return("<");
     case ND_LE:  return("<=");
     case ND_ASSIGN: return("=");
-    case ND_VAR: return("Variable");
+    case ND_LVAR: return("Variable");
     case ND_NUM: return("Integer");
     case ND_ADDR: return("&");
     case ND_DEREF: return("*");
@@ -25,7 +25,7 @@ static char *node_kind_str(Node *node) {
     case ND_BLOCK: return("{}");
     case ND_FUNC_CALL: return("func call");
     case ND_EXPR_STMT: return(";");
-    case ND_DECLARE_VAR: return("int");
+    case ND_DECLARE_LVAR: return("int");
     default : error("unexpected node->kind");
   }
 }
@@ -36,7 +36,7 @@ void print_node(FILE *file, Node *node) {
     return;
   }
 
-  if (node->kind == ND_VAR) {
+  if (node->kind == ND_LVAR) {
     fprintf(file, "%.*s\n",node->lvar->length, node->lvar->name);
     return;
   }
