@@ -211,13 +211,15 @@ Function *function(Token **rest, Token *token) {
   }
   token = token->next;
 
+  LVar *args = lvars;
+
   Node *node = block_stmt(&token, token, &lvars);
 
   Function *func = calloc(1, sizeof(Function));
   func->node = node;
   func->lvar = lvars;
   func->name = name;
-  func->args = lvars;
+  func->args = args;
   func->namelen = length;
 
   *rest = token;

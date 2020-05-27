@@ -83,15 +83,26 @@ static void parse_log_nodes(Node *node, int depth) {
   parse_log_nodes(node->next, depth);
 }
 
-static void parse_lvar(LVar *lvar, char *func_name, int func_name_len) {
+static void parse_lvar(Function *func) {
+  LVar *lvar = func->lvar;
+  char *func_name = func->name;
+  int func_name_len = func->namelen;
+  LVar *args =  func->args;
+
   fprintf(lvar_logfile, "%.*s:\n", func_name_len, func_name);
   for( LVar *cur = lvar; cur; cur = cur->next) {
-    fprintf(lvar_logfile, "  %.*s (offset: %d)\n", cur->length, cur->name, cur->offset);
+    fprintf(lvar_logfile, "  %.*s (offset: %d)", cur->length, cur->name, cur->offset);
+    if (cur == args) {
+      fprintf(lvar_logfile, " (argument)");
+      args = cur->next;
+    }
+
+    fprintf(lvar_logfile, "\n");
   }
 }
 
 void parse_log_func(Function *func) {
-  parse_lvar(func->lvar, func->name, func->namelen);
+  parse_lvar(func);
   parse_log_nodes(func->node, 0);
 }
 
