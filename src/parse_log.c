@@ -51,9 +51,7 @@ static void parse_log_node(Node *node, int depth) {
   if (node == NULL) {
     return;
   }
-
   fprintf(parse_logfile, "%*s",depth*2, "");
-
   print_node(parse_logfile, node);
 }
 
@@ -61,25 +59,16 @@ static void parse_log_nodes(Node *node, int depth) {
   if (node == NULL) {
     return;
   }
-  if (node->kind == ND_BLOCK) {
-    parse_log_node(node, depth);
-    parse_log_nodes(node->body, depth+1);
-    return;
-  }
-  if (node->kind == ND_FOR) {
-    parse_log_node(node, depth);
-    parse_log_nodes(node->init, depth+1);
-    parse_log_nodes(node->cond, depth+1);
-    parse_log_nodes(node->increment, depth+1);
-    parse_log_nodes(node->then, depth+1);
-    return;
-  }
-  parse_log_nodes(node->left, depth+1);
-  parse_log_nodes(node->cond, depth+1);
   parse_log_node(node, depth);
-  parse_log_nodes(node->right, depth+1);
-  parse_log_nodes(node->then, depth+1);
 
+  parse_log_nodes(node->left, depth+1);
+  parse_log_nodes(node->right, depth+1);
+  parse_log_nodes(node->init, depth+1);
+  parse_log_nodes(node->cond, depth+1);
+  parse_log_nodes(node->increment, depth+1);
+  parse_log_nodes(node->then, depth+1);
+  parse_log_nodes(node->els, depth+1);
+  parse_log_nodes(node->body, depth+1);
   parse_log_nodes(node->next, depth);
 }
 
