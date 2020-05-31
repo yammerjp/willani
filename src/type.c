@@ -59,6 +59,9 @@ void add_type(Node *node) {
   add_type(node->increment);
   add_type(node->body);
   add_type(node->next);
+  if (node->fncl) {
+    add_type(node->fncl->args);
+  }
 
   switch (node->kind) {
   // statement
@@ -101,5 +104,7 @@ void add_type(Node *node) {
       error("a expression refer to unexist entity");
     }
     return;
+  default:
+    error("faild to add type because of unknown Node.kind");
   }
 }

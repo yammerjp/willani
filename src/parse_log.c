@@ -52,7 +52,8 @@ static void parse_log_node(Node *node, int depth) {
     return;
   }
   fprintf(parse_logfile, "%*s",depth*2, "");
-//  fprintf(parse_logfile, "[%s]:", node->type->kind == TYPE_INT ? "int" : "ptr" );
+  if (node->type)
+    fprintf(parse_logfile, "[%s]:", node->type->kind == TYPE_INT ? "int" : "ptr" );
   print_node(parse_logfile, node);
 }
 

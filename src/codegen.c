@@ -241,8 +241,38 @@ static void gen(Node *node) {
   printf ("  # <<< "); print_node(stdout, node);
 }
 
+static void gen_pointer_binary_operator(Node *node) {
+  if (node->type->kind != TYPE_PTR) {
+    error("expected pointer");
+  }
+  gen(node->left);
+  gen(node->right);
+  printf("  pop rax\n");
+  printf("  mov rdi, %d\n", type_size(node->type));
+  printf("  imul rax, rdi\n");
+  printf("  mov rdi, rax\n");
+  printf("  pop rax\n");
+
+  switch (node->kind) {
+  case ND_ADD:
+    printf("  add rax, rdi\n");   // rax += rdi
+    break;
+  case ND_SUB:
+    printf("  sub rax, rdi\n");   // rax -= rdi
+    break;
+  default:
+    error("unexpected operation to ptr");
+  }
+
+  printf("  push rax\n");         // store result to stack top
+}
 
 static void gen_binary_operator(Node *node) {
+  if (node->type->kind == TYPE_PTR) {
+    gen_pointer_binary_operator(node);
+    return;
+  }
+
   gen(node->left);
   gen(node->right);
 
@@ -285,6 +315,8 @@ static void gen_binary_operator(Node *node) {
     printf("  setle al\n");       // al = ( flag register means rax <= rdi ) ? 1 : 0
     printf("  movzb rax, al\n");
     break;
+  defalt:
+    error("unknown binary operator");
   }
   printf("  push rax\n");         // store result to stack top
 }
