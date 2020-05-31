@@ -164,3 +164,8 @@ void error(char *fmt, ...);
 //======================================
 // main.c
 extern char *user_input;
+
+
+//======================================
+// type.c
+void add_type(Node *node);
