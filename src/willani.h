@@ -33,14 +33,17 @@ Token *tokenize(char *p);
 // type.c
 typedef enum {
   TYPE_INT,
+  TYPE_PTR,
 } TypeKind;
 
 typedef struct Type Type;
 struct Type {
   TypeKind kind;
+  Type *ptr_to;  // Used if kind is TYPE_PTR
 };
 
 Type *new_type_int();
+Type *new_type_pointer(Type *parent);
 int type_size(Type *type);
 Type *read_type_tokens(Token **rest, Token *token);
 extern Type *type_int;
@@ -161,7 +164,3 @@ void error(char *fmt, ...);
 //======================================
 // main.c
 extern char *user_input;
-
-//======================================
-// type.c
-void add_type(Node *node);

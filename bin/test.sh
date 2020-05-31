@@ -80,10 +80,10 @@ assert 18   'int main(){return calc(10,2);}int calc(int i,int j){int k; k =10;re
 assert 4    'int main(){int i;i=0; while(i<4){ i = i +2; }return i;} '
 assert 55   'int main(){return f(10);}int f(int n){if(n<=1)return n;return n+f(n-1);}'
 assert 3    'int main() { int x; x=3; return *&x; }'
-assert 3    'int main() { int x; int y; int z; x=3; y=&x; z=&y; return **z; }'
+assert 3    'int main() { int x; int *y; int **z; x=3; y=&x; z=&y; return **z; }'
 assert 5    'int main() { int x; int y; x=3; y=5; return *(&x-8); }'
 assert 3    'int main() { int x; int y;  x=3; y=5; return *(&y+8); }'
-assert 5    'int main() { int x; int y; x=3; y=&x; *y=5; return x; }'
+assert 5    'int main() { int x; int *y; x=3; y=&x; *y=5; return x; }'
 assert 7    'int main() { int x; int y; x=3; y=5; *(&x-8)=7; return y; }'
 assert 7    'int main() { int x; int y; x=3; y=5; *(&y+8)=7; return x; }'
 

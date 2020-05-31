@@ -29,6 +29,7 @@ Node *new_node_op2(NodeKind kind, Node *left, Node *right) {
   node->kind = kind;
   node->left = left;
   node->right = right;
+  node->type = left->type;
   return node;
 }
 
@@ -36,6 +37,7 @@ Node *new_node_num(long value) {
   Node *node = calloc(1, sizeof(Node));
   node->kind = ND_NUM;
   node->value = value;
+  node->type = type_int;
   return node;
 }
 
@@ -47,6 +49,7 @@ Node *new_node_lvar(char *name, int length, LVar *lvars) {
   Node *node = calloc(1, sizeof(Node));
   node->kind = ND_LVAR;
   node->lvar = lvar;
+  node->type = lvar->type;
   return node;
 }
 
@@ -112,6 +115,7 @@ Node *new_node_func_call(char *name, int len, Node *args) {
   Node *node = calloc(1, sizeof(Node));
   node->kind = ND_FUNC_CALL;
   node->fncl = fncl;
+  node->type = type_int;
   return node;
 }
 
@@ -119,6 +123,7 @@ Node *new_node_expr_stmt(Node *stmt_node) {
   Node *node = calloc(1, sizeof(Node));
   node->kind = ND_EXPR_STMT;
   node->left = stmt_node;
+  node->type = type_int;
   return node;
 }
 
@@ -126,6 +131,7 @@ Node *new_node_addr(Node *unary_node) {
   Node *node = calloc(1, sizeof(Node));
   node->kind = ND_ADDR;
   node->left = unary_node;
+  node->type = new_type_pointer(unary_node->type);
   return node;
 }
 
@@ -133,5 +139,9 @@ Node *new_node_deref(Node *unary_node) {
   Node *node = calloc(1, sizeof(Node));
   node->kind = ND_DEREF;
   node->left = unary_node;
+  node->type = unary_node->type->ptr_to;
+  if (!node->type) {
+    error("load undefined entity");
+  }
   return node;
 }
