@@ -82,6 +82,7 @@ Function *function(Token **rest, Token *token) {
 
   // block statement
   Node *node = block_stmt(&token, token, &lvars);
+  add_type(node);
 
   // create Function struct
   Function *func = calloc(1, sizeof(Function));

@@ -43,6 +43,7 @@ struct Type {
 Type *new_type_int();
 int type_size(Type *type);
 Type *read_type_tokens(Token **rest, Token *token);
+extern Type *type_int;
 
 
 //======================================
@@ -94,6 +95,7 @@ struct Node {
   Node *next;
   Node *left;
   Node *right;
+  Type *type;        // Used if node is expression
   long value;       // Used if kind == ND_NUM
   LVar *lvar;       // Used if kind == ND_LVAR
   Node *cond;       // Used if kind is ND_IF or ND_WHILE or ND_FOR
@@ -159,3 +161,7 @@ void error(char *fmt, ...);
 //======================================
 // main.c
 extern char *user_input;
+
+//======================================
+// type.c
+void add_type(Node *node);
