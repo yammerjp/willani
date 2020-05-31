@@ -32,6 +32,15 @@ Token *tokenize(char *p);
 
 //======================================
 // parse.c
+
+typedef struct LVar LVar;
+struct LVar {
+  LVar *next;
+  char *name;
+  int length;
+  int offset;
+};
+
 typedef enum {
   ND_ADD,         // +
   ND_SUB,         // -
@@ -55,15 +64,6 @@ typedef enum {
   ND_EXPR_STMT,   // ... ;
   ND_DECLARE_LVAR, // int ... ;
 } NodeKind;
-
-
-typedef struct LVar LVar;
-struct LVar {
-  LVar *next;
-  char *name;
-  int length;
-  int offset;
-};
 
 typedef struct Node Node;
 
