@@ -29,12 +29,27 @@ bool is_eof_token(Token *token);
 bool equal(Token *token, char *str);
 Token *tokenize(char *p);
 
+//======================================
+// type.c
+typedef enum {
+  TYPE_INT,
+} TypeKind;
+
+typedef struct Type Type;
+struct Type {
+  TypeKind kind;
+};
+
+Type *new_type_int();
+int type_size(Type *type);
+Type *read_type_tokens(Token **rest, Token *token);
+
 
 //======================================
 // parse.c
-
 typedef struct LVar LVar;
 struct LVar {
+  Type *type;
   LVar *next;
   char *name;
   int length;
@@ -99,6 +114,7 @@ struct Function {
   int namelen;
   LVar *args;
   int argc;
+  Type *type;
 };
 
 Function *program(Token *token);
@@ -107,11 +123,11 @@ Function *program(Token *token);
 //======================================
 // parse_new_node.c
 LVar *find_lvar(char *name, int length, LVar *lvars);
-void *new_lvar(char *name, int length, LVar **lvarsp);
+void *new_lvar(Type *type, char *name, int length, LVar **lvarsp);
 Node *new_node_op2(NodeKind kind, Node *left, Node *right);
 Node *new_node_num(long value);
 Node *new_node_lvar(char *name, int length, LVar *lvars);
-Node *new_node_declare_lvar(char *name, int length, LVar **lvarsp);
+Node *new_node_declare_lvar(Type *type, char *name, int length, LVar **lvarsp);
 Node *new_node_return(Node *left);
 Node *new_node_if(Node *cond, Node *then, Node *els);
 Node *new_node_while(Node *cond, Node *then);

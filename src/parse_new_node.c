@@ -10,12 +10,15 @@ LVar *find_lvar(char *name, int length, LVar *lvars) {
   return NULL;
 }
 
-void *new_lvar(char *name, int length, LVar **lvarsp) {
+void *new_lvar(Type *type, char *name, int length, LVar **lvarsp) {
+  int already_reserved_offset = (*lvarsp ? ((*lvarsp)->offset ) : 0);
+
   LVar *lvar = calloc(1, sizeof(LVar));
+  lvar->type = type;
   lvar->next = *lvarsp;
   lvar->name = name;
   lvar->length = length;
-  lvar->offset = *lvarsp ? ((*lvarsp)->offset + 8) : 8;
+  lvar->offset = type_size(type) + already_reserved_offset;
 
   *lvarsp = lvar;
 }
@@ -47,12 +50,12 @@ Node *new_node_lvar(char *name, int length, LVar *lvars) {
   return node;
 }
 
-Node *new_node_declare_lvar(char *name, int length, LVar **lvarsp) {
+Node *new_node_declare_lvar(Type *type, char *name, int length, LVar **lvarsp) {
   if (find_lvar(name, length, *lvarsp)!= NULL) {
     error("duplicate declarations '%.*s'", length, name);
   }
 
-  new_lvar(name, length, lvarsp);
+  new_lvar(type, name, length, lvarsp);
 
   Node *node = calloc(1, sizeof(Node));
   node->kind = ND_DECLARE_LVAR;
