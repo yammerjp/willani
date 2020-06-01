@@ -3,29 +3,49 @@
 FILE *lvar_logfile;
 FILE *parse_logfile;
 
-static char *node_kind_str(Node *node) {
+static void print_type(FILE *file, Type *type) {
+  if (type->ptr_to) {
+    print_type(file, type->ptr_to);
+  }
+  switch (type->kind) {
+  case TYPE_INT:
+    fprintf(file, "int");
+    return;
+  case TYPE_PTR:
+    fprintf(file, "*");
+    return;
+  case TYPE_ARRAY:
+    fprintf(file, "[%d]", type_size(type) / type_size(type->ptr_to));
+    return;
+  default : error("unexpected Type.kind");
+  }
+}
+
+static void print_node_kind(FILE *file, Node *node) {
   switch (node->kind) {
-    case ND_ADD: return("+");
-    case ND_SUB: return("-");
-    case ND_MUL: return("*");
-    case ND_DIV: return("/");
-    case ND_EQ:  return("==");
-    case ND_NE:  return("!=");
-    case ND_LT:  return("<");
-    case ND_LE:  return("<=");
-    case ND_ASSIGN: return("=");
-    case ND_LVAR: return("Variable");
-    case ND_NUM: return("Integer");
-    case ND_ADDR: return("&");
-    case ND_DEREF: return("*");
-    case ND_RETURN: return("return");
-    case ND_IF: return("if");
-    case ND_WHILE: return("while");
-    case ND_FOR: return("for");
-    case ND_BLOCK: return("{}");
-    case ND_FUNC_CALL: return("func call");
-    case ND_EXPR_STMT: return(";");
-    case ND_DECLARE_LVAR: return("int");
+    case ND_ADD:          fprintf(file, "+"); return;
+    case ND_SUB:          fprintf(file, "-"); return;
+    case ND_MUL:          fprintf(file, "*"); return;
+    case ND_DIV:          fprintf(file, "/"); return;
+    case ND_EQ:           fprintf(file, "=="); return;
+    case ND_NE:           fprintf(file, "!="); return;
+    case ND_LT:           fprintf(file, "<"); return;
+    case ND_LE:           fprintf(file, "<="); return;
+    case ND_ASSIGN:       fprintf(file, "="); return;
+    case ND_LVAR:         fprintf(file, "Variable"); return;
+    case ND_NUM:          fprintf(file, "Integer"); return;
+    case ND_ADDR:         fprintf(file, "&"); return;
+    case ND_DEREF:        fprintf(file, "*"); return;
+    case ND_RETURN:       fprintf(file, "return"); return;
+    case ND_IF:           fprintf(file, "if"); return;
+    case ND_WHILE:        fprintf(file, "while"); return;
+    case ND_FOR:          fprintf(file, "for"); return;
+    case ND_BLOCK:        fprintf(file, "{}"); return;
+    case ND_FUNC_CALL:    fprintf(file, "func call"); return;
+    case ND_EXPR_STMT:    fprintf(file, ";"); return;
+    case ND_DECLARE_LVAR: print_type(file, node->lvar->type);
+                          fprintf(file, " %.*s", node->lvar->length, node->lvar->name);
+                          return;
     default : error("unexpected node->kind");
   }
 }
@@ -44,7 +64,8 @@ void print_node(FILE *file, Node *node) {
     fprintf(file, "%.*s\n",node->fncl->length, node->fncl->name);
     return;
   }
-  fprintf(file, "%s\n", node_kind_str(node));
+  print_node_kind(file, node);
+  fprintf(file, "\n");
 }
 
 static void parse_log_node(Node *node, int depth) {
@@ -52,8 +73,11 @@ static void parse_log_node(Node *node, int depth) {
     return;
   }
   fprintf(parse_logfile, "%*s",depth*2, "");
-  if (node->type)
-    fprintf(parse_logfile, "[%s]:", node->type->kind == TYPE_INT ? "int" : "ptr" );
+  if (node->type) {
+    fprintf(parse_logfile, "<");
+    print_type(parse_logfile, node->type);
+    fprintf(parse_logfile, "> ");
+  }
   print_node(parse_logfile, node);
 }
 

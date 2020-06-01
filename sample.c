@@ -1,10 +1,7 @@
-int main () {
-  return fibonacci(10);
-}
-
-int fibonacci(int n) {
-  if ( n <= 1 ) {
-    return n;
-  }
-  return n + fibonacci(n-1);
+int main() {
+  int x[2][3];
+  int *y;
+  y=x;
+  *(y+2)=3;
+  return **(x+1);
 }

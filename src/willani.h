@@ -34,20 +34,24 @@ Token *tokenize(char *p);
 typedef enum {
   TYPE_INT,
   TYPE_PTR,
+  TYPE_ARRAY,
 } TypeKind;
 
 typedef struct Type Type;
 struct Type {
   TypeKind kind;
   Type *ptr_to;  // Used if kind is TYPE_PTR
+  size_t array_size;
 };
 
 Type *new_type_int();
 Type *new_type_pointer(Type *parent);
+Type *new_type_array(Type *parent, size_t array_size);
 int type_size(Type *type);
 Type *read_type_tokens(Token **rest, Token *token);
 Type *read_type_tokens_with_pars(Token **rest, Token *token);
 extern Type *type_int;
+extern const int type_size_pointer;
 
 
 //======================================

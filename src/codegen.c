@@ -1,7 +1,8 @@
 #include "willani.h"
 
 static void gen_num(Node *node);
-static void load(void);
+static void load(Type *type);
+
 static void store(void);
 static void gen_if(Node *node);
 static void gen_while(Node *node);
@@ -22,7 +23,10 @@ static void gen_num(Node *node) {
 }
 
 // change the stack top from addr to value
-static void load(void) {
+static void load(Type *type) {
+  if (type->kind == TYPE_ARRAY) {
+    return;
+  }
   printf("  pop rax\n");          // load the stack top to rax
   printf("  mov rax, [rax]\n");   // load the actual value of rax to rax
   printf("  push rax\n");         // store rax to the stack top
@@ -154,7 +158,7 @@ static void gen_func_call(Node *node) {
 
 static void gen_lvar(Node *node) {
   gen_addr(node);
-  load();
+  load(node->type);
 }
 
 static void gen_assign(Node *node) {
@@ -229,7 +233,7 @@ static void gen(Node *node) {
     break;
   case ND_DEREF:
     gen(node->left);
-    load();
+    load(node->type);
     break;
 
   default:
@@ -241,38 +245,7 @@ static void gen(Node *node) {
   printf ("  # <<< "); print_node(stdout, node);
 }
 
-static void gen_pointer_binary_operator(Node *node) {
-  if (node->type->kind != TYPE_PTR) {
-    error("expected pointer");
-  }
-  gen(node->left);
-  gen(node->right);
-  printf("  pop rax\n");
-  printf("  mov rdi, %d\n", type_size(node->type));
-  printf("  imul rax, rdi\n");
-  printf("  mov rdi, rax\n");
-  printf("  pop rax\n");
-
-  switch (node->kind) {
-  case ND_ADD:
-    printf("  add rax, rdi\n");   // rax += rdi
-    break;
-  case ND_SUB:
-    printf("  sub rax, rdi\n");   // rax -= rdi
-    break;
-  default:
-    error("unexpected operation to ptr");
-  }
-
-  printf("  push rax\n");         // store result to stack top
-}
-
 static void gen_binary_operator(Node *node) {
-  if (node->type->kind == TYPE_PTR) {
-    gen_pointer_binary_operator(node);
-    return;
-  }
-
   gen(node->left);
   gen(node->right);
 

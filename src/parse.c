@@ -9,6 +9,7 @@ static Node *block_stmt(Token **rest, Token *token, LVar **lvarsp);
 static Node *expr_stmt(Token **rest, Token *token, LVar **lvarsp);
 static Node *return_stmt(Token **rest, Token *token, LVar **lvarsp);
 static Node *declare_lvar_stmt(Token **rest, Token *token, LVar **lvarsp, Type *type);
+static Type *type_suffix(Token **rest, Token *token, Type *ancestor);
 static Node *expr(Token **rest, Token *token, LVar **lvarsp);
 static Node *assign(Token **rest, Token *token, LVar **lvarsp);
 static Node *equality(Token **rest, Token *token, LVar **lvarsp);
@@ -294,16 +295,23 @@ static Node *expr_stmt(Token **rest, Token *token, LVar **lvarsp) {
   return node;
 }
 
-// declare_lvar_stmt = type identifer ";"
+// declare_lvar_stmt = type identifer type_suffix ";"
+// type_suffix       = "[" num "]" type_suffix | ε
 // declare node is skipped by codegen
-static Node *declare_lvar_stmt(Token **rest, Token *token, LVar **lvarsp, Type *type) {
 
-  if(!is_identifer_token(token)) {
+static Node *declare_lvar_stmt(Token **rest, Token *token, LVar **lvarsp, Type *ancestor) {
+  // identifer
+  if (!is_identifer_token(token)) {
     error_at(token, "expected identifer");
   }
-
-  Node *node = new_node_declare_lvar(type, token->location, token->length, lvarsp);
+  char *name = token->location;
+  int namelen = token->length;
   token = token->next;
+
+  // ("[" num "]")*
+  Type *type = type_suffix(&token, token, ancestor);
+
+  Node *node = new_node_declare_lvar(type, name, namelen, lvarsp);
 
   if (!equal(token, ";")) {
     error_at(token, "expected ;");
@@ -312,6 +320,26 @@ static Node *declare_lvar_stmt(Token **rest, Token *token, LVar **lvarsp, Type *
 
   *rest = token;
   return node;
+}
+
+static Type *type_suffix(Token **rest, Token *token, Type *ancestor) {
+  if (!equal(token, "[")) {
+    return ancestor;
+  }
+  token = token->next;
+
+  int length = strtol(token->location, NULL, 10);
+  token = token->next;
+  if (!equal(token,"]")) {
+    error_at(token, "expected ]");
+  }
+  token = token->next;
+
+  Type *parent = type_suffix(&token, token, ancestor);
+
+  *rest = token;
+  size_t array_size = length * type_size(parent);
+  return new_type_array(parent, array_size);
 }
 
 // expr       = assign
@@ -383,13 +411,20 @@ static Node *relational(Token **rest, Token *token, LVar ** lvarsp) {
 // add = mul ("+" mul | "-" mul)*
 static Node *add(Token **rest, Token *token, LVar **lvarsp) {
   Node *node = mul(&token, token, lvarsp);
+  add_type(node);
+
+  bool isPointer = node->type->kind == TYPE_ARRAY || node->type->kind == TYPE_PTR;
   for(;;) {
     if (equal(token, "+")){
       token = token->next;
-      node = new_node_op2(ND_ADD, node, mul(&token, token, lvarsp));
+      Node *right_on_code = mul(&token, token, lvarsp);
+      Node *right = !isPointer ? right_on_code : new_node_op2(ND_MUL, right_on_code, new_node_num(type_size(node->type->ptr_to)));
+      node = new_node_op2(ND_ADD, node, right);
     } else if (equal(token, "-")) {
       token = token->next;
-      node = new_node_op2(ND_SUB, node, mul(&token, token, lvarsp));
+      Node *right_on_code = mul(&token, token, lvarsp);
+      Node *right = !isPointer ? right_on_code : new_node_op2(ND_MUL, right_on_code, new_node_num(type_size(node->type->ptr_to)));
+      node = new_node_op2(ND_SUB, node, right);
     } else {
       *rest = token;
       return node;
