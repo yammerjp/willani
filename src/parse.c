@@ -413,18 +413,13 @@ static Node *add(Token **rest, Token *token, LVar **lvarsp) {
   Node *node = mul(&token, token, lvarsp);
   add_type(node);
 
-  bool isPointer = node->type->kind == TYPE_ARRAY || node->type->kind == TYPE_PTR;
   for(;;) {
     if (equal(token, "+")){
       token = token->next;
-      Node *right_on_code = mul(&token, token, lvarsp);
-      Node *right = !isPointer ? right_on_code : new_node_op2(ND_MUL, right_on_code, new_node_num(type_size(node->type->ptr_to)));
-      node = new_node_op2(ND_ADD, node, right);
+      node = new_node_op2(ND_ADD, node, mul(&token, token, lvarsp));
     } else if (equal(token, "-")) {
       token = token->next;
-      Node *right_on_code = mul(&token, token, lvarsp);
-      Node *right = !isPointer ? right_on_code : new_node_op2(ND_MUL, right_on_code, new_node_num(type_size(node->type->ptr_to)));
-      node = new_node_op2(ND_SUB, node, right);
+      node = new_node_op2(ND_SUB, node, mul(&token, token, lvarsp));
     } else {
       *rest = token;
       return node;

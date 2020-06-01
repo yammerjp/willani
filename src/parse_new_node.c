@@ -25,6 +25,22 @@ void *new_lvar(Type *type, char *name, int length, LVar **lvarsp) {
 
 // ========== new node ==========
 Node *new_node_op2(NodeKind kind, Node *left, Node *right) {
+  if (kind == ND_ADD || kind == ND_SUB) {
+    add_type(left);
+    add_type(right);
+    if (
+      left->type->kind == TYPE_PTR
+      || left->type->kind == TYPE_ARRAY
+    ) {
+      right = new_node_op2(ND_MUL, right, new_node_num( type_size(left->type->ptr_to) ));
+    } else if (
+      right->type->kind == TYPE_PTR
+      || right->type->kind == TYPE_ARRAY
+    ) {
+      left = new_node_op2(ND_MUL, left, new_node_num( type_size(right->type->ptr_to) ));
+    }
+  }
+
   Node *node = calloc(1, sizeof(Node));
   node->kind = kind;
   node->left = left;
