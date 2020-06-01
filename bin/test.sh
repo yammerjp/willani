@@ -87,4 +87,11 @@ assert 5    'int main() { int x; int *y; x=3; y=&x; *y=5; return x; }'
 assert 7    'int main() { int x; int y; x=3; y=5; *(&x-1)=7; return y; }'
 assert 7    'int main() { int x; int y; x=3; y=5; *(&y+1)=7; return x; }'
 
+assert 8 'int main() { int x; return sizeof(x); }'
+assert 8 'int main() { int x; return sizeof x; }'
+assert 8 'int main() { int *x; return sizeof(x); }'
+assert 8 'int main() { int x; return sizeof(x=2); }'
+assert 8 'int main() { return sizeof(int); }'
+assert 8 'int main() { return sizeof(int*); }'
+assert 8 'int main() { return sizeof(int**); }'
 echo OK

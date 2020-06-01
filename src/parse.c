@@ -16,6 +16,7 @@ static Node *relational(Token **rest, Token *token, LVar **lvarsp);
 static Node *add(Token **rest, Token *token, LVar **lvarsp);
 static Node *mul(Token **rest, Token *token, LVar **lvarsp);
 static Node *unary(Token **rest, Token *token, LVar **lvarsp);
+static Node *sizeofunary(Token **rest, Token *token, LVar **lvarsp);
 static Node *primary(Token **rest, Token *token, LVar **lvarsp);
 
 // program = function*
@@ -414,7 +415,9 @@ static Node *mul(Token **rest, Token *token, LVar **lvarsp) {
   }
 }
 
-// unary = ("+" | "-")? primary | ( "*" | "&" ) unary
+// unary = ("+" | "-")? primary
+//       | "sizeof" unary
+//       | ( "*" | "&" ) unary
 static Node *unary(Token **rest, Token *token, LVar **lvarsp) {
   Node *node;
   if (equal(token,"+")) {
@@ -429,11 +432,34 @@ static Node *unary(Token **rest, Token *token, LVar **lvarsp) {
   } else if (equal(token, "&")) {
     token = token->next;
     node = new_node_addr(unary(&token, token, lvarsp));
+  } else if (equal(token, "sizeof")) {
+    node = sizeofunary(&token, token, lvarsp);
   } else {
     node = primary(&token, token, lvarsp);
   }
   *rest = token;
   return node;
+}
+
+// sizeofunary = "sizeof" ( type_with_pars | unary )
+// type_with_pars = "(" type_with_pars ")" | type
+static Node *sizeofunary(Token **rest, Token *token, LVar **lvarsp) {
+  if (!equal(token, "sizeof")) {
+    error_at(token, "expected sizeof");
+  }
+  token = token->next;
+
+  Type *type = read_type_tokens_with_pars(&token, token);
+
+  if (!type) {
+    Node *measuring_node = unary(&token, token, lvarsp);
+    add_type(measuring_node);
+    type = measuring_node->type;
+  }
+  int size = type_size(type);
+
+  *rest = token;
+  return new_node_num(size);
 }
 
 // primary    = num | ident ( "(" ")" )? | "(" expr ")"

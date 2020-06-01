@@ -46,6 +46,7 @@ Type *new_type_int();
 Type *new_type_pointer(Type *parent);
 int type_size(Type *type);
 Type *read_type_tokens(Token **rest, Token *token);
+Type *read_type_tokens_with_pars(Token **rest, Token *token);
 extern Type *type_int;
 
 
