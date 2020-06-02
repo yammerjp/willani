@@ -169,7 +169,7 @@ void error(char *fmt, ...);
 //======================================
 // main.c
 extern char *user_input;
-
+extern Var *gvars;
 
 //======================================
 // type.c

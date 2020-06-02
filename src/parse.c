@@ -20,7 +20,7 @@ static Node *unary(Token **rest, Token *token, Var **lvarsp);
 static Node *sizeofunary(Token **rest, Token *token, Var **lvarsp);
 static Node *primary(Token **rest, Token *token, Var **lvarsp);
 
-// program = function*
+// program = (function | declare_gvar)*
 Function *program(Token *token) {
   Var *lvars = NULL;
   Function head = {};
@@ -40,12 +40,27 @@ Function *program(Token *token) {
     int namelen = token->length;
     token = token->next;
 
-    // function
-    current->next = function(&token, token, type, name, namelen);
-    current = current->next;
+    if (equal(token, "(")) {
+      // function
+      current->next = function(&token, token, type, name, namelen);
+      current = current->next;
+    } else {
+      // global variable
+      type = type_suffix(&token, token, type);
+      if (find_var(name, namelen, gvars)) {
+        error_at(token, "duplicate declarations '%.*s'", namelen, name);
+      }
+      new_var(type, name, namelen, &gvars);
+
+      if (!equal(token, ";")) {
+        error_at(token, "expected ;");
+      }
+      token = token->next;
+    }
   }
   return head.next;
 }
+// declare_gvar = type ident type_suffix ";"
 // function = type ident "(" ( ( type ident ( "," type ident ) * ) ?  ")" block_stmt
 
 static Function *function(Token **rest, Token *token, Type *return_type, char *name, int namelen) {
