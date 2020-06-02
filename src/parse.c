@@ -66,7 +66,7 @@ Function *function(Token **rest, Token *token) {
     if(!is_identifer_token(token)) {
       error_at(token, "expected identifer");
     }
-    new_lvar(arg_type, token->location, token->length, &lvars);
+    new_var(arg_type, token->location, token->length, &lvars);
     token = token->next;
 
     if (!equal(token, ",")) {

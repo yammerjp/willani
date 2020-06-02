@@ -132,8 +132,8 @@ Function *program(Token *token);
 
 //======================================
 // parse_new_node.c
-Var *find_lvar(char *name, int length, Var *lvars);
-void *new_lvar(Type *type, char *name, int length, Var **lvarsp);
+Var *find_var(char *name, int length, Var *vars);
+void *new_var(Type *type, char *name, int length, Var **varsp);
 Node *new_node_op2(NodeKind kind, Node *left, Node *right);
 Node *new_node_num(long value);
 Node *new_node_lvar(char *name, int length, Var *lvars);
