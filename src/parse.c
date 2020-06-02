@@ -448,6 +448,7 @@ static Node *mul(Token **rest, Token *token, LVar **lvarsp) {
 // unary = ("+" | "-")? primary
 //       | "sizeof" unary
 //       | ( "*" | "&" ) unary
+//       | primary ("[" expr "]")*
 static Node *unary(Token **rest, Token *token, LVar **lvarsp) {
   Node *node;
   if (equal(token,"+")) {
@@ -466,6 +467,19 @@ static Node *unary(Token **rest, Token *token, LVar **lvarsp) {
     node = sizeofunary(&token, token, lvarsp);
   } else {
     node = primary(&token, token, lvarsp);
+
+    // ("[" expr "]")*
+    while(equal(token, "[")) {
+      token = token->next;
+
+      Node *expr_node = expr(&token,token, lvarsp);
+      node = new_node_deref(new_node_op2(ND_ADD, node, expr_node));
+
+      if (!equal(token, "]")) {
+        error_at(token, "expected ]");
+      }
+      token = token->next;
+    }
   }
   *rest = token;
   return node;

@@ -134,9 +134,6 @@ void add_type(Node *node) {
     return;
   case ND_DEREF:
     node->type = node->left->type->ptr_to;
-    if (!node->type) {
-      error("a expression refer to unexist entity");
-    }
     return;
   default:
     error("faild to add type because of unknown Node.kind");
