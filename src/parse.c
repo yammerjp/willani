@@ -1,6 +1,6 @@
 #include "willani.h"
 
-static Function *function(Token **rest, Token *token);
+static Function *function(Token **rest, Token *token, Type *return_type, char *name, int namelen);
 static Node *stmt(Token **rest, Token *token, Var **lvarsp);
 static Node *if_stmt(Token **rest, Token *token, Var **lvarsp);
 static Node *while_stmt(Token **rest, Token *token, Var **lvarsp);
@@ -27,28 +27,29 @@ Function *program(Token *token) {
   Function *current = &head;
 
   while (!is_eof_token(token)) {
-    current->next = function(&token, token);
+
+    // type
+    Type *type = read_type_tokens(&token, token);
+
+    // function name
+    if (!is_identifer_token(token)) {
+      error_at(token, "expected identifer");
+    }
+
+    char *name = token->location;
+    int namelen = token->length;
+    token = token->next;
+
+    // function
+    current->next = function(&token, token, type, name, namelen);
     current = current->next;
   }
   return head.next;
 }
+// function = type ident "(" ( ( type ident ( "," type ident ) * ) ?  ")" block_stmt
 
-// function = ( type ident "(" ( ( type ident ( "," type ident ) * ) ?  ")" block_stmt ) *
-
-Function *function(Token **rest, Token *token) {
+static Function *function(Token **rest, Token *token, Type *return_type, char *name, int namelen) {
   Var *lvars = NULL;
-
-  // type
-  Type *return_type = read_type_tokens(&token, token);
-
-  // function name
-  if (!is_identifer_token(token)) {
-    error_at(token, "expected identifer");
-  }
-
-  char *name = token->location;
-  int length = token->length;
-  token = token->next;
 
   // arguments
   if (!equal(token, "(")) {
@@ -93,7 +94,7 @@ Function *function(Token **rest, Token *token) {
   func->name = name;
   func->args = args;
   func->argc = argc;
-  func->namelen = length;
+  func->namelen = namelen;
   func->type = return_type;
 
   *rest = token;
