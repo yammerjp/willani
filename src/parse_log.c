@@ -1,6 +1,6 @@
 #include "willani.h"
 
-FILE *lvar_logfile;
+FILE *var_logfile;
 FILE *parse_logfile;
 
 static void print_type(FILE *file, Type *type) {
@@ -21,57 +21,42 @@ static void print_type(FILE *file, Type *type) {
   }
 }
 
-static void print_node_kind(FILE *file, Node *node) {
+void print_node(FILE *file, Node *node) {
   switch (node->kind) {
-    case ND_ADD:          fprintf(file, "+"); return;
-    case ND_SUB:          fprintf(file, "-"); return;
-    case ND_MUL:          fprintf(file, "*"); return;
-    case ND_DIV:          fprintf(file, "/"); return;
-    case ND_EQ:           fprintf(file, "=="); return;
-    case ND_NE:           fprintf(file, "!="); return;
-    case ND_LT:           fprintf(file, "<"); return;
-    case ND_LE:           fprintf(file, "<="); return;
-    case ND_ASSIGN:       fprintf(file, "="); return;
-    case ND_LVAR:         fprintf(file, "Variable"); return;
-    case ND_NUM:          fprintf(file, "Integer"); return;
-    case ND_ADDR:         fprintf(file, "&"); return;
-    case ND_DEREF:        fprintf(file, "*"); return;
-    case ND_RETURN:       fprintf(file, "return"); return;
-    case ND_IF:           fprintf(file, "if"); return;
-    case ND_WHILE:        fprintf(file, "while"); return;
-    case ND_FOR:          fprintf(file, "for"); return;
-    case ND_BLOCK:        fprintf(file, "{}"); return;
-    case ND_FUNC_CALL:    fprintf(file, "func call"); return;
-    case ND_EXPR_STMT:    fprintf(file, ";"); return;
+    case ND_ADD:          fprintf(file, "+"); break;
+    case ND_SUB:          fprintf(file, "-"); break;
+    case ND_MUL:          fprintf(file, "*"); break;
+    case ND_DIV:          fprintf(file, "/"); break;
+    case ND_EQ:           fprintf(file, "=="); break;
+    case ND_NE:           fprintf(file, "!="); break;
+    case ND_LT:           fprintf(file, "<"); break;
+    case ND_LE:           fprintf(file, "<="); break;
+    case ND_ASSIGN:       fprintf(file, "="); break;
+    case ND_GVAR:         fprintf(file, "%.*s",node->gvar->length, node->gvar->name); break;
+    case ND_LVAR:         fprintf(file, "%.*s",node->lvar->length, node->lvar->name); break;
+    case ND_NUM:          fprintf(file, "%ld",node->value); break;
+    case ND_ADDR:         fprintf(file, "&"); break;
+    case ND_DEREF:        fprintf(file, "*"); break;
+    case ND_RETURN:       fprintf(file, "return"); break;
+    case ND_IF:           fprintf(file, "if"); break;
+    case ND_WHILE:        fprintf(file, "while"); break;
+    case ND_FOR:          fprintf(file, "for"); break;
+    case ND_BLOCK:        fprintf(file, "{}"); break;
+    case ND_FUNC_CALL:    fprintf(file, "%.*s",node->fncl->length, node->fncl->name); break;
+    case ND_EXPR_STMT:    fprintf(file, ";"); break;
     case ND_DECLARE_LVAR: print_type(file, node->lvar->type);
                           fprintf(file, " %.*s", node->lvar->length, node->lvar->name);
-                          return;
+                          break;
     default : error("unexpected node->kind");
   }
-}
-
-void print_node(FILE *file, Node *node) {
-  if (node->kind == ND_NUM) {
-    fprintf(file, "%ld\n",node->value);
-    return;
-  }
-
-  if (node->kind == ND_LVAR) {
-    fprintf(file, "%.*s\n",node->lvar->length, node->lvar->name);
-    return;
-  }
-  if (node->kind == ND_FUNC_CALL) {
-    fprintf(file, "%.*s\n",node->fncl->length, node->fncl->name);
-    return;
-  }
-  print_node_kind(file, node);
   fprintf(file, "\n");
 }
 
-static void parse_log_node(Node *node, int depth) {
+static void parse_log_nodes(Node *node, int depth) {
   if (node == NULL) {
     return;
   }
+
   fprintf(parse_logfile, "%*s",depth*2, "");
   if (node->type) {
     fprintf(parse_logfile, "<");
@@ -79,13 +64,7 @@ static void parse_log_node(Node *node, int depth) {
     fprintf(parse_logfile, "> ");
   }
   print_node(parse_logfile, node);
-}
 
-static void parse_log_nodes(Node *node, int depth) {
-  if (node == NULL) {
-    return;
-  }
-  parse_log_node(node, depth);
 
   parse_log_nodes(node->left, depth+1);
   parse_log_nodes(node->right, depth+1);
@@ -98,43 +77,39 @@ static void parse_log_nodes(Node *node, int depth) {
   parse_log_nodes(node->next, depth);
 }
 
-static void parse_lvar(Function *func) {
-  Var *lvar = func->lvar;
-  char *func_name = func->name;
-  int func_name_len = func->namelen;
-  Var *args =  func->args;
 
-  fprintf(lvar_logfile, "%.*s:\n", func_name_len, func_name);
-  for( Var *cur = lvar; cur; cur = cur->next) {
-    fprintf(lvar_logfile, "  %.*s (offset: %d)", cur->length, cur->name, cur->offset);
+static void parse_vars(Var *vars, Var *args) {
+  for( Var *cur = vars; cur; cur = cur->next) {
+    fprintf(var_logfile, "  size:%3d, offset:%3d, name: %.*s ", type_size(cur->type), cur->offset, cur->length, cur->name);
     if (cur == args) {
-      fprintf(lvar_logfile, " (argument)");
+      fprintf(var_logfile, " (argument)");
       args = cur->next;
     }
-
-    fprintf(lvar_logfile, "\n");
+    fprintf(var_logfile, "\n");
   }
 }
 
-void parse_log_func(Function *func) {
-  parse_lvar(func);
-  parse_log_nodes(func->node, 0);
-}
-
 void parse_log(Function *func) {
-  lvar_logfile = fopen("lvar.log","w");
-  if (lvar_logfile == NULL) {
-    error("fail to open lvar.log");
+  var_logfile = fopen("var.log","w");
+  if (var_logfile == NULL) {
+    error("fail to open var.log");
   }
   parse_logfile = fopen("parse.log","w");
   if (parse_logfile == NULL) {
     error("fail to open parse.log");
   }
 
-  for (Function *current = func; current; current = current->next) {
-    parse_log_func(current);
+  fprintf(var_logfile, ".global:\n");
+  parse_vars(gvars, NULL);
+
+  for (Function *cur = func; cur; cur = cur->next) {
+    fprintf(var_logfile, "%.*s:\n", cur->namelen, cur->name);
+    parse_vars(cur->lvar, cur->args);
+
+    fprintf(parse_logfile, "%.*s: ", cur->namelen, cur->name);
+    parse_log_nodes(cur->node, 0);
   }
  
   fclose(parse_logfile);
-  fclose(lvar_logfile);
+  fclose(var_logfile);
 }
