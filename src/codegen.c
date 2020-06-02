@@ -19,7 +19,7 @@ char *funcname = NULL;
 int funcnamelen = 0;
 
 static void gen_num(Node *node) {
-  printf("  push %ld\n", node->value); // push constant
+  printf("  pushq $%ld\n", node->value); // pushq constant
 }
 
 // change the stack top from addr to value
@@ -27,9 +27,9 @@ static void load(Type *type) {
   if (type->kind == TYPE_ARRAY) {
     return;
   }
-  printf("  pop rax\n");          // load the stack top to rax
-  printf("  mov rax, [rax]\n");   // load the actual value of rax to rax
-  printf("  push rax\n");         // store rax to the stack top
+  printf("  popq %%rax\n");          // load the stack top to rax
+  printf("  movq (%%rax), %%rax\n");   // load the actual value of rax to rax
+  printf("  pushq %%rax\n");         // store rax to the stack top
 }
 
 // store value to the variable.
@@ -37,17 +37,17 @@ static void store(void) {
   // stack
   // before : (top) value, (variable's address), ...
   // after  : (top) value, ...
-  printf("  pop rdi\n");          // load the stack top to rdi
-  printf("  pop rax\n");          // load the stack top to rax
-  printf("  mov [rax], rdi\n");   // copy rdi's value to the address pointed by rax
-  printf("  push rdi\n");         // store rdi to the stack top
+  printf("  popq %%rdi\n");          // load the stack top to rdi
+  printf("  popq %%rax\n");          // load the stack top to rax
+  printf("  movq %%rdi, (%%rax)\n");   // copy rdi's value to the address pointed by rax
+  printf("  pushq %%rdi\n");         // store rdi to the stack top
 }
 
 // load the address of node's variable to the stack top
 static void gen_addr(Node *node) {
   if (node->kind == ND_LVAR) {
-    printf("  lea rax, [rbp-%d]\n", node->lvar->offset); // load the address of the actual value of (rbp - offset)
-    printf("  push rax\n");         // push rbp - offset
+    printf("  lea -%d(%%rbp), %%rax\n", node->lvar->offset); // load the address of the actual value of (rbp - offset)
+    printf("  pushq %%rax\n");         // pushq rbp - offset
     return;
   }
   if (node->kind == ND_DEREF) {
@@ -63,8 +63,8 @@ static void gen_if(Node *node) {
     error("expected node->kind is ND_IF");
   }
   gen(node->cond);               // calculate condition
-  printf("  pop rax\n");         // load result to the stach top
-  printf("  cmp rax, 0\n");      // evaluate result
+  printf("  popq %%rax\n");         // load result to the stach top
+  printf("  cmp $0, %%rax\n");      // evaluate result
 
   if (node->els) {
     printf("  je  .L.else.%d\n", labct); // jump if result is false
@@ -87,8 +87,8 @@ static void gen_while(Node *node) {
   }
   printf(".L.begin.%d:\n", labct);
   gen(node->cond);               // calculate condition
-  printf("  pop rax\n");         // load result to the stach top
-  printf("  cmp rax, 0\n");       // evaluate result
+  printf("  popq %%rax\n");         // load result to the stach top
+  printf("  cmp $0, %%rax\n");       // evaluate result
 
   printf("  je  .L.end.%d\n", labct); // jump if result is false
 
@@ -107,8 +107,8 @@ static void gen_for(Node *node) {
 
   printf(".L.begin.%d:\n", labct);
   gen(node->cond);               // calculate condition
-  printf("  pop rax\n");         // load result to the stach top
-  printf("  cmp rax, 0\n");       // evaluate result
+  printf("  popq %%rax\n");         // load result to the stach top
+  printf("  cmp $0, %%rax\n");       // evaluate result
 
   printf("  je  .L.end.%d\n", labct); // jump if result is false
 
@@ -135,25 +135,25 @@ static void gen_func_call(Node *node) {
   int i = 0;
   for (Node *cur = node->fncl->args; cur; cur = cur->next) {
     gen(cur);
-    printf("  pop  %s\n", arg_registers[i++]);
+    printf("  popq  %%%s\n", arg_registers[i++]);
   }
 
   // align RSP to a 16 bite boundary
   int labct = label_count ++;
-  printf("  mov rax, rsp\n");
-  printf("  and rax, 15\n");
+  printf("  movq %%rsp, %%rax\n");
+  printf("  and $15, %%rax\n");
   printf("  jne .L.needAlign.%d\n", labct);
 
   printf("  call %.*s\n", node->fncl->length, node->fncl->name);
   printf("  jmp .L.end.%d\n", labct);
 
   printf(".L.needAlign.%d:\n", labct);
-  printf("  sub rsp, 8\n");
+  printf("  sub $8, %%rsp\n");
   printf("  call %.*s\n", node->fncl->length, node->fncl->name);
-  printf("  add rsp, 8\n");
+  printf("  add $8, %%rsp\n");
 
   printf(".L.end.%d:\n", labct);
-  printf("  push rax\n");    // restore saved rax
+  printf("  pushq %%rax\n");    // restore saved rax
 }
 
 static void gen_lvar(Node *node) {
@@ -175,7 +175,7 @@ static void gen_return(Node *node) {
     error("expected node->kind is ND_RETURN");
   }
   gen(node->left);
-  printf("  pop rax\n");
+  printf("  popq %%rax\n");
   printf("  jmp .L.return.%.*s\n", funcnamelen, funcname);
 }
 
@@ -184,7 +184,7 @@ static void gen_expr_stmt(Node *node) {
     error("expected node->kind is ND_EXPR_STMT");
   }
   gen(node->left);
-  printf("  add rsp, 8\n"); // stmt is not leave any values in the stack
+  printf("  add $8, %%rsp\n"); // stmt is not leave any values in the stack
 }
 
 static void gen(Node *node) {
@@ -249,68 +249,68 @@ static void gen_binary_operator(Node *node) {
   gen(node->left);
   gen(node->right);
 
-  printf("  pop rdi\n");          // load the stack top to rdi to calculate
-  printf("  pop rax\n");          // load the stack top to rax to calculate
+  printf("  popq %%rdi\n");          // load the stack top to rdi to calculate
+  printf("  popq %%rax\n");          // load the stack top to rax to calculate
 
   switch (node->kind) {
   case ND_ADD:
-    printf("  add rax, rdi\n");   // rax += rdi
+    printf("  add %%rdi, %%rax\n");   // rax += rdi
     break;
   case ND_SUB:
-    printf("  sub rax, rdi\n");   // rax -= rdi
+    printf("  sub %%rdi, %%rax\n");   // rax -= rdi
     break;
   case ND_MUL:
-    printf("  imul rax, rdi\n");  // rax *= rdi
+    printf("  imul %%rdi, %%rax\n");  // rax *= rdi
     break;
   case ND_DIV:
     printf("  cqo\n");            // [rdx rax](128bit) = rax (64bit)
-    printf("  idiv rdi\n");       // rax = [rdx rax] / rdi
+    printf("  idiv %%rdi\n");       // rax = [rdx rax] / rdi
                                   // rdx = [rdx rax] % rdi
     break;
   case ND_EQ:
-    printf("  cmp rax, rdi\n");   // set flag register with comparing rax and rdi
-    printf("  sete al\n");        // al = ( flag register means rax == rdi ) ? 1 : 0
-    printf("  movzb rax, al\n");  // rax(64bit) = al(8bit)
+    printf("  cmp %%rdi, %%rax\n");   // set flag register with comparing rax and rdi
+    printf("  sete %%al\n");        // al = ( flag register means rax == rdi ) ? 1 : 0
+    printf("  movzb %%al, %%rax\n");  // rax(64bit) = al(8bit)
                                   // al refer to the lower 8 bits of the rax
     break;
   case ND_NE:
-    printf("  cmp rax, rdi\n");
-    printf("  setne al\n");       // al = ( flag register means rax != rdi ) ? 1 : 0
-    printf("  movzb rax, al\n");
+    printf("  cmp %%rdi, %%rax\n");
+    printf("  setne %%al\n");       // al = ( flag register means rax != rdi ) ? 1 : 0
+    printf("  movzb %%al, %%rax\n");
     break;
   case ND_LT:
-    printf("  cmp rax, rdi\n");
-    printf("  setl al\n");        // al = ( flag register means rax < rdi ) ? 1 : 0
-    printf("  movzb rax, al\n");
+    printf("  cmp %%rdi, %%rax\n");
+    printf("  setl %%al\n");        // al = ( flag register means rax < rdi ) ? 1 : 0
+    printf("  movzb %%al, %%rax\n");
     break;
   case ND_LE:
-    printf("  cmp rax, rdi\n");
-    printf("  setle al\n");       // al = ( flag register means rax <= rdi ) ? 1 : 0
-    printf("  movzb rax, al\n");
+    printf("  cmp %%rdi, %%rax\n");
+    printf("  setle %%al\n");       // al = ( flag register means rax <= rdi ) ? 1 : 0
+    printf("  movzb %%al, %%rax\n");
     break;
   defalt:
     error("unknown binary operator");
   }
-  printf("  push rax\n");         // store result to stack top
+  printf("  pushq %%rax\n");         // store result to stack top
 }
 
 static void prologue(Function *func) {
   int offset = func->lvar ? (func->lvar->offset) : 0;
 
-  printf("  push rbp\n");         // record caller's rbp
-  printf("  mov rbp, rsp\n");     // set current stack top to rbp
-  printf("  sub rsp, %d\n", offset);     // allocate memory for a-z variables
+  printf("  pushq %%rbp\n");         // record caller's rbp
+  printf("  movq %%rsp, %%rbp\n");     // set current stack top to rbp
+  printf("  sub $%d, %%rsp\n", offset);     // allocate memory for a-z variables
 
   int i = func->argc;
   for (LVar *arg = func->args; arg; arg = arg->next) {
-    printf("  mov [rbp-%d], %s\n", arg->offset, arg_registers[--i]);
+    printf("  movq %%%s, -%d(%%rbp)\n",  arg_registers[--i], arg->offset);
   }
 }
 
 static void epilogue(void) {
   printf(".L.return.%.*s:\n", funcnamelen, funcname);
-  printf("  mov rsp, rbp\n");   // ignore the remanig data in the stack
-  printf("  pop rbp\n");        // set caller's rbp to rsp
+  printf("  movq %%rbp, %%rsp\n");   // ignore the remanig data in the stack
+  printf("  popq %%rbp\n");        // set caller's rbp to rsp
   printf("  ret\n");
 }
 
@@ -337,7 +337,6 @@ void gen_func_names(Function *head) {
 
 void code_generate(Function *func) {
   // assembly code header
-  printf(".intel_syntax noprefix\n");
   printf(".global "); gen_func_names(func); printf("\n");
 
   for (Function *current = func; current; current = current->next) {
