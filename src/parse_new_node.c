@@ -1,8 +1,8 @@
 #include "willani.h"
 
 // ========== lvar ==========
-LVar *find_lvar(char *name, int length, LVar *lvars) {
-  for (LVar *lvar = lvars; lvar; lvar = lvar->next) {
+Var *find_lvar(char *name, int length, Var *lvars) {
+  for (Var *lvar = lvars; lvar; lvar = lvar->next) {
     if (length == lvar->length && !strncmp(name, lvar->name, length)) {
       return lvar;
     }
@@ -10,10 +10,10 @@ LVar *find_lvar(char *name, int length, LVar *lvars) {
   return NULL;
 }
 
-void *new_lvar(Type *type, char *name, int length, LVar **lvarsp) {
+void *new_lvar(Type *type, char *name, int length, Var **lvarsp) {
   int already_reserved_offset = (*lvarsp ? ((*lvarsp)->offset ) : 0);
 
-  LVar *lvar = calloc(1, sizeof(LVar));
+  Var *lvar = calloc(1, sizeof(Var));
   lvar->type = type;
   lvar->next = *lvarsp;
   lvar->name = name;
@@ -55,8 +55,8 @@ Node *new_node_num(long value) {
   return node;
 }
 
-Node *new_node_lvar(char *name, int length, LVar *lvars) {
-  LVar *lvar = find_lvar(name, length, lvars);
+Node *new_node_lvar(char *name, int length, Var *lvars) {
+  Var *lvar = find_lvar(name, length, lvars);
   if (!lvar) {
     error("use undeclared identifer '%.*s'", length, name);
   }
@@ -66,7 +66,7 @@ Node *new_node_lvar(char *name, int length, LVar *lvars) {
   return node;
 }
 
-Node *new_node_declare_lvar(Type *type, char *name, int length, LVar **lvarsp) {
+Node *new_node_declare_lvar(Type *type, char *name, int length, Var **lvarsp) {
   if (find_lvar(name, length, *lvarsp)!= NULL) {
     error("duplicate declarations '%.*s'", length, name);
   }

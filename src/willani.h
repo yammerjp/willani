@@ -56,10 +56,10 @@ extern const int type_size_pointer;
 
 //======================================
 // parse.c
-typedef struct LVar LVar;
-struct LVar {
+typedef struct Var Var;
+struct Var {
   Type *type;
-  LVar *next;
+  Var *next;
   char *name;
   int length;
   int offset;
@@ -105,7 +105,7 @@ struct Node {
   Node *right;
   Type *type;        // Used if node is expression
   long value;       // Used if kind == ND_NUM
-  LVar *lvar;       // Used if kind == ND_LVAR
+  Var *lvar;       // Used if kind == ND_LVAR
   Node *cond;       // Used if kind is ND_IF or ND_WHILE or ND_FOR
   Node *then;       // Used if kind is ND_IF or ND_WHILE or ND_FOR
   Node *els;        // Used if kind == ND_IF
@@ -118,11 +118,11 @@ struct Node {
 typedef struct Function Function;
 struct Function {
   Node *node;
-  LVar *lvar;
+  Var *lvar;
   Function *next;
   char *name;
   int namelen;
-  LVar *args;
+  Var *args;
   int argc;
   Type *type;
 };
@@ -132,12 +132,12 @@ Function *program(Token *token);
 
 //======================================
 // parse_new_node.c
-LVar *find_lvar(char *name, int length, LVar *lvars);
-void *new_lvar(Type *type, char *name, int length, LVar **lvarsp);
+Var *find_lvar(char *name, int length, Var *lvars);
+void *new_lvar(Type *type, char *name, int length, Var **lvarsp);
 Node *new_node_op2(NodeKind kind, Node *left, Node *right);
 Node *new_node_num(long value);
-Node *new_node_lvar(char *name, int length, LVar *lvars);
-Node *new_node_declare_lvar(Type *type, char *name, int length, LVar **lvarsp);
+Node *new_node_lvar(char *name, int length, Var *lvars);
+Node *new_node_declare_lvar(Type *type, char *name, int length, Var **lvarsp);
 Node *new_node_return(Node *left);
 Node *new_node_if(Node *cond, Node *then, Node *els);
 Node *new_node_while(Node *cond, Node *then);

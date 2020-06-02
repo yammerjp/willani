@@ -302,7 +302,7 @@ static void prologue(Function *func) {
   printf("  sub $%d, %%rsp\n", offset);     // allocate memory for a-z variables
 
   int i = func->argc;
-  for (LVar *arg = func->args; arg; arg = arg->next) {
+  for (Var *arg = func->args; arg; arg = arg->next) {
     printf("  movq %%%s, -%d(%%rbp)\n",  arg_registers[--i], arg->offset);
   }
 }
