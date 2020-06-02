@@ -45,11 +45,18 @@ static void store(void) {
 
 // load the address of node's variable to the stack top
 static void gen_addr(Node *node) {
-  if (node->kind == ND_LVAR) {
-    printf("  lea -%d(%%rbp), %%rax\n", node->lvar->offset); // load the address of the actual value of (rbp - offset)
+  if (node->kind == ND_GVAR) {
+    printf("  mov $%.*s, %%rax\n", node->var->length, node->var->name); // load the address of the actual value of (rbp - offset)
     printf("  pushq %%rax\n");         // pushq rbp - offset
     return;
   }
+
+  if (node->kind == ND_LVAR) {
+    printf("  lea -%d(%%rbp), %%rax\n", node->var->offset); // load the address of the actual value of (rbp - offset)
+    printf("  pushq %%rax\n");         // pushq rbp - offset
+    return;
+  }
+
   if (node->kind == ND_DEREF) {
     gen(node->left);
     return;
@@ -156,7 +163,7 @@ static void gen_func_call(Node *node) {
   printf("  pushq %%rax\n");    // restore saved rax
 }
 
-static void gen_lvar(Node *node) {
+static void gen_var(Node *node) {
   gen_addr(node);
   load(node->type);
 }
@@ -219,8 +226,9 @@ static void gen(Node *node) {
   case ND_NUM:
     gen_num(node);
     break;
+  case ND_GVAR:
   case ND_LVAR:
-    gen_lvar(node);
+    gen_var(node);
     break;
   case ND_ASSIGN:
     gen_assign(node);
@@ -295,7 +303,7 @@ static void gen_binary_operator(Node *node) {
 }
 
 static void prologue(Function *func) {
-  int offset = func->lvar ? (func->lvar->offset) : 0;
+  int offset = func->var ? (func->var->offset) : 0;
 
   printf("  pushq %%rbp\n");         // record caller's rbp
   printf("  movq %%rsp, %%rbp\n");     // set current stack top to rbp
@@ -336,8 +344,14 @@ void gen_func_names(Function *head) {
 }
 
 void code_generate(Function *func) {
-  // assembly code header
-  printf(".global "); gen_func_names(func); printf("\n");
+  printf(".data\n");
+  for (Var *var = gvars; var; var = var->next) {
+    printf("%.*s:\n", var->length, var->name);
+    printf("  .zero %d\n", type_size(var->type));
+  }
+
+  printf(".text\n");
+  printf(".globl "); gen_func_names(func); printf("\n");
 
   for (Function *current = func; current; current = current->next) {
     gen_function(current);

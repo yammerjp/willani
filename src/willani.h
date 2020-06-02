@@ -75,6 +75,7 @@ typedef enum {
   ND_LT,          // <
   ND_LE,          // <=
   ND_ASSIGN,      // =
+  ND_GVAR,         // Global Variable
   ND_LVAR,         // Variable
   ND_NUM,         // Integer
   ND_FUNC_CALL,   // Function call
@@ -105,7 +106,7 @@ struct Node {
   Node *right;
   Type *type;        // Used if node is expression
   long value;       // Used if kind == ND_NUM
-  Var *lvar;       // Used if kind == ND_LVAR
+  Var *var;       // Used if kind is ND_GVAR or ND_LVAR
   Node *cond;       // Used if kind is ND_IF or ND_WHILE or ND_FOR
   Node *then;       // Used if kind is ND_IF or ND_WHILE or ND_FOR
   Node *els;        // Used if kind == ND_IF
@@ -118,7 +119,7 @@ struct Node {
 typedef struct Function Function;
 struct Function {
   Node *node;
-  Var *lvar;
+  Var *var;
   Function *next;
   char *name;
   int namelen;
@@ -134,9 +135,10 @@ Function *program(Token *token);
 // parse_new_node.c
 Var *find_var(char *name, int length, Var *vars);
 void *new_var(Type *type, char *name, int length, Var **varsp);
+void *new_gvar(Type *type, char *name, int length);
 Node *new_node_op2(NodeKind kind, Node *left, Node *right);
 Node *new_node_num(long value);
-Node *new_node_lvar(char *name, int length, Var *lvars);
+Node *new_node_var(char *name, int length, Var *lvars);
 Node *new_node_declare_lvar(Type *type, char *name, int length, Var **lvarsp);
 Node *new_node_return(Node *left);
 Node *new_node_if(Node *cond, Node *then, Node *els);

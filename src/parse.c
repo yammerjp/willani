@@ -22,7 +22,6 @@ static Node *primary(Token **rest, Token *token, Var **lvarsp);
 
 // program = (function | declare_gvar)*
 Function *program(Token *token) {
-  Var *lvars = NULL;
   Function head = {};
   Function *current = &head;
 
@@ -105,7 +104,7 @@ static Function *function(Token **rest, Token *token, Type *return_type, char *n
   // create Function struct
   Function *func = calloc(1, sizeof(Function));
   func->node = node;
-  func->lvar = lvars;
+  func->var = lvars;
   func->name = name;
   func->args = args;
   func->argc = argc;
@@ -535,7 +534,7 @@ static Node *primary(Token **rest, Token *token, Var **lvarsp) {
   if (is_identifer_token(token)) {
 
     if (!equal(token->next, "(")) {
-      node = new_node_lvar(token->location, token->length, *lvarsp);
+      node = new_node_var(token->location, token->length, *lvarsp);
       token = token->next;
     } else {
       char *name = token->location;

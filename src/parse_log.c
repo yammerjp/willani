@@ -32,8 +32,8 @@ void print_node(FILE *file, Node *node) {
     case ND_LT:           fprintf(file, "<"); break;
     case ND_LE:           fprintf(file, "<="); break;
     case ND_ASSIGN:       fprintf(file, "="); break;
-    case ND_GVAR:         fprintf(file, "%.*s",node->gvar->length, node->gvar->name); break;
-    case ND_LVAR:         fprintf(file, "%.*s",node->lvar->length, node->lvar->name); break;
+    case ND_GVAR:         fprintf(file, "%.*s",node->var->length, node->var->name); break;
+    case ND_LVAR:         fprintf(file, "%.*s",node->var->length, node->var->name); break;
     case ND_NUM:          fprintf(file, "%ld",node->value); break;
     case ND_ADDR:         fprintf(file, "&"); break;
     case ND_DEREF:        fprintf(file, "*"); break;
@@ -44,8 +44,8 @@ void print_node(FILE *file, Node *node) {
     case ND_BLOCK:        fprintf(file, "{}"); break;
     case ND_FUNC_CALL:    fprintf(file, "%.*s",node->fncl->length, node->fncl->name); break;
     case ND_EXPR_STMT:    fprintf(file, ";"); break;
-    case ND_DECLARE_LVAR: print_type(file, node->lvar->type);
-                          fprintf(file, " %.*s", node->lvar->length, node->lvar->name);
+    case ND_DECLARE_LVAR: print_type(file, node->var->type);
+                          fprintf(file, " %.*s", node->var->length, node->var->name);
                           break;
     default : error("unexpected node->kind");
   }
@@ -104,7 +104,7 @@ void parse_log(Function *func) {
 
   for (Function *cur = func; cur; cur = cur->next) {
     fprintf(var_logfile, "%.*s:\n", cur->namelen, cur->name);
-    parse_vars(cur->lvar, cur->args);
+    parse_vars(cur->var, cur->args);
 
     fprintf(parse_logfile, "%.*s: ", cur->namelen, cur->name);
     parse_log_nodes(cur->node, 0);

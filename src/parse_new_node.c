@@ -11,17 +11,19 @@ Var *find_var(char *name, int length, Var *vars) {
 }
 
 void *new_var(Type *type, char *name, int length, Var **varsp) {
-  int already_reserved_offset = (*varsp ? ((*varsp)->offset ) : 0);
+  Var *vars = *varsp;
+  int already_reserved_offset = (vars ? (vars->offset ) : 0);
 
   Var *var = calloc(1, sizeof(Var));
   var->type = type;
-  var->next = *varsp;
+  var->next = vars;
   var->name = name;
   var->length = length;
   var->offset = type_size(type) + already_reserved_offset;
 
   *varsp = var;
 }
+
 
 // ========== new node ==========
 Node *new_node_op2(NodeKind kind, Node *left, Node *right) {
@@ -55,15 +57,24 @@ Node *new_node_num(long value) {
   return node;
 }
 
-Node *new_node_lvar(char *name, int length, Var *lvars) {
-  Var *lvar = find_var(name, length, lvars);
-  if (!lvar) {
-    error("use undeclared identifer '%.*s'", length, name);
-  }
+Node *new_node_var(char *name, int length, Var *lvars) {
   Node *node = calloc(1, sizeof(Node));
-  node->kind = ND_LVAR;
-  node->lvar = lvar;
-  return node;
+
+  Var *gvar = find_var(name, length, gvars);
+  if (gvar) {
+    node->kind = ND_GVAR;
+    node->var = gvar;
+    return node;
+  }
+
+  Var *lvar = find_var(name, length, lvars);
+  if (lvar) {
+    node->kind = ND_LVAR;
+    node->var = lvar;
+    return node;
+  }
+
+  error("use undeclared identifer '%.*s'", length, name);
 }
 
 Node *new_node_declare_lvar(Type *type, char *name, int length, Var **lvarsp) {
@@ -75,7 +86,7 @@ Node *new_node_declare_lvar(Type *type, char *name, int length, Var **lvarsp) {
 
   Node *node = calloc(1, sizeof(Node));
   node->kind = ND_DECLARE_LVAR;
-  node->lvar = *lvarsp;
+  node->var = *lvarsp;
   return node;
 }
 

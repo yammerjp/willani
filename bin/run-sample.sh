@@ -7,7 +7,7 @@ echo "Build willani by gcc"
 make
 echo "Build sample.c by willani"
 cat sample.c | xargs -0 ./willani > tmp.s
-gcc tmp.s -o tmp > /dev/null
+gcc tmp.s -static -o tmp > /dev/null
 echo "Run sample.c"
 ./tmp
 echo -e "\nsample.c exitcode: $?\n"

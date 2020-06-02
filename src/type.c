@@ -108,8 +108,11 @@ void add_type(Node *node) {
   case ND_DECLARE_LVAR:
     return;
 
+  case ND_GVAR:
+    node->type = node->var->type;
+    return;
   case ND_LVAR:
-    node->type = node->lvar->type;
+    node->type = node->var->type;
     return;
   case ND_ADD:
   case ND_SUB:
