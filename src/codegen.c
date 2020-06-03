@@ -12,7 +12,7 @@ static void gen_binary_operator(Node *node);
 static void prologue(Function *func);
 static void epilogue(void);
 
-char arg_registers[][4] = { "rdi", "rsi", "rdx", "rcx", "r8", "r9" };
+char arg_regs8[][4] = { "rdi", "rsi", "rdx", "rcx", "r8", "r9" };
 char arg_regs1[][4] = { "dil", "sil", "dl", "cl", "r8b", "r9b" };
 
 int label_count = 1;
@@ -168,7 +168,7 @@ static void gen_func_call(Node *node) {
   int i = 0;
   for (Node *cur = node->fncl->args; cur; cur = cur->next) {
     gen(cur);
-    printf("  popq  %%%s\n", arg_registers[i++]);
+    printf("  popq  %%%s\n", arg_regs8[i++]);
   }
 
   // align RSP to a 16 bite boundary
@@ -342,7 +342,7 @@ static void prologue(Function *func) {
       printf("  movb %%%s, -%d(%%rbp)\n",  arg_regs1[--i], arg->offset);
       break;
     case 8:
-      printf("  movq %%%s, -%d(%%rbp)\n",  arg_registers[--i], arg->offset);
+      printf("  movq %%%s, -%d(%%rbp)\n",  arg_regs8[--i], arg->offset);
       break;
     default:
       error("failed to load a argument becase of unknown type size");
