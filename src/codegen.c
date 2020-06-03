@@ -24,12 +24,18 @@ static void gen_num(Node *node) {
 
 // change the stack top from addr to value
 static void load(Type *type) {
-  if (type->kind == TYPE_ARRAY) {
+  switch (type->kind) {
+  case TYPE_ARRAY:
     return;
+  case TYPE_INT:
+  case TYPE_PTR:
+    printf("  popq %%rax\n");          // load the stack top to rax
+    printf("  movq (%%rax), %%rax\n");   // load the actual value of rax to rax
+    printf("  pushq %%rax\n");         // store rax to the stack top
+    return;
+  default:
+    error("unexpected Type");
   }
-  printf("  popq %%rax\n");          // load the stack top to rax
-  printf("  movq (%%rax), %%rax\n");   // load the actual value of rax to rax
-  printf("  pushq %%rax\n");         // store rax to the stack top
 }
 
 // store value to the variable.
