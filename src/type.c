@@ -32,7 +32,7 @@ const int type_size_pointer = 8;
 int type_size(Type *type) {
   switch (type->kind) {
     case TYPE_INT:
-      return 8;
+      return 4;
     case TYPE_CHAR:
       return 1;
     case TYPE_PTR:

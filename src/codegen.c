@@ -12,8 +12,9 @@ static void gen_binary_operator(Node *node);
 static void prologue(Function *func);
 static void epilogue(void);
 
-char arg_regs8[][4] = { "rdi", "rsi", "rdx", "rcx", "r8", "r9" };
 char arg_regs1[][4] = { "dil", "sil", "dl", "cl", "r8b", "r9b" };
+char arg_regs4[][4] = { "edi", "esi", "edx", "ecx", "r8d", "r9d" };
+char arg_regs8[][4] = { "rdi", "rsi", "rdx", "rcx", "r8", "r9" };
 
 int label_count = 1;
 char *funcname = NULL;
@@ -33,6 +34,9 @@ static void load(Type *type) {
   switch (type_size(type)) {
   case 1:
     printf("  movzbl (%%rax), %%rax\n");   // load the actual value of rax to rax
+    break;
+  case 4:
+    printf("  movl (%%rax), %%eax\n");   // load the actual value of rax to rax
     break;
   case 8:
     printf("  movq (%%rax), %%rax\n");   // load the actual value of rax to rax
@@ -59,6 +63,9 @@ static void store(Type *type) {
   switch (size) {
   case 1:
     printf("  movb %%dil, (%%rax)\n");   // copy rdi's value to the address pointed by rax
+    break;
+  case 4:
+    printf("  movl %%edi, (%%rax)\n");   // copy rdi's value to the address pointed by rax
     break;
   case 8:
     printf("  movq %%rdi, (%%rax)\n");   // copy rdi's value to the address pointed by rax
@@ -340,6 +347,9 @@ static void prologue(Function *func) {
     switch (type_size(arg->type)) {
     case 1:
       printf("  movb %%%s, -%d(%%rbp)\n",  arg_regs1[--i], arg->offset);
+      break;
+    case 4:
+      printf("  movl %%%s, -%d(%%rbp)\n",  arg_regs4[--i], arg->offset);
       break;
     case 8:
       printf("  movq %%%s, -%d(%%rbp)\n",  arg_regs8[--i], arg->offset);
