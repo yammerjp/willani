@@ -32,6 +32,7 @@ Token *tokenize(char *p);
 //======================================
 // type.c
 typedef enum {
+  TYPE_LONG,
   TYPE_INT,
   TYPE_CHAR,
   TYPE_PTR,
@@ -45,6 +46,7 @@ struct Type {
   size_t array_size;
 };
 
+Type *new_type_long();
 Type *new_type_int();
 Type *new_type_char();
 Type *new_type_pointer(Type *parent);

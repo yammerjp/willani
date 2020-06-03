@@ -1,5 +1,11 @@
 #include "willani.h"
 
+Type *new_type_long() {
+  Type *type = calloc(1, sizeof(Type));
+  type->kind = TYPE_LONG;
+  return type;
+}
+
 Type *new_type_int() {
   Type *type = calloc(1, sizeof(Type));
   type->kind = TYPE_INT;
@@ -31,6 +37,8 @@ const int type_size_pointer = 8;
 
 int type_size(Type *type) {
   switch (type->kind) {
+    case TYPE_LONG:
+      return 8;
     case TYPE_INT:
       return 4;
     case TYPE_CHAR:
@@ -46,7 +54,9 @@ int type_size(Type *type) {
 
 Type *read_type_tokens(Token **rest, Token *token) {
   Type *type;
-  if(equal(token, "int")) {
+  if(equal(token, "long")) {
+    type = new_type_long();
+  } else if(equal(token, "int")) {
     type = new_type_int();
   } else if(equal(token, "char")) {
     type = new_type_char();

@@ -8,6 +8,9 @@ static void print_type(FILE *file, Type *type) {
     print_type(file, type->ptr_to);
   }
   switch (type->kind) {
+  case TYPE_LONG:
+    fprintf(file, "long");
+    return;
   case TYPE_INT:
     fprintf(file, "int");
     return;
