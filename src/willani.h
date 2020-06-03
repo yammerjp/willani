@@ -134,7 +134,16 @@ Function *program(Token *token);
 Var *find_var(char *name, int length, Var *vars);
 void *new_var(Type *type, char *name, int length, Var **varsp);
 void *new_gvar(Type *type, char *name, int length);
-Node *new_node_op2(NodeKind kind, Node *left, Node *right);
+
+Node *new_node_add(Node *left, Node *right);
+Node *new_node_sub(Node *left, Node *right);
+Node *new_node_mul(Node *left, Node *right);
+Node *new_node_div(Node *left, Node *right);
+Node *new_node_equal(Node *left, Node *right);
+Node *new_node_not_equal(Node *left, Node *right);
+Node *new_node_less_than(Node *left, Node *right);
+Node *new_node_less_equal(Node *left, Node *right);
+
 Node *new_node_num(long value);
 Node *new_node_var(char *name, int length, Var *lvars);
 Node *new_node_declare_lvar(Type *type, char *name, int length, Var **lvarsp);

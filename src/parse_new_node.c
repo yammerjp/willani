@@ -26,26 +26,74 @@ void *new_var(Type *type, char *name, int length, Var **varsp) {
 
 
 // ========== new node ==========
-Node *new_node_op2(NodeKind kind, Node *left, Node *right) {
-  if (kind == ND_ADD || kind == ND_SUB) {
-    if (
-      left->type->kind == TYPE_PTR
-      || left->type->kind == TYPE_ARRAY
-    ) {
-      right = new_node_op2(ND_MUL, right, new_node_num( type_size(left->type->ptr_to) ));
-    } else if (
-      right->type->kind == TYPE_PTR
-      || right->type->kind == TYPE_ARRAY
-    ) {
-      left = new_node_op2(ND_MUL, left, new_node_num( type_size(right->type->ptr_to) ));
-    }
-  }
-
+static Node *new_node_op2(NodeKind kind, Node *left, Node *right) {
   Node *node = calloc(1, sizeof(Node));
   node->kind = kind;
   node->left = left;
   node->right = right;
   node->type = type_conversion(node->left->type, node->right->type);
+  return node;
+}
+
+Node *new_node_add(Node *left, Node *right) {
+  if (
+    left->type->kind == TYPE_PTR
+    || left->type->kind == TYPE_ARRAY
+  ) {
+    right = new_node_mul(right, new_node_num( type_size(left->type->ptr_to) ));
+  } else if (
+    right->type->kind == TYPE_PTR
+    || right->type->kind == TYPE_ARRAY
+  ) {
+    left = new_node_mul(left, new_node_num( type_size(right->type->ptr_to) ));
+  }
+  return new_node_op2(ND_ADD, left, right);
+}
+
+Node *new_node_sub(Node *left, Node *right) {
+  if (
+    left->type->kind == TYPE_PTR
+    || left->type->kind == TYPE_ARRAY
+  ) {
+    right = new_node_mul(right, new_node_num( type_size(left->type->ptr_to) ));
+  } else if (
+    right->type->kind == TYPE_PTR
+    || right->type->kind == TYPE_ARRAY
+  ) {
+    left = new_node_mul(left, new_node_num( type_size(right->type->ptr_to) ));
+  }
+  return new_node_op2(ND_SUB, left, right);
+}
+
+Node *new_node_mul(Node *left, Node *right) {
+  return new_node_op2(ND_MUL, left, right);
+}
+
+Node *new_node_div(Node *left, Node *right) {
+  return new_node_op2(ND_DIV, left, right);
+}
+
+Node *new_node_equal(Node *left, Node *right) {
+  Node *node = new_node_op2(ND_EQ, left, right);
+  node->type = new_type_int();
+  return node;
+}
+
+Node *new_node_not_equal(Node *left, Node *right) {
+  Node *node = new_node_op2(ND_NE, left, right);
+  node->type = new_type_int();
+  return node;
+}
+
+Node *new_node_less_than(Node *left, Node *right) {
+  Node *node = new_node_op2(ND_LT, left, right);
+  node->type = new_type_int();
+  return node;
+}
+
+Node *new_node_less_equal(Node *left, Node *right) {
+  Node *node = new_node_op2(ND_LE, left, right);
+  node->type = new_type_int();
   return node;
 }
 

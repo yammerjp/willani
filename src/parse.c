@@ -382,10 +382,10 @@ static Node *equality(Token **rest, Token *token, Var **lvarsp) {
   for(;;) {
     if (equal(token, "==")){
       token = token->next;
-      node = new_node_op2(ND_EQ, node, relational(&token, token, lvarsp));
+      node = new_node_equal(node, relational(&token, token, lvarsp));
     } else if (equal(token, "!=")) {
       token = token->next;
-      node = new_node_op2(ND_NE, node, relational(&token, token, lvarsp));
+      node = new_node_not_equal(node, relational(&token, token, lvarsp));
     } else {
       *rest = token;
       return node;
@@ -399,22 +399,22 @@ static Node *relational(Token **rest, Token *token, Var ** lvarsp) {
   for(;;) {
     if (equal(token, "<")){
       token = token->next;
-      node = new_node_op2(ND_LT, node, add(&token, token, lvarsp));
+      node = new_node_less_than(node, add(&token, token, lvarsp));
       continue;
     }
     if (equal(token, "<=")) {
       token = token->next;
-      node = new_node_op2(ND_LE, node, add(&token, token, lvarsp));
+      node = new_node_less_equal(node, add(&token, token, lvarsp));
       continue;
     }
     if (equal(token, ">")){
       token = token->next;
-      node = new_node_op2(ND_LT, add(&token, token, lvarsp), node);
+      node = new_node_less_than(add(&token, token, lvarsp), node);
       continue;
     }
     if (equal(token, ">=")) {
       token = token->next;
-      node = new_node_op2(ND_LE, add(&token, token, lvarsp), node);
+      node = new_node_less_equal(add(&token, token, lvarsp), node);
       continue;
     }
     *rest = token;
@@ -429,10 +429,10 @@ static Node *add(Token **rest, Token *token, Var **lvarsp) {
   for(;;) {
     if (equal(token, "+")){
       token = token->next;
-      node = new_node_op2(ND_ADD, node, mul(&token, token, lvarsp));
+      node = new_node_add(node, mul(&token, token, lvarsp));
     } else if (equal(token, "-")) {
       token = token->next;
-      node = new_node_op2(ND_SUB, node, mul(&token, token, lvarsp));
+      node = new_node_sub(node, mul(&token, token, lvarsp));
     } else {
       *rest = token;
       return node;
@@ -447,10 +447,10 @@ static Node *mul(Token **rest, Token *token, Var **lvarsp) {
   for(;;) {
     if (equal(token, "*")) {
       token = token->next;
-      node = new_node_op2(ND_MUL, node, unary(&token, token, lvarsp));
+      node = new_node_mul(node, unary(&token, token, lvarsp));
     } else if (equal(token, "/")) {
       token = token->next;
-      node = new_node_op2(ND_DIV, node, unary(&token, token, lvarsp));
+      node = new_node_div(node, unary(&token, token, lvarsp));
     } else {
       *rest = token;
       return node;
@@ -469,7 +469,7 @@ static Node *unary(Token **rest, Token *token, Var **lvarsp) {
     node = primary(&token, token, lvarsp);
   } else if (equal(token,"-")) {
     token = token->next;
-    node = new_node_op2(ND_SUB, new_node_num(0), primary(&token, token, lvarsp));
+    node = new_node_sub(new_node_num(0), primary(&token, token, lvarsp));
   } else if (equal(token, "*")) {
     token = token->next;
     node = new_node_deref(unary(&token, token, lvarsp));
@@ -486,7 +486,7 @@ static Node *unary(Token **rest, Token *token, Var **lvarsp) {
       token = token->next;
 
       Node *expr_node = expr(&token,token, lvarsp);
-      node = new_node_deref(new_node_op2(ND_ADD, node, expr_node));
+      node = new_node_deref(new_node_add(node, expr_node));
 
       if (!equal(token, "]")) {
         error_at(token, "expected ]");
