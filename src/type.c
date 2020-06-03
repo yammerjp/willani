@@ -78,6 +78,20 @@ Type *read_type_tokens_with_pars(Token **rest, Token *token) {
 }
 
 // Add Type to all expression node after parsing
+static Type *type_conversion(Type *left, Type *right) {
+  if (left->kind == TYPE_PTR || left->kind == TYPE_ARRAY) {
+    return left;
+  }
+  if (right->kind == TYPE_PTR || right->kind == TYPE_ARRAY) {
+    return right;
+  }
+  if (type_size(left) >= type_size(right)) {
+    return left;
+  }
+  return right;
+}
+
+// Add Type to all expression node after parsing
 void add_type(Node *node) {
   if (!node || node->type) {
     return;
@@ -105,10 +119,7 @@ void add_type(Node *node) {
   case ND_EXPR_STMT:
   case ND_DECLARE_LVAR:
     return;
-
   case ND_GVAR:
-    node->type = node->var->type;
-    return;
   case ND_LVAR:
     node->type = node->var->type;
     return;
@@ -116,13 +127,15 @@ void add_type(Node *node) {
   case ND_SUB:
   case ND_MUL:
   case ND_DIV:
-  case ND_ASSIGN:
-    node->type = node->left->type;
-    return;
   case ND_EQ:
   case ND_NE:
   case ND_LT:
   case ND_LE:
+    node->type = type_conversion(node->left->type, node->right->type);
+    return;
+  case ND_ASSIGN:
+    node->type = node->left->type;
+    return;
   case ND_NUM:
     node->type = new_type_int();
     return;
