@@ -5,7 +5,6 @@ char *user_input;
 Var *gvars;
 
 static void init(void) {
-  type_int = new_type_int();
   gvars = NULL;
 }
 

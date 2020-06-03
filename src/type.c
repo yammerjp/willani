@@ -1,7 +1,5 @@
 #include "willani.h"
 
-Type *type_int;
-
 Type *new_type_int() {
   Type *type = calloc(1, sizeof(Type));
   type->kind = TYPE_INT;
@@ -41,7 +39,7 @@ int type_size(Type *type) {
 Type *read_type_tokens(Token **rest, Token *token) {
   Type *type;
   if(equal(token, "int")) {
-    type = type_int;
+    type = new_type_int();
   } else {
     return NULL;
   }
@@ -126,11 +124,11 @@ void add_type(Node *node) {
   case ND_LT:
   case ND_LE:
   case ND_NUM:
-    node->type = type_int;
+    node->type = new_type_int();
     return;
   case ND_FUNC_CALL:
     // TODO: recognize calling function's type
-    node->type = type_int;
+    node->type = new_type_int();
     return;
   case ND_ADDR:
     node->type = new_type_pointer(node->left->type);
