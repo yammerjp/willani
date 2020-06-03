@@ -28,8 +28,6 @@ void *new_var(Type *type, char *name, int length, Var **varsp) {
 // ========== new node ==========
 Node *new_node_op2(NodeKind kind, Node *left, Node *right) {
   if (kind == ND_ADD || kind == ND_SUB) {
-    add_type(left);
-    add_type(right);
     if (
       left->type->kind == TYPE_PTR
       || left->type->kind == TYPE_ARRAY
@@ -47,6 +45,7 @@ Node *new_node_op2(NodeKind kind, Node *left, Node *right) {
   node->kind = kind;
   node->left = left;
   node->right = right;
+  node->type = type_conversion(node->left->type, node->right->type);
   return node;
 }
 
@@ -54,6 +53,7 @@ Node *new_node_num(long value) {
   Node *node = calloc(1, sizeof(Node));
   node->kind = ND_NUM;
   node->value = value;
+  node->type = new_type_int();
   return node;
 }
 
@@ -64,6 +64,7 @@ Node *new_node_var(char *name, int length, Var *lvars) {
   if (gvar) {
     node->kind = ND_GVAR;
     node->var = gvar;
+    node->type = gvar->type;
     return node;
   }
 
@@ -71,6 +72,7 @@ Node *new_node_var(char *name, int length, Var *lvars) {
   if (lvar) {
     node->kind = ND_LVAR;
     node->var = lvar;
+    node->type = lvar->type;
     return node;
   }
 
@@ -139,6 +141,9 @@ Node *new_node_func_call(char *name, int len, Node *args) {
   Node *node = calloc(1, sizeof(Node));
   node->kind = ND_FUNC_CALL;
   node->fncl = fncl;
+  // TODO: recognize calling function's type
+  node->type = new_type_int();
+
   return node;
 }
 
@@ -153,6 +158,7 @@ Node *new_node_addr(Node *unary_node) {
   Node *node = calloc(1, sizeof(Node));
   node->kind = ND_ADDR;
   node->left = unary_node;
+  node->type = new_type_pointer(unary_node->type);
   return node;
 }
 
@@ -160,5 +166,15 @@ Node *new_node_deref(Node *unary_node) {
   Node *node = calloc(1, sizeof(Node));
   node->kind = ND_DEREF;
   node->left = unary_node;
+  node->type = unary_node->type->ptr_to;
+  return node;
+}
+
+Node *new_node_assign(Node *left, Node *right) {
+  Node *node = calloc(1, sizeof(Node));
+  node->kind = ND_ASSIGN;
+  node->left = left;
+  node->right = right;
+  node->type = left->type;
   return node;
 }

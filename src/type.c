@@ -78,7 +78,7 @@ Type *read_type_tokens_with_pars(Token **rest, Token *token) {
 }
 
 // Add Type to all expression node after parsing
-static Type *type_conversion(Type *left, Type *right) {
+Type *type_conversion(Type *left, Type *right) {
   if (left->kind == TYPE_PTR || left->kind == TYPE_ARRAY) {
     return left;
   }
@@ -89,67 +89,4 @@ static Type *type_conversion(Type *left, Type *right) {
     return left;
   }
   return right;
-}
-
-// Add Type to all expression node after parsing
-void add_type(Node *node) {
-  if (!node || node->type) {
-    return;
-  }
-  add_type(node->left);
-  add_type(node->right);
-  add_type(node->cond);
-  add_type(node->then);
-  add_type(node->els);
-  add_type(node->init);
-  add_type(node->increment);
-  add_type(node->body);
-  add_type(node->next);
-  if (node->fncl) {
-    add_type(node->fncl->args);
-  }
-
-  switch (node->kind) {
-  // statement
-  case ND_BLOCK:
-  case ND_IF:
-  case ND_WHILE:
-  case ND_FOR:
-  case ND_RETURN:
-  case ND_EXPR_STMT:
-  case ND_DECLARE_LVAR:
-    return;
-  case ND_GVAR:
-  case ND_LVAR:
-    node->type = node->var->type;
-    return;
-  case ND_ADD:
-  case ND_SUB:
-  case ND_MUL:
-  case ND_DIV:
-  case ND_EQ:
-  case ND_NE:
-  case ND_LT:
-  case ND_LE:
-    node->type = type_conversion(node->left->type, node->right->type);
-    return;
-  case ND_ASSIGN:
-    node->type = node->left->type;
-    return;
-  case ND_NUM:
-    node->type = new_type_int();
-    return;
-  case ND_FUNC_CALL:
-    // TODO: recognize calling function's type
-    node->type = new_type_int();
-    return;
-  case ND_ADDR:
-    node->type = new_type_pointer(node->left->type);
-    return;
-  case ND_DEREF:
-    node->type = node->left->type->ptr_to;
-    return;
-  default:
-    error("faild to add type because of unknown Node.kind");
-  }
 }

@@ -50,6 +50,7 @@ Type *new_type_array(Type *parent, size_t array_size);
 int type_size(Type *type);
 Type *read_type_tokens(Token **rest, Token *token);
 Type *read_type_tokens_with_pars(Token **rest, Token *token);
+Type *type_conversion(Type *left, Type *right);
 
 //======================================
 // parse.c
@@ -146,6 +147,7 @@ Node *new_node_func_call(char *name, int len, Node *args);
 Node *new_node_expr_stmt(Node *stmt_node);
 Node *new_node_addr(Node *unary_node);
 Node *new_node_deref(Node *unary_node);
+Node *new_node_assign(Node *left, Node *right);
 
 
 //======================================
@@ -169,7 +171,3 @@ void error(char *fmt, ...);
 // main.c
 extern char *user_input;
 extern Var *gvars;
-
-//======================================
-// type.c
-void add_type(Node *node);

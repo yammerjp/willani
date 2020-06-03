@@ -99,7 +99,6 @@ static Function *function(Token **rest, Token *token, Type *return_type, char *n
 
   // block statement
   Node *node = block_stmt(&token, token, &lvars);
-  add_type(node);
 
   // create Function struct
   Function *func = calloc(1, sizeof(Function));
@@ -370,7 +369,7 @@ static Node *assign(Token **rest, Token *token, Var **lvarsp) {
 
   if(equal(token, "=")) {
     token = token->next;
-    node = new_node_op2( ND_ASSIGN, node, assign(&token, token, lvarsp));
+    node = new_node_assign(node, assign(&token, token, lvarsp));
   }
 
   *rest = token;
@@ -426,7 +425,6 @@ static Node *relational(Token **rest, Token *token, Var ** lvarsp) {
 // add = mul ("+" mul | "-" mul)*
 static Node *add(Token **rest, Token *token, Var **lvarsp) {
   Node *node = mul(&token, token, lvarsp);
-  add_type(node);
 
   for(;;) {
     if (equal(token, "+")){
@@ -512,7 +510,6 @@ static Node *sizeofunary(Token **rest, Token *token, Var **lvarsp) {
 
   if (!type) {
     Node *measuring_node = unary(&token, token, lvarsp);
-    add_type(measuring_node);
     type = measuring_node->type;
   }
   int size = type_size(type);
