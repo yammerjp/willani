@@ -13,6 +13,7 @@ static void prologue(Function *func);
 static void epilogue(void);
 
 char arg_registers[][4] = { "rdi", "rsi", "rdx", "rcx", "r8", "r9" };
+char arg_regs1[][4] = { "dil", "sil", "dl", "cl", "r8b", "r9b" };
 
 int label_count = 1;
 char *funcname = NULL;
@@ -30,6 +31,9 @@ static void load(Type *type) {
 
   printf("  popq %%rax\n");          // load the stack top to rax
   switch (type_size(type)) {
+  case 1:
+    printf("  movzbl (%%rax), %%rax\n");   // load the actual value of rax to rax
+    break;
   case 8:
     printf("  movq (%%rax), %%rax\n");   // load the actual value of rax to rax
     break;
@@ -53,6 +57,9 @@ static void store(Type *type) {
     size = type_size(type);
   }
   switch (size) {
+  case 1:
+    printf("  movb %%dil, (%%rax)\n");   // copy rdi's value to the address pointed by rax
+    break;
   case 8:
     printf("  movq %%rdi, (%%rax)\n");   // copy rdi's value to the address pointed by rax
     break;
@@ -331,6 +338,9 @@ static void prologue(Function *func) {
   int i = func->argc;
   for (Var *arg = func->args; arg; arg = arg->next) {
     switch (type_size(arg->type)) {
+    case 1:
+      printf("  movb %%%s, -%d(%%rbp)\n",  arg_regs1[--i], arg->offset);
+      break;
     case 8:
       printf("  movq %%%s, -%d(%%rbp)\n",  arg_registers[--i], arg->offset);
       break;

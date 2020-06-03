@@ -6,6 +6,12 @@ Type *new_type_int() {
   return type;
 }
 
+Type *new_type_char() {
+  Type *type = calloc(1, sizeof(Type));
+  type->kind = TYPE_CHAR;
+  return type;
+}
+
 Type *new_type_pointer(Type *parent) {
   Type *type = calloc(1, sizeof(Type));
   type->kind = TYPE_PTR;
@@ -27,6 +33,8 @@ int type_size(Type *type) {
   switch (type->kind) {
     case TYPE_INT:
       return 8;
+    case TYPE_CHAR:
+      return 1;
     case TYPE_PTR:
       return type_size_pointer;
     case TYPE_ARRAY:
@@ -40,6 +48,8 @@ Type *read_type_tokens(Token **rest, Token *token) {
   Type *type;
   if(equal(token, "int")) {
     type = new_type_int();
+  } else if(equal(token, "char")) {
+    type = new_type_char();
   } else {
     return NULL;
   }

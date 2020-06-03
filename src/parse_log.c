@@ -11,6 +11,9 @@ static void print_type(FILE *file, Type *type) {
   case TYPE_INT:
     fprintf(file, "int");
     return;
+  case TYPE_CHAR:
+    fprintf(file, "char");
+    return;
   case TYPE_PTR:
     fprintf(file, "*");
     return;
