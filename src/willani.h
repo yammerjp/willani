@@ -130,11 +130,15 @@ Function *program(Token *token);
 
 
 //======================================
-// parse_new_node.c
+// var.c
 Var *find_var(char *name, int length, Var *vars);
 void *new_var(Type *type, char *name, int length, Var **varsp);
 void *new_gvar(Type *type, char *name, int length);
 
+
+
+//======================================
+// new_node.c
 Node *new_node_add(Node *left, Node *right);
 Node *new_node_sub(Node *left, Node *right);
 Node *new_node_mul(Node *left, Node *right);

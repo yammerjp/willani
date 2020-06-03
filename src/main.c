@@ -2,8 +2,6 @@
 
 char *user_input;
 
-Var *gvars;
-
 static void init(void) {
   gvars = NULL;
 }
