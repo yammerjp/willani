@@ -3,7 +3,7 @@
 static void gen_num(Node *node);
 static void load(Type *type);
 
-static void store(void);
+static void store(Type *type);
 static void gen_if(Node *node);
 static void gen_while(Node *node);
 static void gen_addr(Node *node);
@@ -27,25 +27,38 @@ static void load(Type *type) {
   if (type->kind == TYPE_ARRAY) {
     return;
   }
+
+  printf("  popq %%rax\n");          // load the stack top to rax
   switch (type_size(type)) {
   case 8:
-    printf("  popq %%rax\n");          // load the stack top to rax
     printf("  movq (%%rax), %%rax\n");   // load the actual value of rax to rax
-    printf("  pushq %%rax\n");         // store rax to the stack top
-    return;
+    break;
   default:
-    error("unexpected Type");
+    error("failed to load a variable becase of unknown type size");
   }
+  printf("  pushq %%rax\n");         // store rax to the stack top
 }
 
 // store value to the variable.
-static void store(void) {
+static void store(Type *type) {
   // stack
   // before : (top) value, (variable's address), ...
   // after  : (top) value, ...
   printf("  popq %%rdi\n");          // load the stack top to rdi
   printf("  popq %%rax\n");          // load the stack top to rax
-  printf("  movq %%rdi, (%%rax)\n");   // copy rdi's value to the address pointed by rax
+  int size;
+  if (type->kind == TYPE_ARRAY) {
+    size = type_size_pointer;
+  } else {
+    size = type_size(type);
+  }
+  switch (size) {
+  case 8:
+    printf("  movq %%rdi, (%%rax)\n");   // copy rdi's value to the address pointed by rax
+    break;
+  default:
+    error("failed to store a variable becase of unknown type size");
+  }
   printf("  pushq %%rdi\n");         // store rdi to the stack top
 }
 
@@ -180,7 +193,7 @@ static void gen_assign(Node *node) {
   }
   gen_addr(node->left);
   gen(node->right);
-  store();
+  store(node->type);
 }
 
 static void gen_return(Node *node) {
@@ -317,7 +330,13 @@ static void prologue(Function *func) {
 
   int i = func->argc;
   for (Var *arg = func->args; arg; arg = arg->next) {
-    printf("  movq %%%s, -%d(%%rbp)\n",  arg_registers[--i], arg->offset);
+    switch (type_size(arg->type)) {
+    case 8:
+      printf("  movq %%%s, -%d(%%rbp)\n",  arg_registers[--i], arg->offset);
+      break;
+    default:
+      error("failed to load a argument becase of unknown type size");
+    }
   }
 }
 

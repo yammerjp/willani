@@ -51,6 +51,7 @@ int type_size(Type *type);
 Type *read_type_tokens(Token **rest, Token *token);
 Type *read_type_tokens_with_pars(Token **rest, Token *token);
 Type *type_conversion(Type *left, Type *right);
+extern const int type_size_pointer;
 
 //======================================
 // parse.c
