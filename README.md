@@ -43,7 +43,7 @@ $ make test   # Run test.
 ```
 
 ### macOS
-```
+```sh
 $ git clone https://github.com/basd4g/willani.git
 $ cd willani
 $ bin/docker.sh pull
