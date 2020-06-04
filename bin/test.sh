@@ -149,4 +149,5 @@ assert 10   'int main() { char x[10]; return sizeof(x); }'
 assert 1    'int main() { return sub_char(7, 3, 3); } int sub_char(char a, char b, char c) { return a-b-c; }'
 
 assert 8    'int main() { int k = 8; return k; }'
+assert 0    'int main() { int k[3] = {}; return k[2]; }'
 echo OK

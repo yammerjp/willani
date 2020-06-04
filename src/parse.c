@@ -360,7 +360,31 @@ static Node *init_lvar_stmt(Token **rest, Token *token, Var **lvarsp) {
   Node *node;
 
   if (equal(token, "{")) {
-    error_at(token, "wait to impelent assignment to array...");
+    token = token->next;
+
+    int ct = 0;
+    if (!equal(token, "}")) {
+      ct ++;
+      error_at(token, "wait to impelent assignment to array...");
+    }
+    token = token->next;
+
+    // Zero padding
+    int array_length = var->type->array_length;
+    Node head = {};
+    Node *node_tail = &head;
+    for (int i = ct; i< array_length; i++) {
+      Node *new_node = new_node_assign(
+        new_node_deref(new_node_add(
+          new_node_var(var->name, var->length, *lvarsp),
+          new_node_num(i)
+        )),
+        new_node_num(0)
+      );
+      node_tail->next = new_node;
+      node_tail = new_node;
+    }
+    node = head.next;
   } else {
     Node *left = new_node_var(var->name, var->length, *lvarsp);
     Node *right = assign(&token, token, lvarsp);
