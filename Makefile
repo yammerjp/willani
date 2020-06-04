@@ -1,11 +1,11 @@
 CFLAGS=-std=c11 -g -static
-SRCS=$(wildcard src/*.c)
+SRCS=$(wildcard src/*.c) $(wildcard src/parse/*.c)
 OBJS=$(SRCS:.c=.o)
 
 willani: $(OBJS)
 	$(CC) -o willani $(OBJS) $(LDFLAGS)
 
-$(OBJS): src/willani.h src/parse.h
+$(OBJS): src/willani.h src/parse/parse.h
 
 test: willani
 	bin/test.sh
@@ -17,5 +17,5 @@ debug: willani
 	bin/gdb-sample.sh
 
 clean:
-	rm -f willani src/*.o *~ tmp* *.log core
+	rm -f willani src/*.o src/parse/*.o *~ tmp* *.log core 
 .PHONY: test clean sample debug

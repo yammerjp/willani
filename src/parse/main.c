@@ -42,7 +42,7 @@ Function *program(Token *token) {
 // declare_gvar = type ident type_suffix ";"
 // function = type ident "(" ( ( type ident ( "," type ident ) * ) ?  ")" block_stmt
 
-static Function *function(Token **rest, Token *token, Type *return_type, char *name, int namelen) {
+Function *function(Token **rest, Token *token, Type *return_type, char *name, int namelen) {
   Var *lvars = NULL;
 
   // arguments
@@ -95,7 +95,7 @@ static Function *function(Token **rest, Token *token, Type *return_type, char *n
 }
 
 // block_stmt = "{" stmt* "}"
-static Node *block_stmt(Token **rest, Token *token, Var **lvarsp) {
+Node *block_stmt(Token **rest, Token *token, Var **lvarsp) {
   if (!equal(token, "{")) {
     error_at(token, "expected {");
   }
@@ -127,7 +127,7 @@ static Node *block_stmt(Token **rest, Token *token, Var **lvarsp) {
 //            | return_stmt
 //            | expr_stmt
 //            | declare_lvar_stmt
-static Node *stmt(Token **rest, Token *token, Var **lvarsp) {
+Node *stmt(Token **rest, Token *token, Var **lvarsp) {
   Node *node;
 
   Type *type = read_type_tokens(&token, token); // Proceed token if only token means type
@@ -152,7 +152,7 @@ static Node *stmt(Token **rest, Token *token, Var **lvarsp) {
 }
 
 // if_stmt = "if" "(" expr ")" stmt ( "else" stmt ) ?
-static Node *if_stmt(Token **rest, Token *token, Var **lvarsp) {
+Node *if_stmt(Token **rest, Token *token, Var **lvarsp) {
   if (!equal(token, "if" )) {
     error_at(token, "expected if");
   }
@@ -183,7 +183,7 @@ static Node *if_stmt(Token **rest, Token *token, Var **lvarsp) {
 }
 
 // while_stmt = "while" "(" expr ")" stmt
-static Node *while_stmt(Token **rest, Token *token, Var **lvarsp) {
+Node *while_stmt(Token **rest, Token *token, Var **lvarsp) {
   if (!equal(token, "while" )) {
     error_at(token, "expected while");
   }
@@ -209,7 +209,7 @@ static Node *while_stmt(Token **rest, Token *token, Var **lvarsp) {
 }
 
 // for_stmt = "for" "(" expr? ";" expr? ";" expr? ")" stmt
-static Node *for_stmt(Token **rest, Token *token, Var **lvarsp) {
+Node *for_stmt(Token **rest, Token *token, Var **lvarsp) {
   // "for"
   if (!equal(token, "for")) {
     error_at(token, "expected for");
@@ -261,7 +261,7 @@ static Node *for_stmt(Token **rest, Token *token, Var **lvarsp) {
 }
 
 // return_stmt = return expr ";"
-static Node *return_stmt(Token **rest, Token *token, Var **lvarsp) {
+Node *return_stmt(Token **rest, Token *token, Var **lvarsp) {
   if (!equal(token, "return")) {
     error_at(token, "expected return");
   }
@@ -279,7 +279,7 @@ static Node *return_stmt(Token **rest, Token *token, Var **lvarsp) {
 }
 
 // expr_stmt  =  expr ";"
-static Node *expr_stmt(Token **rest, Token *token, Var **lvarsp) {
+Node *expr_stmt(Token **rest, Token *token, Var **lvarsp) {
   Node *node = new_node_expr_stmt(expr(&token, token, lvarsp));
 
   if (!equal(token, ";")) {
@@ -295,7 +295,7 @@ static Node *expr_stmt(Token **rest, Token *token, Var **lvarsp) {
 // type_suffix       = "[" num "]" type_suffix | ε
 // declare node is skipped by codegen
 
-static Node *declare_lvar_stmt(Token **rest, Token *token, Var **lvarsp, Type *ancestor) {
+Node *declare_lvar_stmt(Token **rest, Token *token, Var **lvarsp, Type *ancestor) {
   // identifer
   if (!is_identifer_token(token)) {
     error_at(token, "expected identifer");
@@ -323,7 +323,7 @@ static Node *declare_lvar_stmt(Token **rest, Token *token, Var **lvarsp, Type *a
   }
   token = token->next;
 
-  Node *node = init_lvar_stmt(&token, token, lvarsp, NULL);
+  Node *node = init_lvar_stmts(&token, token, lvarsp, NULL);
 
   if (!equal(token, ";")) {
     error_at(token, "expected ;");
@@ -334,83 +334,8 @@ static Node *declare_lvar_stmt(Token **rest, Token *token, Var **lvarsp, Type *a
   return node;
 }
 
-static ArrayIndexes *add_descendant(ArrayIndexes *now_descendant, int index) {
-  ArrayIndexes *descendant = calloc(1, sizeof(ArrayIndexes));
-  descendant->index = index;
-  descendant->parent = now_descendant;
-  return descendant;
-}
 
-int var_array_length(Var *var, ArrayIndexes *indexes) {
-  Type *type = var->type;
-  while(indexes) {
-    indexes = indexes->parent;
-    type = type->ptr_to;
-  }
-  return type->array_length;
-}
-
-static Node *new_node_array_cell(Var *var, ArrayIndexes *indexes) {
-  if (!indexes) {
-    return new_node_var(var->name, var->length, var);
-  }
-  return new_node_deref(new_node_add(
-    new_node_array_cell(var, indexes->parent),
-    new_node_num(indexes->index)
-  ));
-}
-
-static Node *init_lvar_stmt(Token **rest, Token *token, Var **lvarsp, ArrayIndexes *descendant) {
-  Var *var = *lvarsp;
-  Node *node;
-
-  if (!equal(token, "{")) {
-    Node *right = assign(&token, token, lvarsp);
-    node = new_node_assign(new_node_array_cell(var, descendant), right);
-    *rest = token;
-    return node;
-  }
-  token = token->next;
-
-  Node head = {};
-  Node *tail = &head;
-  int array_length = var_array_length(var, descendant);
-  int ct = 0;
-
-  while (!equal(token, "}")) {
-    tail->next = init_lvar_stmt(&token, token, lvarsp, add_descendant(descendant, ct++));
-    while(tail->next) {
-      tail = tail->next;
-    }
-
-    if (!equal(token,",")) {
-      break;
-    }
-    token = token->next;
-
-    if (ct > array_length) {
-      error_at(token, "too many initializer of array");
-    }
-  }
-  if (!equal(token, "}")) {
-    error_at(token, "expected }");
-  }
-  token = token->next;
-
-  // Zero padding
-  for (;ct< array_length; ct++) {
-    tail->next = new_node_assign(new_node_array_cell(var, add_descendant(descendant, ct)), new_node_num(0));
-    while(tail->next) {
-      tail = tail->next;
-    }
-  }
-
-  node = head.next;
-  *rest = token;
-  return node;
-}
-
-static Type *type_suffix(Token **rest, Token *token, Type *ancestor) {
+Type *type_suffix(Token **rest, Token *token, Type *ancestor) {
   if (!equal(token, "[")) {
     return ancestor;
   }
@@ -430,14 +355,14 @@ static Type *type_suffix(Token **rest, Token *token, Type *ancestor) {
 }
 
 // expr       = assign
-static Node *expr(Token **rest, Token *token, Var **lvarsp) {
+Node *expr(Token **rest, Token *token, Var **lvarsp) {
   Node *node = assign(&token, token, lvarsp);
   *rest = token;
   return node;
 }
 
 // assign     = equality ("=" assign)?
-static Node *assign(Token **rest, Token *token, Var **lvarsp) {
+Node *assign(Token **rest, Token *token, Var **lvarsp) {
   Node *node = equality(&token, token, lvarsp);
 
   if(equal(token, "=")) {
@@ -450,7 +375,7 @@ static Node *assign(Token **rest, Token *token, Var **lvarsp) {
 }
 
 // equality = relational ("==" relational | "!=" relational)*
-static Node *equality(Token **rest, Token *token, Var **lvarsp) {
+Node *equality(Token **rest, Token *token, Var **lvarsp) {
   Node *node = relational(&token, token, lvarsp);
   for(;;) {
     if (equal(token, "==")){
@@ -467,7 +392,7 @@ static Node *equality(Token **rest, Token *token, Var **lvarsp) {
 }
 
 // relational = add ("<" add | "<=" add | ">" add | ">=" add)*
-static Node *relational(Token **rest, Token *token, Var ** lvarsp) {
+Node *relational(Token **rest, Token *token, Var ** lvarsp) {
   Node *node = add(&token, token, lvarsp);
   for(;;) {
     if (equal(token, "<")){
@@ -496,7 +421,7 @@ static Node *relational(Token **rest, Token *token, Var ** lvarsp) {
 }
 
 // add = mul ("+" mul | "-" mul)*
-static Node *add(Token **rest, Token *token, Var **lvarsp) {
+Node *add(Token **rest, Token *token, Var **lvarsp) {
   Node *node = mul(&token, token, lvarsp);
 
   for(;;) {
@@ -514,7 +439,7 @@ static Node *add(Token **rest, Token *token, Var **lvarsp) {
 }
 
 // mul = unary ("*" unary | "/" unary)*
-static Node *mul(Token **rest, Token *token, Var **lvarsp) {
+Node *mul(Token **rest, Token *token, Var **lvarsp) {
   Node *node = unary(&token, token, lvarsp);
 
   for(;;) {
@@ -535,7 +460,7 @@ static Node *mul(Token **rest, Token *token, Var **lvarsp) {
 //       | "sizeof" unary
 //       | ( "*" | "&" ) unary
 //       | primary ("[" expr "]")*
-static Node *unary(Token **rest, Token *token, Var **lvarsp) {
+Node *unary(Token **rest, Token *token, Var **lvarsp) {
   Node *node;
   if (equal(token,"+")) {
     token = token->next;
@@ -573,7 +498,7 @@ static Node *unary(Token **rest, Token *token, Var **lvarsp) {
 
 // sizeofunary = "sizeof" ( type_with_pars | unary )
 // type_with_pars = "(" type_with_pars ")" | type
-static Node *sizeofunary(Token **rest, Token *token, Var **lvarsp) {
+Node *sizeofunary(Token **rest, Token *token, Var **lvarsp) {
   if (!equal(token, "sizeof")) {
     error_at(token, "expected sizeof");
   }
@@ -592,7 +517,7 @@ static Node *sizeofunary(Token **rest, Token *token, Var **lvarsp) {
 }
 
 // primary    = num | ident ( "(" ")" )? | "(" expr ")"
-static Node *primary(Token **rest, Token *token, Var **lvarsp) {
+Node *primary(Token **rest, Token *token, Var **lvarsp) {
   Node *node;
   if (is_number_token(token)) {
     node = new_node_num(strtol(token->location, NULL, 10));
