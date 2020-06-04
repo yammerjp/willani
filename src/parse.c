@@ -386,8 +386,7 @@ static Type *type_suffix(Token **rest, Token *token, Type *ancestor) {
   Type *parent = type_suffix(&token, token, ancestor);
 
   *rest = token;
-  size_t array_size = length * type_size(parent);
-  return new_type_array(parent, array_size);
+  return new_type_array(parent, length);
 }
 
 // expr       = assign
