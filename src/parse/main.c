@@ -518,6 +518,37 @@ Node *sizeofunary(Token **rest, Token *token, Var **lvarsp) {
   return new_node_num(size);
 }
 
+Node *primary_identifer(Token **rest, Token *token, Var **lvarsp) {
+  Node *node;
+  if (!equal(token->next, "(")) {
+    node = new_node_var(token->location, token->length, *lvarsp);
+    token = token->next;
+  } else {
+    char *name = token->location;
+    int length = token->length;
+    token = token->next->next;
+    Node args_head = {};
+    Node *args_tail = &args_head;
+    for(int i=0;i<6;i++) {
+      if (equal(token, ")")) {
+        break;
+      }
+      args_tail->next = expr(&token, token, lvarsp);
+      args_tail = args_tail->next;
+      if (!equal(token, ",")) {
+        break;
+      }
+      token = token->next;
+    }
+    if (!equal(token, ")")) {
+      error_at(token, "expected )");
+    }
+    token = token->next;
+    node = new_node_func_call(name, length, args_head.next);
+  }
+  *rest = token;
+  return node;
+}
 // primary    = num | ident ( "(" ")" )? | "(" expr ")"
 Node *primary(Token **rest, Token *token, Var **lvarsp) {
   Node *node;
@@ -529,33 +560,7 @@ Node *primary(Token **rest, Token *token, Var **lvarsp) {
   }
 
   if (is_identifer_token(token)) {
-
-    if (!equal(token->next, "(")) {
-      node = new_node_var(token->location, token->length, *lvarsp);
-      token = token->next;
-    } else {
-      char *name = token->location;
-      int length = token->length;
-      token = token->next->next;
-      Node args_head = {};
-      Node *args_tail = &args_head;
-      for(int i=0;i<6;i++) {
-        if (equal(token, ")")) {
-          break;
-        }
-        args_tail->next = expr(&token, token, lvarsp);
-        args_tail = args_tail->next;
-        if (!equal(token, ",")) {
-          break;
-        }
-        token = token->next;
-      }
-      if (!equal(token, ")")) {
-        error_at(token, "expected )");
-      }
-      token = token->next;
-      node = new_node_func_call(name, length, args_head.next);
-    }
+    node = primary_identifer(&token, token, lvarsp);
     *rest = token;
     return node;
   }
