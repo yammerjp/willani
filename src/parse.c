@@ -367,11 +367,10 @@ static Node *init_lvar_stmt(Token **rest, Token *token, Var **lvarsp, ArrayIndex
     // Zero padding
     int array_length = var->type->array_length;
     Node head = {};
-    Node *node_tail = &head;
+    Node *tail = &head;
     for (int i = ct; i< array_length; i++) {
-      Node *new_node = new_node_assign_array_cell(var, add_descendant(descendant, 0), new_node_num(0));
-      node_tail->next = new_node;
-      node_tail = new_node;
+      tail->next = new_node_assign_array_cell(var, add_descendant(descendant, 0), new_node_num(0));
+      tail = tail->next;
     }
     node = head.next;
   } else {
