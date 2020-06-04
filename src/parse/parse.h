@@ -3,6 +3,7 @@
 
 #include "../willani.h"
 
+
 //======================================
 // var.c
 Var *find_var(char *name, int length, Var *vars);
@@ -10,9 +11,10 @@ void *new_var(Type *type, char *name, int length, Var **varsp);
 void *new_gvar(Type *type, char *name, int length);
 
 
-
 //======================================
 // new_node.c
+Type *type_suffix(Token **rest, Token *token, Type *ancestor);
+
 Node *new_node_add(Node *left, Node *right);
 Node *new_node_sub(Node *left, Node *right);
 Node *new_node_mul(Node *left, Node *right);
@@ -45,6 +47,10 @@ void parse_log(Function *function);
 //======================================
 // main.c
 Function *function(Token **rest, Token *token, Type *return_type, char *name, int namelen);
+
+
+//======================================
+// stmt.c
 Node *stmt(Token **rest, Token *token, Var **lvarsp);
 Node *if_stmt(Token **rest, Token *token, Var **lvarsp);
 Node *while_stmt(Token **rest, Token *token, Var **lvarsp);
@@ -54,6 +60,10 @@ Node *expr_stmt(Token **rest, Token *token, Var **lvarsp);
 Node *return_stmt(Token **rest, Token *token, Var **lvarsp);
 Node *declare_lvar_stmt(Token **rest, Token *token, Var **lvarsp, Type *type);
 Type *type_suffix(Token **rest, Token *token, Type *ancestor);
+
+
+//======================================
+// expr.c
 Node *expr(Token **rest, Token *token, Var **lvarsp);
 Node *assign(Token **rest, Token *token, Var **lvarsp);
 Node *equality(Token **rest, Token *token, Var **lvarsp);
@@ -63,7 +73,11 @@ Node *mul(Token **rest, Token *token, Var **lvarsp);
 Node *unary(Token **rest, Token *token, Var **lvarsp);
 Node *sizeofunary(Token **rest, Token *token, Var **lvarsp);
 Node *primary(Token **rest, Token *token, Var **lvarsp);
+Node *primary_identifer(Token **rest, Token *token, Var **lvarsp);
 
+
+//======================================
+// var_init.c
 typedef struct ArrayIndexes ArrayIndexes;
 struct ArrayIndexes {
   int index;
