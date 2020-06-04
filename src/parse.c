@@ -334,49 +334,78 @@ static Node *declare_lvar_stmt(Token **rest, Token *token, Var **lvarsp, Type *a
   return node;
 }
 
-static ArrayIndexs *add_descendant(ArrayIndexs *now_descendant, int index) {
-  ArrayIndexs *descendant = calloc(1, sizeof(ArrayIndexs));
+static ArrayIndexes *add_descendant(ArrayIndexes *now_descendant, int index) {
+  ArrayIndexes *descendant = calloc(1, sizeof(ArrayIndexes));
   descendant->index = index;
   descendant->parent = now_descendant;
   return descendant;
 }
 
-static Node *new_node_assign_array_cell(Var *var, ArrayIndexs *indexs, Node *right) {
-  Node *left = new_node_var(var->name, var->length, var);
-  while (indexs) {
-    left = new_node_deref(new_node_add(left, new_node_num(indexs->index)));
-    indexs = indexs->parent;
+int var_array_length(Var *var, ArrayIndexes *indexes) {
+  Type *type = var->type;
+  while(indexes) {
+    indexes = indexes->parent;
+    type = type->ptr_to;
   }
-  return new_node_assign(left, right);
+  return type->array_length;
 }
 
-static Node *init_lvar_stmt(Token **rest, Token *token, Var **lvarsp, ArrayIndexs *descendant) {
+static Node *new_node_array_cell(Var *var, ArrayIndexes *indexes) {
+  if (!indexes) {
+    return new_node_var(var->name, var->length, var);
+  }
+  return new_node_deref(new_node_add(
+    new_node_array_cell(var, indexes->parent),
+    new_node_num(indexes->index)
+  ));
+}
+
+static Node *init_lvar_stmt(Token **rest, Token *token, Var **lvarsp, ArrayIndexes *descendant) {
   Var *var = *lvarsp;
   Node *node;
 
-  if (equal(token, "{")) {
-    token = token->next;
+  if (!equal(token, "{")) {
+    Node *right = assign(&token, token, lvarsp);
+    node = new_node_assign(new_node_array_cell(var, descendant), right);
+    *rest = token;
+    return node;
+  }
+  token = token->next;
 
-    int ct = 0;
-    while (!equal(token, "}")) {
-      ct ++;
-      error_at(token, "wait to impelent assignment to array...");
-    }
-    token = token->next;
+  Node head = {};
+  Node *tail = &head;
+  int array_length = var_array_length(var, descendant);
+  int ct = 0;
 
-    // Zero padding
-    int array_length = var->type->array_length;
-    Node head = {};
-    Node *tail = &head;
-    for (int i = ct; i< array_length; i++) {
-      tail->next = new_node_assign_array_cell(var, add_descendant(descendant, 0), new_node_num(0));
+  while (!equal(token, "}")) {
+    tail->next = init_lvar_stmt(&token, token, lvarsp, add_descendant(descendant, ct++));
+    while(tail->next) {
       tail = tail->next;
     }
-    node = head.next;
-  } else {
-    Node *right = assign(&token, token, lvarsp);
-    node = new_node_assign_array_cell(var, descendant, right);
+
+    if (!equal(token,",")) {
+      break;
+    }
+    token = token->next;
+
+    if (ct > array_length) {
+      error_at(token, "too many initializer of array");
+    }
   }
+  if (!equal(token, "}")) {
+    error_at(token, "expected }");
+  }
+  token = token->next;
+
+  // Zero padding
+  for (;ct< array_length; ct++) {
+    tail->next = new_node_assign(new_node_array_cell(var, add_descendant(descendant, ct)), new_node_num(0));
+    while(tail->next) {
+      tail = tail->next;
+    }
+  }
+
+  node = head.next;
   *rest = token;
   return node;
 }

@@ -23,14 +23,15 @@ static Node *unary(Token **rest, Token *token, Var **lvarsp);
 static Node *sizeofunary(Token **rest, Token *token, Var **lvarsp);
 static Node *primary(Token **rest, Token *token, Var **lvarsp);
 
-typedef struct ArrayIndexs ArrayIndexs;
-struct ArrayIndexs {
+typedef struct ArrayIndexes ArrayIndexes;
+struct ArrayIndexes {
   int index;
-  ArrayIndexs *parent;
+  ArrayIndexes *parent;
 };
 
-static ArrayIndexs *add_descendant(ArrayIndexs *now_descendant, int index);
-static Node *new_node_assign_array_cell(Var *var, ArrayIndexs *indexs, Node *right);
-static Node *init_lvar_stmt(Token **rest, Token *token, Var **lvarsp, ArrayIndexs *descandant);
+static ArrayIndexes *add_descendant(ArrayIndexes *now_descendant, int index);
+int var_array_length(Var *var, ArrayIndexes *indexes);
+static Node *new_node_array_cell(Var *var, ArrayIndexes *indexes);
+static Node *init_lvar_stmt(Token **rest, Token *token, Var **lvarsp, ArrayIndexes *descandant);
 
 #endif
