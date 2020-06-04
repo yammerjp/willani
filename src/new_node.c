@@ -101,19 +101,6 @@ Node *new_node_var(char *name, int length, Var *lvars) {
   error("use undeclared identifer '%.*s'", length, name);
 }
 
-Node *new_node_declare_lvar(Type *type, char *name, int length, Var **lvarsp) {
-  if (find_var(name, length, *lvarsp)!= NULL) {
-    error("duplicate declarations '%.*s'", length, name);
-  }
-
-  new_var(type, name, length, lvarsp);
-
-  Node *node = calloc(1, sizeof(Node));
-  node->kind = ND_DECLARE_LVAR;
-  node->var = *lvarsp;
-  return node;
-}
-
 Node *new_node_return(Node *left) {
   Node *node = calloc(1, sizeof(Node));
   node->kind = ND_RETURN;

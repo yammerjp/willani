@@ -126,7 +126,9 @@ static Node *block_stmt(Token **rest, Token *token, Var **lvarsp) {
   
   while (!equal(token, "}")) {
     current->next = stmt(&token, token, lvarsp);
-    current = current->next;
+    if (current->next) {
+      current = current->next;
+    }
   }
   token = token->next;
 
@@ -325,15 +327,18 @@ static Node *declare_lvar_stmt(Token **rest, Token *token, Var **lvarsp, Type *a
   // ("[" num "]")*
   Type *type = type_suffix(&token, token, ancestor);
 
-  Node *node = new_node_declare_lvar(type, name, namelen, lvarsp);
-
-  if (!equal(token, ";")) {
-    error_at(token, "expected ;");
+  if (find_var(name, namelen, *lvarsp)) {
+    error("duplicate declarations '%.*s'", namelen, name);
   }
-  token = token->next;
+  new_var(type, name, namelen, lvarsp);
 
-  *rest = token;
-  return node;
+  if (equal(token, ";")) {
+    token = token->next;
+    *rest = token;
+    return NULL;
+  }
+
+  error_at(token, "expected ;");
 }
 
 static Type *type_suffix(Token **rest, Token *token, Type *ancestor) {

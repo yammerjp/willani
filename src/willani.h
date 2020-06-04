@@ -90,7 +90,6 @@ typedef enum {
   ND_FOR,         // for
   ND_RETURN,      // return
   ND_EXPR_STMT,   // ... ;
-  ND_DECLARE_LVAR, // int ... ;
 } NodeKind;
 
 typedef struct Node Node;
@@ -155,7 +154,6 @@ Node *new_node_less_equal(Node *left, Node *right);
 
 Node *new_node_num(long value);
 Node *new_node_var(char *name, int length, Var *lvars);
-Node *new_node_declare_lvar(Type *type, char *name, int length, Var **lvarsp);
 Node *new_node_return(Node *left);
 Node *new_node_if(Node *cond, Node *then, Node *els);
 Node *new_node_while(Node *cond, Node *then);

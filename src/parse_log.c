@@ -50,9 +50,6 @@ void print_node(FILE *file, Node *node) {
     case ND_BLOCK:        fprintf(file, "{}"); break;
     case ND_FUNC_CALL:    fprintf(file, "%.*s",node->fncl->length, node->fncl->name); break;
     case ND_EXPR_STMT:    fprintf(file, ";"); break;
-    case ND_DECLARE_LVAR: print_type(file, node->var->type);
-                          fprintf(file, " %.*s", node->var->length, node->var->name);
-                          break;
     default : error("unexpected node->kind");
   }
   fprintf(file, "\n");
