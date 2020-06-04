@@ -1,5 +1,11 @@
 #include "willani.h"
 
+typedef struct ArrayIndexs ArrayIndexs;
+struct ArrayIndexs {
+  int index;
+  ArrayIndexs *parent;
+};
+
 static Function *function(Token **rest, Token *token, Type *return_type, char *name, int namelen);
 static Node *stmt(Token **rest, Token *token, Var **lvarsp);
 static Node *if_stmt(Token **rest, Token *token, Var **lvarsp);
@@ -9,7 +15,7 @@ static Node *block_stmt(Token **rest, Token *token, Var **lvarsp);
 static Node *expr_stmt(Token **rest, Token *token, Var **lvarsp);
 static Node *return_stmt(Token **rest, Token *token, Var **lvarsp);
 static Node *declare_lvar_stmt(Token **rest, Token *token, Var **lvarsp, Type *type);
-static Node *init_lvar_stmt(Token **rest, Token *token, Var **lvarsp);
+static Node *init_lvar_stmt(Token **rest, Token *token, Var **lvarsp, ArrayIndexs *descandant);
 static Type *type_suffix(Token **rest, Token *token, Type *ancestor);
 static Node *expr(Token **rest, Token *token, Var **lvarsp);
 static Node *assign(Token **rest, Token *token, Var **lvarsp);
@@ -344,7 +350,7 @@ static Node *declare_lvar_stmt(Token **rest, Token *token, Var **lvarsp, Type *a
   }
   token = token->next;
 
-  Node *node = init_lvar_stmt(&token, token, lvarsp);
+  Node *node = init_lvar_stmt(&token, token, lvarsp, NULL);
 
   if (!equal(token, ";")) {
     error_at(token, "expected ;");
@@ -355,7 +361,7 @@ static Node *declare_lvar_stmt(Token **rest, Token *token, Var **lvarsp, Type *a
   return node;
 }
 
-static Node *init_lvar_stmt(Token **rest, Token *token, Var **lvarsp) {
+static Node *init_lvar_stmt(Token **rest, Token *token, Var **lvarsp, ArrayIndexs *descendant) {
   Var *var = *lvarsp;
   Node *node;
 
@@ -363,7 +369,7 @@ static Node *init_lvar_stmt(Token **rest, Token *token, Var **lvarsp) {
     token = token->next;
 
     int ct = 0;
-    if (!equal(token, "}")) {
+    while (!equal(token, "}")) {
       ct ++;
       error_at(token, "wait to impelent assignment to array...");
     }
@@ -387,6 +393,10 @@ static Node *init_lvar_stmt(Token **rest, Token *token, Var **lvarsp) {
     node = head.next;
   } else {
     Node *left = new_node_var(var->name, var->length, *lvarsp);
+    ArrayIndexs *indexs = descendant;
+    while (indexs) {
+      left = new_node_deref(new_node_add(left, new_node_num(indexs->index)));
+    }
     Node *right = assign(&token, token, lvarsp);
     node = new_node_assign(left, right);
   }
