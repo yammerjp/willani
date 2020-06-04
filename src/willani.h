@@ -1,10 +1,12 @@
+#ifndef INCLUDED_willani_h_
+#define INCLUDED_willani_h_
+
 #include <ctype.h>
 #include <stdarg.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
 
 //======================================
 // tokenize.c
@@ -187,3 +189,5 @@ void error(char *fmt, ...);
 // main.c
 extern char *user_input;
 extern Var *gvars;
+
+#endif

@@ -5,7 +5,7 @@ OBJS=$(SRCS:.c=.o)
 willani: $(OBJS)
 	$(CC) -o willani $(OBJS) $(LDFLAGS)
 
-$(OBJS): src/willani.h
+$(OBJS): src/willani.h src/parse.h
 
 test: willani
 	bin/test.sh
