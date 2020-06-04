@@ -361,6 +361,22 @@ static Node *declare_lvar_stmt(Token **rest, Token *token, Var **lvarsp, Type *a
   return node;
 }
 
+static ArrayIndexs *add_descendant(ArrayIndexs *now_descendant, int index) {
+  ArrayIndexs *descendant = calloc(1, sizeof(ArrayIndexs));
+  descendant->index = index;
+  descendant->parent = now_descendant;
+  return descendant;
+}
+
+static Node *new_node_assign_array_cell(Var *var, ArrayIndexs *indexs, Node *right) {
+  Node *left = new_node_var(var->name, var->length, var);
+  while (indexs) {
+    left = new_node_deref(new_node_add(left, new_node_num(indexs->index)));
+    indexs = indexs->parent;
+  }
+  return new_node_assign(left, right);
+}
+
 static Node *init_lvar_stmt(Token **rest, Token *token, Var **lvarsp, ArrayIndexs *descendant) {
   Var *var = *lvarsp;
   Node *node;
@@ -380,25 +396,14 @@ static Node *init_lvar_stmt(Token **rest, Token *token, Var **lvarsp, ArrayIndex
     Node head = {};
     Node *node_tail = &head;
     for (int i = ct; i< array_length; i++) {
-      Node *new_node = new_node_assign(
-        new_node_deref(new_node_add(
-          new_node_var(var->name, var->length, *lvarsp),
-          new_node_num(i)
-        )),
-        new_node_num(0)
-      );
+      Node *new_node = new_node_assign_array_cell(var, add_descendant(descendant, 0), new_node_num(0));
       node_tail->next = new_node;
       node_tail = new_node;
     }
     node = head.next;
   } else {
-    Node *left = new_node_var(var->name, var->length, *lvarsp);
-    ArrayIndexs *indexs = descendant;
-    while (indexs) {
-      left = new_node_deref(new_node_add(left, new_node_num(indexs->index)));
-    }
     Node *right = assign(&token, token, lvarsp);
-    node = new_node_assign(left, right);
+    node = new_node_assign_array_cell(var, descendant, right);
   }
   *rest = token;
   return node;
