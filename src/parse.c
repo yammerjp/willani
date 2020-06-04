@@ -311,7 +311,7 @@ static Node *expr_stmt(Token **rest, Token *token, Var **lvarsp) {
   return node;
 }
 
-// declare_lvar_stmt = type identifer type_suffix ";"
+// declare_lvar_stmt = type identifer type_suffix ("=" expr)? ";"
 // type_suffix       = "[" num "]" type_suffix | ε
 // declare node is skipped by codegen
 
@@ -338,7 +338,29 @@ static Node *declare_lvar_stmt(Token **rest, Token *token, Var **lvarsp, Type *a
     return NULL;
   }
 
-  error_at(token, "expected ;");
+  if (!equal(token, "=")) {
+    error_at(token, "expected ; or =");
+  }
+  token = token->next;
+
+  Node *node;
+  // declare and assignment
+  if(type->kind == TYPE_ARRAY) {
+    error_at(token, "wait to impelent assignment to array...");
+  } else {
+    Node *left = new_node_var(name, namelen, *lvarsp);
+    Node *right = assign(&token, token, lvarsp);
+    node = new_node_assign(left, right);
+  }
+
+  if (!equal(token, ";")) {
+    error_at(token, "expected ;");
+  }
+  token = token->next;
+
+
+  *rest = token;
+  return node;
 }
 
 static Type *type_suffix(Token **rest, Token *token, Type *ancestor) {
