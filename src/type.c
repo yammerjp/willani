@@ -25,11 +25,11 @@ Type *new_type_pointer(Type *parent) {
   return type;
 }
 
-Type *new_type_array(Type *parent, size_t array_size) {
+Type *new_type_array(Type *parent, int length) {
   Type *type = calloc(1, sizeof(Type));
   type->kind = TYPE_ARRAY;
   type->ptr_to = parent;
-  type->array_size = array_size;
+  type->array_length  = length;
   return type;
 }
 
@@ -46,7 +46,7 @@ int type_size(Type *type) {
     case TYPE_PTR:
       return type_size_pointer;
     case TYPE_ARRAY:
-      return type->array_size;
+      return type->array_length * type_size(type->ptr_to);
     default:
       error("unknown type size");
   }
