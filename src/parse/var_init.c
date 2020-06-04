@@ -26,6 +26,31 @@ static Node *new_node_array_cell(Var *var, ArrayIndexes *indexes) {
   ));
 }
 
+static Node *new_node_zero_padding_array(Var *var, ArrayIndexes *descendant) {
+  Node head = {};
+  Node *tail = &head;
+
+  ArrayIndexes *indexes = descendant;
+  Type *type = var->type;
+  while(indexes) {
+    indexes = indexes->parent;
+    type = type->ptr_to;
+    if (!type) {
+      error("too deep initializer of array");
+    }
+  }
+  if (type->kind != TYPE_ARRAY) {
+    return new_node_assign(new_node_array_cell(var, descendant), new_node_num(0));
+  }
+  for (int i = 0; i < type->array_length; i++) {
+    tail->next = new_node_zero_padding_array(var, add_descendant(descendant, i));
+    while (tail->next) {
+      tail = tail->next;
+    }
+  }
+  return head.next;
+}
+
 Node *init_lvar_stmts(Token **rest, Token *token, Var **lvarsp, ArrayIndexes *descendant) {
   Var *var = *lvarsp;
   Node *node;
@@ -65,7 +90,7 @@ Node *init_lvar_stmts(Token **rest, Token *token, Var **lvarsp, ArrayIndexes *de
 
   // Zero padding
   for (;ct< array_length; ct++) {
-    tail->next = new_node_assign(new_node_array_cell(var, add_descendant(descendant, ct)), new_node_num(0));
+    tail->next = new_node_zero_padding_array(var, add_descendant(descendant, ct));
     while(tail->next) {
       tail = tail->next;
     }
@@ -75,4 +100,3 @@ Node *init_lvar_stmts(Token **rest, Token *token, Var **lvarsp, ArrayIndexes *de
   *rest = token;
   return node;
 }
-

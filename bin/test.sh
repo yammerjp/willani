@@ -153,4 +153,7 @@ assert 0    'int main() { int k[3] = {}; return k[2]; }'
 assert 20   'int main() { int k[3] = {10,20}; return k[1]; }'
 assert 0    'int main() { int k[3] = {10,20}; return k[2]; }'
 assert 5    'int main() { int k[3][2] = {{0,1},{2,3},{4,5}}; return k[2][1]; }'
+assert 0    'int main() { int k[3][2] = {}; return k[2][1]; }'
+assert 1    'int main() { int k[3][2] = {{1}}; return k[0][0]; }'
+assert 0    'int main() { int k[3][2] = {{1}}; return k[0][1]; }'
 echo OK
