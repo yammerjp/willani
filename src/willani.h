@@ -60,7 +60,7 @@ Type *type_conversion(Type *left, Type *right);
 extern const int type_size_pointer;
 
 //======================================
-// parse.c
+// parse/main.c
 typedef struct Var Var;
 struct Var {
   Type *type;
@@ -108,9 +108,9 @@ struct Node {
   Node *next;
   Node *left;
   Node *right;
-  Type *type;        // Used if node is expression
+  Type *type;       // Used if node is expression
   long value;       // Used if kind == ND_NUM
-  Var *var;       // Used if kind is ND_GVAR or ND_LVAR
+  Var *var;         // Used if kind is ND_GVAR or ND_LVAR
   Node *cond;       // Used if kind is ND_IF or ND_WHILE or ND_FOR
   Node *then;       // Used if kind is ND_IF or ND_WHILE or ND_FOR
   Node *els;        // Used if kind == ND_IF
@@ -136,42 +136,13 @@ Function *program(Token *token);
 
 
 //======================================
-// var.c
-Var *find_var(char *name, int length, Var *vars);
-void *new_var(Type *type, char *name, int length, Var **varsp);
-void *new_gvar(Type *type, char *name, int length);
-
+// parse/var.c
+extern Var *gvars;
 
 
 //======================================
-// new_node.c
-Node *new_node_add(Node *left, Node *right);
-Node *new_node_sub(Node *left, Node *right);
-Node *new_node_mul(Node *left, Node *right);
-Node *new_node_div(Node *left, Node *right);
-Node *new_node_equal(Node *left, Node *right);
-Node *new_node_not_equal(Node *left, Node *right);
-Node *new_node_less_than(Node *left, Node *right);
-Node *new_node_less_equal(Node *left, Node *right);
-
-Node *new_node_num(long value);
-Node *new_node_var(char *name, int length, Var *lvars);
-Node *new_node_return(Node *left);
-Node *new_node_if(Node *cond, Node *then, Node *els);
-Node *new_node_while(Node *cond, Node *then);
-Node *new_node_for(Node *init, Node *cond, Node* increment, Node *then);
-Node *new_node_block(Node *body);
-Node *new_node_func_call(char *name, int len, Node *args);
-Node *new_node_expr_stmt(Node *stmt_node);
-Node *new_node_addr(Node *unary_node);
-Node *new_node_deref(Node *unary_node);
-Node *new_node_assign(Node *left, Node *right);
-
-
-//======================================
-// parse_log.c
+// parse/log.c
 void print_node(FILE *file, Node *node);
-void parse_log(Function *function);
 
 
 //======================================
@@ -188,6 +159,5 @@ void error(char *fmt, ...);
 //======================================
 // main.c
 extern char *user_input;
-extern Var *gvars;
 
 #endif

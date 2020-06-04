@@ -1,9 +1,10 @@
 #include "parse.h"
 
 // program = (function | declare_gvar)*
+// declare_gvar = type ident type_suffix ";"
 Function *program(Token *token) {
   Function head = {};
-  Function *current = &head;
+  Function *tail = &head;
 
   while (!is_eof_token(token)) {
 
@@ -21,8 +22,8 @@ Function *program(Token *token) {
 
     if (equal(token, "(")) {
       // function
-      current->next = function(&token, token, type, name, namelen);
-      current = current->next;
+      tail->next = function(&token, token, type, name, namelen);
+      tail = tail->next;
     } else {
       // global variable
       type = type_suffix(&token, token, type);
@@ -37,11 +38,12 @@ Function *program(Token *token) {
       token = token->next;
     }
   }
-  return head.next;
-}
-// declare_gvar = type ident type_suffix ";"
-// function = type ident "(" ( ( type ident ( "," type ident ) * ) ?  ")" block_stmt
 
+  Function *funcs = head.next;
+  parse_log(funcs);
+  return funcs;
+}
+// function = type ident "(" ( ( type ident ( "," type ident ) * ) ?  ")" block_stmt
 Function *function(Token **rest, Token *token, Type *return_type, char *name, int namelen) {
   Var *lvars = NULL;
 
@@ -102,12 +104,12 @@ Node *block_stmt(Token **rest, Token *token, Var **lvarsp) {
   token = token->next;
 
   Node head = {};
-  Node *current = &head;
+  Node *tail = &head;
   
   while (!equal(token, "}")) {
-    current->next = stmt(&token, token, lvarsp);
-    while (current->next) {
-      current = current->next;
+    tail->next = stmt(&token, token, lvarsp);
+    while (tail->next) {
+      tail = tail->next;
     }
   }
   token = token->next;
@@ -536,13 +538,13 @@ Node *primary(Token **rest, Token *token, Var **lvarsp) {
       int length = token->length;
       token = token->next->next;
       Node args_head = {};
-      Node *args_current = &args_head;
+      Node *args_tail = &args_head;
       for(int i=0;i<6;i++) {
         if (equal(token, ")")) {
           break;
         }
-        args_current->next = expr(&token, token, lvarsp);
-        args_current = args_current->next;
+        args_tail->next = expr(&token, token, lvarsp);
+        args_tail = args_tail->next;
         if (!equal(token, ",")) {
           break;
         }
