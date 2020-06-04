@@ -9,6 +9,7 @@ static Node *block_stmt(Token **rest, Token *token, Var **lvarsp);
 static Node *expr_stmt(Token **rest, Token *token, Var **lvarsp);
 static Node *return_stmt(Token **rest, Token *token, Var **lvarsp);
 static Node *declare_lvar_stmt(Token **rest, Token *token, Var **lvarsp, Type *type);
+static Node *init_lvar_stmt(Token **rest, Token *token, Var **lvarsp);
 static Type *type_suffix(Token **rest, Token *token, Type *ancestor);
 static Node *expr(Token **rest, Token *token, Var **lvarsp);
 static Node *assign(Token **rest, Token *token, Var **lvarsp);
@@ -126,7 +127,7 @@ static Node *block_stmt(Token **rest, Token *token, Var **lvarsp) {
   
   while (!equal(token, "}")) {
     current->next = stmt(&token, token, lvarsp);
-    if (current->next) {
+    while (current->next) {
       current = current->next;
     }
   }
@@ -343,22 +344,28 @@ static Node *declare_lvar_stmt(Token **rest, Token *token, Var **lvarsp, Type *a
   }
   token = token->next;
 
-  Node *node;
-  // declare and assignment
-  if(type->kind == TYPE_ARRAY) {
-    error_at(token, "wait to impelent assignment to array...");
-  } else {
-    Node *left = new_node_var(name, namelen, *lvarsp);
-    Node *right = assign(&token, token, lvarsp);
-    node = new_node_assign(left, right);
-  }
+  Node *node = init_lvar_stmt(&token, token, lvarsp);
 
   if (!equal(token, ";")) {
     error_at(token, "expected ;");
   }
   token = token->next;
 
+  *rest = token;
+  return node;
+}
 
+static Node *init_lvar_stmt(Token **rest, Token *token, Var **lvarsp) {
+  Var *var = *lvarsp;
+  Node *node;
+
+  if (equal(token, "{")) {
+    error_at(token, "wait to impelent assignment to array...");
+  } else {
+    Node *left = new_node_var(var->name, var->length, *lvarsp);
+    Node *right = assign(&token, token, lvarsp);
+    node = new_node_assign(left, right);
+  }
   *rest = token;
   return node;
 }
