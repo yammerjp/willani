@@ -184,6 +184,7 @@ static void gen_func_call(Node *node) {
   printf("  and $15, %%rax\n");
   printf("  jne .L.needAlign.%d\n", labct);
 
+  printf("  mov $0, %%al\n"); // set zero to al for calling variadic arguments
   printf("  call %.*s\n", node->fncl->length, node->fncl->name);
   printf("  jmp .L.end.%d\n", labct);
 
