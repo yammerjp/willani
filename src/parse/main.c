@@ -1,10 +1,11 @@
 #include "parse.h"
 
+static void add_function(Token **rest, Token *token, Type *type, char *name, int namelen);
+static Function *function(Token **rest, Token *token, Type *return_type, char *name, int namelen);
+
 // program = (function | declare_gvar)*
 // declare_gvar = type ident type_suffix ";"
 void *program(Token *token) {
-  Function head = {};
-  Function *tail = &head;
 
   while (!is_eof_token(token)) {
 
@@ -22,9 +23,7 @@ void *program(Token *token) {
 
     if (equal(token, "(")) {
       // function
-      tail->next = function(&token, token, type, name, namelen);
-      tail = tail->next;
-      functions = head.next;
+      add_function(&token, token, type, name, namelen);
       continue;
     }
 
@@ -43,8 +42,24 @@ void *program(Token *token) {
   parse_log();
 }
 
+static void add_function(Token **rest, Token *token, Type *type, char *name, int namelen) {
+  Function *func = function(&token, token, type, name, namelen);
+  *rest = token;
+
+  if (!functions) {
+    functions = func;
+    return;
+  }
+
+  Function *tail  = functions;
+  while (tail->next) {
+    tail = tail->next;
+  }
+  tail->next = func;
+}
+
 // function = type ident "(" ( ( type ident ( "," type ident ) * ) ?  ")" block_stmt
-Function *function(Token **rest, Token *token, Type *return_type, char *name, int namelen) {
+static Function *function(Token **rest, Token *token, Type *return_type, char *name, int namelen) {
   Var *lvars = NULL;
 
   // arguments

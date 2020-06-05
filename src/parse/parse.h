@@ -45,11 +45,6 @@ void parse_log();
 
 
 //======================================
-// main.c
-Function *function(Token **rest, Token *token, Type *return_type, char *name, int namelen);
-
-
-//======================================
 // stmt.c
 Node *stmt(Token **rest, Token *token, Var **lvarsp);
 Node *if_stmt(Token **rest, Token *token, Var **lvarsp);
