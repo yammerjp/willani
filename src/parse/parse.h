@@ -86,6 +86,7 @@ Node *init_lvar_stmts(Token **rest, Token *token, Var **lvarsp, ArrayIndexes *de
 // function.c
 Function *find_function(char *name, int namelen);
 void add_function(Function *func);
+bool cmp_function(Function *f1, Function *f2);
 Function *function_definition(Token **rest, Token *token, Type *return_type, char *name, int namelen);
 
 #endif

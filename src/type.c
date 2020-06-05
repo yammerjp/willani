@@ -110,3 +110,16 @@ Type *type_conversion(Type *left, Type *right) {
   }
   return right;
 }
+
+bool cmp_type(Type *t1, Type *t2) {
+  if (!t1 || !t2) {
+    error("comparing type is NULL");
+  }
+  if ( t1->kind != t2->kind || t1->array_length != t2->array_length) {
+    return false;
+  }
+  if (t1->kind == TYPE_ARRAY || t1->kind == TYPE_PTR) {
+    return cmp_type(t1->ptr_to, t2->ptr_to);
+  }
+  return true;
+}
