@@ -131,6 +131,7 @@ struct Function {
   Var *args;
   int argc;
   Type *type;
+  bool definition;
 };
 
 void *program(Token *token);

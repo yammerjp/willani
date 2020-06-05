@@ -1,1 +1,5 @@
-int main() { int x[3]; *x=3; x[1]=4; 2[x]=5; return *(x+2); }
+int sum(int a, int);
+int sum(int c, int b);
+
+int main() { return sum(1,2); }
+int sum(int a, int b) { return a+b;}

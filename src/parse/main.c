@@ -61,6 +61,7 @@ static void add_function(Token **rest, Token *token, Type *type, char *name, int
 // function = type ident "(" ( ( type ident ( "," type ident ) * ) ?  ")" block_stmt
 static Function *function(Token **rest, Token *token, Type *return_type, char *name, int namelen) {
   Var *lvars = NULL;
+  bool definition = false;
 
   // arguments
   if (!equal(token, "(")) {
@@ -74,6 +75,18 @@ static Function *function(Token **rest, Token *token, Type *return_type, char *n
     Type *arg_type = read_type_tokens(&token, token);
 
     argc++;
+
+    if (equal(token, ",")) {
+      token = token->next;
+      definition = true;
+      new_var(arg_type, 0, 0, &lvars);
+      continue;
+    }
+    if (equal(token, ")")) {
+      definition = true;
+      new_var(arg_type, 0, 0, &lvars);
+      break;
+    }
 
     if(!is_identifer_token(token)) {
       error_at(token, "expected identifer");
@@ -94,8 +107,14 @@ static Function *function(Token **rest, Token *token, Type *return_type, char *n
 
   Var *args = lvars;
 
-  // block statement
-  Node *node = block_stmt(&token, token, &lvars);
+  Node *node = NULL;
+  if (equal(token, ";")) {
+    definition = true;
+    token = token->next;
+  } else {
+    // block statement
+    node = block_stmt(&token, token, &lvars);
+  }
 
   // create Function struct
   Function *func = calloc(1, sizeof(Function));
@@ -106,6 +125,7 @@ static Function *function(Token **rest, Token *token, Type *return_type, char *n
   func->argc = argc;
   func->namelen = namelen;
   func->type = return_type;
+  func->definition = definition;
 
   *rest = token;
   return func;

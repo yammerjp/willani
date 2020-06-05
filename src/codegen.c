@@ -396,6 +396,8 @@ void code_generate() {
   printf(".globl "); gen_func_names(functions); printf("\n");
 
   for (Function *current = functions; current; current = current->next) {
+    if (current->definition)
+      continue;
     gen_function(current);
   }
 }
