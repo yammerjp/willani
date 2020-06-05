@@ -57,6 +57,7 @@ int type_size(Type *type);
 Type *read_type_tokens(Token **rest, Token *token);
 Type *read_type_tokens_with_pars(Token **rest, Token *token);
 Type *type_conversion(Type *left, Type *right);
+bool cmp_type(Type *t1, Type *t2);
 extern const int type_size_pointer;
 
 //======================================
