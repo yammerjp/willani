@@ -1,5 +1,7 @@
 #include "parse.h"
 
+static void read_new_gvar(Token **rest, Token *token, Type *type_without_suffix, char *name, int namelen);
+
 // program = (function | declare_gvar)*
 // declare_gvar = type ident type_suffix ";"
 void *program(Token *token) {
@@ -37,16 +39,22 @@ void *program(Token *token) {
     }
 
     // global variable
-    type = type_suffix(&token, token, type);
-    if (find_var(name, namelen, gvars)) {
-      error_at(token, "duplicate declarations '%.*s'", namelen, name);
-    }
-    new_var(type, name, namelen, &gvars);
-
-    if (!equal(token, ";")) {
-      error_at(token, "expected ;");
-    }
-    token = token->next;
+    read_new_gvar(&token, token, type, name, namelen);
   }
   parse_log();
+}
+
+static void read_new_gvar(Token **rest, Token *token, Type *type_without_suffix, char *name, int namelen) {
+  Type *type = type_suffix(&token, token, type_without_suffix);
+  if (find_var(name, namelen, gvars)) {
+    error_at(token, "duplicate declarations '%.*s'", namelen, name);
+  }
+  new_var(type, name, namelen, &gvars);
+
+  if (!equal(token, ";")) {
+    error_at(token, "expected ;");
+  }
+  token = token->next;
+
+  *rest = token;
 }
