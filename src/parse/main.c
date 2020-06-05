@@ -1,7 +1,7 @@
 #include "parse.h"
 
-static void add_function(Token **rest, Token *token, Type *type, char *name, int namelen);
-static Function *function(Token **rest, Token *token, Type *return_type, char *name, int namelen);
+static void add_function(Function *func);
+static Function *function_definition(Token **rest, Token *token, Type *return_type, char *name, int namelen);
 
 // program = (function | declare_gvar)*
 // declare_gvar = type ident type_suffix ";"
@@ -23,7 +23,19 @@ void *program(Token *token) {
 
     if (equal(token, "(")) {
       // function
-      add_function(&token, token, type, name, namelen);
+      Function *func = function_definition(&token, token, type, name, namelen);
+      add_function(func);
+      if (equal(token, ";")) {
+        token = token->next;
+        func->definition = true;
+        continue;
+      }
+      if (func->definition) {
+        error_at(token, "need arguments' identifer");
+      }
+      Var *lvars = func->args;
+      func->node = block_stmt(&token, token, &lvars);
+      func->var = lvars;
       continue;
     }
 
@@ -42,10 +54,7 @@ void *program(Token *token) {
   parse_log();
 }
 
-static void add_function(Token **rest, Token *token, Type *type, char *name, int namelen) {
-  Function *func = function(&token, token, type, name, namelen);
-  *rest = token;
-
+static void add_function(Function *func) {
   if (!functions) {
     functions = func;
     return;
@@ -59,8 +68,8 @@ static void add_function(Token **rest, Token *token, Type *type, char *name, int
 }
 
 // function = type ident "(" ( ( type ident ( "," type ident ) * ) ?  ")" block_stmt
-static Function *function(Token **rest, Token *token, Type *return_type, char *name, int namelen) {
-  Var *lvars = NULL;
+static Function *function_definition(Token **rest, Token *token, Type *return_type, char *name, int namelen) {
+  Var *args = NULL;
   bool definition = false;
 
   // arguments
@@ -79,19 +88,19 @@ static Function *function(Token **rest, Token *token, Type *return_type, char *n
     if (equal(token, ",")) {
       token = token->next;
       definition = true;
-      new_var(arg_type, 0, 0, &lvars);
+      new_var(arg_type, 0, 0, &args);
       continue;
     }
     if (equal(token, ")")) {
       definition = true;
-      new_var(arg_type, 0, 0, &lvars);
+      new_var(arg_type, 0, 0, &args);
       break;
     }
 
     if(!is_identifer_token(token)) {
       error_at(token, "expected identifer");
     }
-    new_var(arg_type, token->location, token->length, &lvars);
+    new_var(arg_type, token->location, token->length, &args);
     token = token->next;
 
     if (!equal(token, ",")) {
@@ -105,21 +114,9 @@ static Function *function(Token **rest, Token *token, Type *return_type, char *n
   }
   token = token->next;
 
-  Var *args = lvars;
-
-  Node *node = NULL;
-  if (equal(token, ";")) {
-    definition = true;
-    token = token->next;
-  } else {
-    // block statement
-    node = block_stmt(&token, token, &lvars);
-  }
 
   // create Function struct
   Function *func = calloc(1, sizeof(Function));
-  func->node = node;
-  func->var = lvars;
   func->name = name;
   func->args = args;
   func->argc = argc;
