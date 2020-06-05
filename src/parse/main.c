@@ -20,26 +20,26 @@ void *program(Token *token) {
     int namelen = token->length;
     token = token->next;
 
-    if (equal(token, "(")) {
-      // function
-      Function *func = function_definition(&token, token, type, name, namelen);
-      add_function(func);
-      if (equal(token, ";")) {
-        token = token->next;
-        func->definition = true;
-        continue;
-      }
-      if (func->definition) {
-        error_at(token, "need arguments' identifer");
-      }
-      Var *lvars = func->args;
-      func->node = block_stmt(&token, token, &lvars);
-      func->var = lvars;
+    if (!equal(token, "(")) {
+      // global variable
+      read_new_gvar(&token, token, type, name, namelen);
       continue;
     }
 
-    // global variable
-    read_new_gvar(&token, token, type, name, namelen);
+    // function
+    Function *func = function_definition(&token, token, type, name, namelen);
+    add_function(func);
+    if (equal(token, ";")) {
+      token = token->next;
+      func->definition = true;
+      continue;
+    }
+    if (func->definition) {
+      error_at(token, "need arguments' identifer");
+    }
+    Var *lvars = func->args;
+    func->node = block_stmt(&token, token, &lvars);
+    func->var = lvars;
   }
   parse_log();
 }
