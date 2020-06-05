@@ -5,6 +5,11 @@
 
 
 //======================================
+// strings.c
+String *new_string(char *p, int length);
+
+
+//======================================
 // var.c
 Var *find_var(char *name, int length, Var *vars);
 void *new_var(Type *type, char *name, int length, Var **varsp);
@@ -25,6 +30,7 @@ Node *new_node_less_than(Node *left, Node *right);
 Node *new_node_less_equal(Node *left, Node *right);
 
 Node *new_node_num(long value);
+Node *new_node_string(char *p, int length);
 Node *new_node_var(char *name, int length, Var *lvars);
 Node *new_node_return(Node *left);
 Node *new_node_if(Node *cond, Node *then, Node *els);

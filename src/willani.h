@@ -8,6 +8,19 @@
 #include <stdlib.h>
 #include <string.h>
 
+
+//======================================
+// parse/strings.c
+typedef struct String String;
+struct String {
+  int id;
+  char *p;
+  int length;
+  String *next;
+};
+extern String *strings;
+
+
 //======================================
 // tokenize.c
 typedef enum {
@@ -28,6 +41,7 @@ struct Token {
 
 bool is_number_token(Token *token);
 bool is_identifer_token(Token *token);
+bool is_string_token(Token *token);
 bool is_eof_token(Token *token);
 bool equal(Token *token, char *str);
 Token *tokenize(char *p);
@@ -85,6 +99,7 @@ typedef enum {
   ND_GVAR,         // Global Variable
   ND_LVAR,         // Variable
   ND_NUM,         // Integer
+  ND_STRING,      // " ... "
   ND_FUNC_CALL,   // Function call
   ND_ADDR,        // & ...
   ND_DEREF,       // * ...
@@ -112,6 +127,7 @@ struct Node {
   Node *right;
   Type *type;       // Used if node is expression
   long value;       // Used if kind == ND_NUM
+  String *string;    // Used if kind == ND_STRING
   Var *var;         // Used if kind is ND_GVAR or ND_LVAR
   Node *cond;       // Used if kind is ND_IF or ND_WHILE or ND_FOR
   Node *then;       // Used if kind is ND_IF or ND_WHILE or ND_FOR

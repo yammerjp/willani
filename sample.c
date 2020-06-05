@@ -1,1 +1,1 @@
-int main() { char *s = "hello,world! " return s; }
+int main() { char *s = "hello,world!"; return *s - *"h"; }

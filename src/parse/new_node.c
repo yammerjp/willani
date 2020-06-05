@@ -79,6 +79,14 @@ Node *new_node_num(long value) {
   return node;
 }
 
+Node *new_node_string(char *p, int length) {
+  Node *node = calloc(1, sizeof(Node));
+  node->kind = ND_STRING;
+  node->string = new_string(p, length);
+  node->type = new_type_pointer(new_type_char());
+  return node;
+}
+
 Node *new_node_var(char *name, int length, Var *lvars) {
   Node *node = calloc(1, sizeof(Node));
 

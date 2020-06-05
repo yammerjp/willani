@@ -162,7 +162,7 @@ Node *sizeofunary(Token **rest, Token *token, Var **lvarsp) {
   return new_node_num(size);
 }
 
-// primary    = num | primary_identifer | "(" expr ")"
+// primary    = num | primary_identifer | "(" expr ")" | string
 Node *primary(Token **rest, Token *token, Var **lvarsp) {
   Node *node;
 
@@ -177,6 +177,13 @@ Node *primary(Token **rest, Token *token, Var **lvarsp) {
   // primary_identifer
   if (is_identifer_token(token)) {
     node = primary_identifer(&token, token, lvarsp);
+    *rest = token;
+    return node;
+  }
+
+  if (is_string_token(token)) {
+    node = new_node_string(token->location + 1, token->length - 2);
+    token = token->next;
     *rest = token;
     return node;
   }

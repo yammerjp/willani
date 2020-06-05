@@ -28,6 +28,10 @@ bool is_number_token(Token *token) {
   return token->kind == TK_NUM;
 }
 
+bool is_string_token(Token *token) {
+  return token->kind == TK_STRING;
+}
+
 bool is_eof_token(Token *token) {
   return token->kind == TK_EOF;
 }
@@ -89,15 +93,15 @@ static int reserved_token_length(char *p) {
 }
 
 static int string_token_length(char *p) {
-  if (p[0] != *"\"") {
+  if (*p != '"') {
     return 0;
   }
-  int i = 1;
-  while (p[i] != *"\"") {
-    fprintf(stderr, "%c", p[i]);
-    i++;
+  for (int i = 1; p[i]; i++) {
+    if (p[i] == '"') {
+      return i+1;
+    }
   }
-  return i;
+  error("unclosed \"");
 }
 
 // ========== new token ==========

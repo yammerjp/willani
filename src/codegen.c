@@ -256,6 +256,9 @@ static void gen(Node *node) {
   case ND_NUM:
     gen_num(node);
     break;
+  case ND_STRING:
+    printf("  pushq $.LC%d\n", node->string->id);
+    break;
   case ND_GVAR:
   case ND_LVAR:
     gen_var(node);
@@ -387,6 +390,10 @@ void gen_func_names(Function *head) {
 
 void code_generate() {
   printf(".data\n");
+  for (String *str = strings; str; str = str->next) {
+    printf(".LC%d:\n", str->id);
+    printf("  .string \"%.*s\"\n", str->length, str->p);
+  }
   for (Var *var = gvars; var; var = var->next) {
     printf("%.*s:\n", var->length, var->name);
     printf("  .zero %d\n", type_size(var->type));

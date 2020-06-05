@@ -41,6 +41,7 @@ void print_node(FILE *file, Node *node) {
     case ND_GVAR:         fprintf(file, "%.*s",node->var->length, node->var->name); break;
     case ND_LVAR:         fprintf(file, "%.*s",node->var->length, node->var->name); break;
     case ND_NUM:          fprintf(file, "%ld",node->value); break;
+    case ND_STRING:       fprintf(file, "%.*s",node->string->length, node->string->p); break;
     case ND_ADDR:         fprintf(file, "&"); break;
     case ND_DEREF:        fprintf(file, "*"); break;
     case ND_RETURN:       fprintf(file, "return"); break;
