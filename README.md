@@ -9,6 +9,8 @@ This is under developping.
 Now, willani can compile such as the following code.
 
 ```sample.c
+int fibonacci(int n);
+
 int main () {
   return fibonacci(10);
 }
@@ -24,7 +26,11 @@ int fibonacci(int n) {
 ```sh
 $ git clone https://github.com/basd4g/willani.git
 $ cd willani
-$ make sample
+$ make
+$ ./willani ' int fibonacci(int n); int main () { return fibonacci(10); } int fibonacci(int n) { if ( n <= 1 ) { return n; } return n + fibonacci(n-1); } ' > tmp.s
+$ gcc --static tmp.s -o tmp.out
+$ ./tmp.out
+$ echo "$?"
 ```
 
 ## Usage
