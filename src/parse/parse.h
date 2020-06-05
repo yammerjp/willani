@@ -81,4 +81,10 @@ struct ArrayIndexes {
 
 Node *init_lvar_stmts(Token **rest, Token *token, Var **lvarsp, ArrayIndexes *descendant);
 
+
+//======================================
+// function.c
+void add_function(Function *func);
+Function *function_definition(Token **rest, Token *token, Type *return_type, char *name, int namelen);
+
 #endif
