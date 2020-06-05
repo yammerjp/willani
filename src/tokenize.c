@@ -8,6 +8,7 @@ static char *token_kind_str(Token *token) {
     case TK_RESERVED: return("TK_RESERVED");
     case TK_IDENT:    return("TK_INDENT  ");
     case TK_NUM:      return("TK_NUM     ");
+    case TK_STRING:   return("TK_STRING  ");
     case TK_EOF:      return("TK_EOF     ");
     default : error("unexpected token->kind");
   }
@@ -87,6 +88,18 @@ static int reserved_token_length(char *p) {
   return 0;
 }
 
+static int string_token_length(char *p) {
+  if (p[0] != *"\"") {
+    return 0;
+  }
+  int i = 1;
+  while (p[i] != *"\"") {
+    fprintf(stderr, "%c", p[i]);
+    i++;
+  }
+  return i;
+}
+
 // ========== new token ==========
 // Create new (tail) token, Connect to the current token and Return new (tail) token.
 static Token *new_token(TokenKind kind, Token *current, char *location, int length) {
@@ -138,6 +151,13 @@ Token *tokenize(char *p) {
     if (ilen > 0) {
       current = new_token(TK_IDENT, current, p, ilen);
       p += ilen;
+      continue;
+    }
+
+    int slen = string_token_length(p);
+    if (slen > 0) {
+      current = new_token(TK_STRING, current, p, slen);
+      p += slen;
       continue;
     }
 

@@ -13,6 +13,7 @@
 typedef enum {
   TK_RESERVED,  // Keywords or punctuators
   TK_IDENT,     // Identifers
+  TK_STRING,     // "..."
   TK_NUM,       // Numeric literals
   TK_EOF,       // End-of-file markers
 } TokenKind;
