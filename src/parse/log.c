@@ -92,7 +92,7 @@ static void parse_vars(Var *vars, Var *args) {
   }
 }
 
-void parse_log(Function *func) {
+void parse_log() {
   var_logfile = fopen("var.log","w");
   if (var_logfile == NULL) {
     error("fail to open var.log");
@@ -105,7 +105,7 @@ void parse_log(Function *func) {
   fprintf(var_logfile, ".global:\n");
   parse_vars(gvars, NULL);
 
-  for (Function *cur = func; cur; cur = cur->next) {
+  for (Function *cur = functions; cur; cur = cur->next) {
     fprintf(var_logfile, "%.*s:\n", cur->namelen, cur->name);
     parse_vars(cur->var, cur->args);
 

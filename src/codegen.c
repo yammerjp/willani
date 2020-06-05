@@ -385,7 +385,7 @@ void gen_func_names(Function *head) {
   }
 }
 
-void code_generate(Function *func) {
+void code_generate() {
   printf(".data\n");
   for (Var *var = gvars; var; var = var->next) {
     printf("%.*s:\n", var->length, var->name);
@@ -393,9 +393,9 @@ void code_generate(Function *func) {
   }
 
   printf(".text\n");
-  printf(".globl "); gen_func_names(func); printf("\n");
+  printf(".globl "); gen_func_names(functions); printf("\n");
 
-  for (Function *current = func; current; current = current->next) {
+  for (Function *current = functions; current; current = current->next) {
     gen_function(current);
   }
 }

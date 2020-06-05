@@ -132,7 +132,7 @@ struct Function {
   Type *type;
 };
 
-Function *program(Token *token);
+void *program(Token *token);
 
 
 //======================================
@@ -147,7 +147,7 @@ void print_node(FILE *file, Node *node);
 
 //======================================
 // gen.c
-void code_generate(Function *func);
+void code_generate();
 
 
 //======================================
@@ -159,5 +159,6 @@ void error(char *fmt, ...);
 //======================================
 // main.c
 extern char *user_input;
+extern Function *functions;
 
 #endif

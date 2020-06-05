@@ -2,7 +2,7 @@
 
 // program = (function | declare_gvar)*
 // declare_gvar = type ident type_suffix ";"
-Function *program(Token *token) {
+void *program(Token *token) {
   Function head = {};
   Function *tail = &head;
 
@@ -39,9 +39,8 @@ Function *program(Token *token) {
     }
   }
 
-  Function *funcs = head.next;
-  parse_log(funcs);
-  return funcs;
+  functions = head.next;
+  parse_log();
 }
 
 // function = type ident "(" ( ( type ident ( "," type ident ) * ) ?  ")" block_stmt

@@ -41,7 +41,7 @@ Node *new_node_assign(Node *left, Node *right);
 //======================================
 // log.c
 void print_node(FILE *file, Node *node);
-void parse_log(Function *function);
+void parse_log();
 
 
 //======================================
