@@ -143,6 +143,11 @@ Node *new_node_block(Node *body) {
 }
 
 Node *new_node_func_call(char *name, int len, Node *args) {
+  Type *type = type_function(name, len);
+  if (!type) {
+    error("called undefined function '%.*s'", len, name);
+  }
+
   FuncCall *fncl = calloc(1, sizeof(FuncCall));
   fncl->name = name;
   fncl->args = args;
@@ -150,8 +155,7 @@ Node *new_node_func_call(char *name, int len, Node *args) {
   Node *node = calloc(1, sizeof(Node));
   node->kind = ND_FUNC_CALL;
   node->fncl = fncl;
-  // TODO: recognize calling function's type
-  node->type = new_type_int();
+  node->type = type;
 
   return node;
 }
