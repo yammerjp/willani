@@ -1,5 +1,14 @@
 #include "parse.h"
 
+Function *find_function(char *name, int namelen) {
+  for (Function *cur = functions; cur; cur = cur->next) {
+    if (strncmp(name, cur->name, namelen)==0 && cur->namelen == namelen) {
+      return cur;
+    }
+  }
+  return NULL;
+}
+
 void add_function(Function *func) {
   if (!functions) {
     functions = func;

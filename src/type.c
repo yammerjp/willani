@@ -110,12 +110,3 @@ Type *type_conversion(Type *left, Type *right) {
   }
   return right;
 }
-
-Type *type_function(char *name, int namelen) {
-  for (Function *cur = functions; cur; cur = cur->next) {
-    if (strncmp(name, cur->name, namelen)==0 && cur->namelen == namelen) {
-      return cur->type;
-    }
-  }
-  return NULL;
-}
