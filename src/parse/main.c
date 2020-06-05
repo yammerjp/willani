@@ -27,7 +27,12 @@ void *program(Token *token) {
     }
 
     // function
+    Function *func_samename = find_function(name, namelen);
     Function *func = function_definition(&token, token, type, name, namelen);
+    if (func_samename && !cmp_function(func, func_samename)) {
+      error_at(token, "type is conflict with the same name function definition");
+    }
+
     add_function(func);
     if (equal(token, ";")) {
       token = token->next;
@@ -37,9 +42,13 @@ void *program(Token *token) {
     if (func->definition) {
       error_at(token, "need arguments' identifer");
     }
+    if (func_samename && !func_samename->definition) {
+      error_at(token, "a entitiy of the same name function is exist");
+    }
     Var *lvars = func->args;
     func->node = block_stmt(&token, token, &lvars);
     func->var = lvars;
+
   }
   parse_log();
 }
