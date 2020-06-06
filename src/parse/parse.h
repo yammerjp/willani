@@ -41,6 +41,7 @@ Node *new_node_expr_stmt(Node *stmt_node, Token *token);
 Node *new_node_addr(Node *unary_node, Token *token);
 Node *new_node_deref(Node *unary_node, Token *token);
 Node *new_node_assign(Node *left, Node *right, Token *token);
+Node *new_node_stmt_expr(Node *body, Token *token);
 
 //======================================
 // log.c
@@ -73,6 +74,7 @@ Node *unary(Token **rest, Token *token, Var **lvarsp);
 Node *sizeofunary(Token **rest, Token *token, Var **lvarsp);
 Node *primary(Token **rest, Token *token, Var **lvarsp);
 Node *primary_identifer(Token **rest, Token *token, Var **lvarsp);
+Node *stmt_expr(Token **rest, Token *token, Var **lvarsp);
 
 
 //======================================

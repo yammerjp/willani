@@ -41,7 +41,7 @@ static Node *new_node_zero_padding_array(Var *var, ArrayIndexes *descendant, Tok
   }
 
   if (type->kind != TYPE_ARRAY)
-    return new_node_assign(new_node_array_cell(var, descendant, token), new_node_num(0, token), token);
+    return new_node_expr_stmt(new_node_assign(new_node_array_cell(var, descendant, token), new_node_num(0, token), token), token);
 
   for (int i = 0; i < type->array_length; i++) {
     tail->next = new_node_zero_padding_array(var, add_descendant(descendant, i), token);
@@ -57,7 +57,7 @@ Node *init_lvar_stmts(Token **rest, Token *token, Var **lvarsp, ArrayIndexes *de
 
   if (!equal(token, "{")) {
     Node *right = assign(&token, token, lvarsp);
-    node = new_node_assign(new_node_array_cell(var, descendant, token), right, token);
+    node = new_node_expr_stmt(new_node_assign(new_node_array_cell(var, descendant, token), right, token), token);
     *rest = token;
     return node;
   }

@@ -115,6 +115,7 @@ typedef enum {
   ND_FOR,         // for
   ND_RETURN,      // return
   ND_EXPR_STMT,   // ... ;
+  ND_STMT_EXPR,   // ({ ...; ... }) GNU statement expression extention
 } NodeKind;
 
 typedef struct Node Node;
@@ -140,7 +141,7 @@ struct Node {
   Node *els;        // Used if kind == ND_IF
   Node *init;       // Used if kind == ND_FOR
   Node *increment;  // Used id kind == ND_FOR
-  Node *body;       // Used if kind == ND_BLOCK
+  Node *body;       // Used if kind is ND_BLOCK or ND_STMT_EXPR
 };
 
 typedef struct Function Function;

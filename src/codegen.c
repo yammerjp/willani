@@ -210,6 +210,16 @@ static void gen_return(Node *node) {
   printf("  jmp .L.return.%.*s\n", funcnamelen, funcname);
 }
 
+static void gen_stmt_expr(Node *node) {
+  if (node->kind != ND_STMT_EXPR)
+    error_at(node->token, "expected statement expression");
+
+  for (Node *cur = node->body; cur; cur = cur->next)
+    gen(cur);
+  if (node->type)  // type is not NULL if tail stmt is expr_stmt
+  printf("  sub $8, %%rsp\n");
+}
+
 static void gen_expr_stmt(Node *node) {
   if (node->kind != ND_EXPR_STMT)
     error("expected node->kind is ND_EXPR_STMT");
@@ -266,6 +276,9 @@ static void gen(Node *node) {
   case ND_DEREF:
     gen(node->left);
     load(node->type);
+    break;
+  case ND_STMT_EXPR:
+    gen_stmt_expr(node);
     break;
 
   default:

@@ -168,4 +168,5 @@ assert 9    'int main() { char *k = "\t"; return *k; }'
 assert 92   'int main() { char *k = "\\"; return *k; }'
 assert 39   "int main() { char *k = \"\\'\"; return *k; }"
 assert 34   'int main() { char *k = "\""; return *k; }'
+assert 0    'int main() { return ({int a = 1; 1-a;});}'
 echo OK

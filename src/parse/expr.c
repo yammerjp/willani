@@ -190,7 +190,7 @@ Node *sizeofunary(Token **rest, Token *token, Var **lvarsp) {
   return new_node_num(type_size(type), op_token);
 }
 
-// primary    = num | primary_identifer | "(" expr ")" | string
+// primary    = num | primary_identifer | string | "(" expr ")" | "(" "{" stmt+ "}" ")"
 Node *primary(Token **rest, Token *token, Var **lvarsp) {
   Node *node;
 
@@ -216,17 +216,52 @@ Node *primary(Token **rest, Token *token, Var **lvarsp) {
     return node;
   }
 
-  // "(" expr ")"
+  // "(" expr ")"  | "(" "{" stmt+ "}" ")"
   if (!equal(token,"("))
     error_at(token, "expected (");
 
+  if (equal(token->next, "{")) {
+    // stmt_expr
+    node = stmt_expr(&token, token, lvarsp);
+    *rest = token;
+    return node;
+  }
+
   token = token->next;
+
   node = expr(&token, token, lvarsp);
 
   if (!equal(token,")"))
     error_at(token, "expected )");
 
   token = token->next;
+
+  *rest = token;
+  return node;
+}
+
+Node *stmt_expr(Token **rest, Token *token, Var **lvarsp) {
+
+  if (!equal(token, "(") || !equal(token->next, "{"))
+    error_at(token->next, "expected statement expression");
+
+  Token *paren_token = token->next;
+  token = paren_token->next;
+
+  Node head;
+  Node *tail = &head;
+
+  while(!equal(token, "}")) {
+    tail->next = stmt(&token, token, lvarsp);
+    tail = tail->next;
+  }
+  token = token->next;
+
+  if (!equal(token, ")"))
+    error_at(token, "expected )");
+  token = token->next;
+
+  Node *node = new_node_stmt_expr(head.next, paren_token);
 
   *rest = token;
   return node;

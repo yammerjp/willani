@@ -201,3 +201,17 @@ Node *new_node_assign(Node *left, Node *right, Token *token) {
   node->token = token;
   return node;
 }
+
+Node *new_node_stmt_expr(Node *body, Token *token) {
+  Node *tail = body;
+  while (tail->next)
+    tail = tail->next;
+  Type *type = (tail && tail->kind == ND_EXPR_STMT) ?  tail->left->type : NULL;
+
+  Node *node = calloc(1, sizeof(Node));
+  node->kind = ND_STMT_EXPR;
+  node->body = body;
+  node->type = type;
+  node->token = token;
+  return node;
+}
