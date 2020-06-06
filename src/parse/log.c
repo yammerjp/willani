@@ -49,27 +49,26 @@ void print_node(FILE *file, Node *node) {
     case ND_WHILE:        fprintf(file, "while"); break;
     case ND_FOR:          fprintf(file, "for"); break;
     case ND_BLOCK:        fprintf(file, "{}"); break;
-    case ND_FUNC_CALL:    fprintf(file, "%.*s",node->fncl->length, node->fncl->name); break;
+    case ND_FUNC_CALL:    fprintf(file, "%.*s()",node->fncl->length, node->fncl->name); break;
     case ND_EXPR_STMT:    fprintf(file, ";"); break;
     default : error("unexpected node->kind");
   }
-  fprintf(file, " (token: %.*s)", node->token->length, node->token->location);
-  fprintf(file, "\n");
+
+  fprintf(file, "    (line: %d", get_line_number(get_line_head(node->token)));
+  fprintf(file, ", token: %.*s", node->token->length, node->token->location);
+  if (node->type) {
+    fprintf(file, ", type: ");
+    print_type(parse_logfile, node->type);
+  }
+  fprintf(file, ")\n");
 }
 
 static void parse_log_nodes(Node *node, int depth) {
-  if (node == NULL) {
+  if (node == NULL)
     return;
-  }
 
   fprintf(parse_logfile, "%*s",depth*2, "");
-  if (node->type) {
-    fprintf(parse_logfile, "<");
-    print_type(parse_logfile, node->type);
-    fprintf(parse_logfile, "> ");
-  }
   print_node(parse_logfile, node);
-
 
   parse_log_nodes(node->left, depth+1);
   parse_log_nodes(node->right, depth+1);
@@ -80,12 +79,17 @@ static void parse_log_nodes(Node *node, int depth) {
   parse_log_nodes(node->els, depth+1);
   parse_log_nodes(node->body, depth+1);
   parse_log_nodes(node->next, depth);
+  if (node->fncl)
+    parse_log_nodes(node->fncl->args, depth+1);
 }
 
 
 static void parse_vars(Var *vars, Var *args) {
   for( Var *cur = vars; cur; cur = cur->next) {
-    fprintf(var_logfile, "  size:%3d, offset:%3d, name: %.*s ", type_size(cur->type), cur->offset, cur->length, cur->name);
+    fprintf(var_logfile, "  size:%3d", type_size(cur->type));
+    fprintf(var_logfile, ", offset:%3d", cur->offset);
+    fprintf(var_logfile, ", name: %.*s ", cur->length, cur->name);
+
     if (cur == args) {
       fprintf(var_logfile, " (argument)");
       args = cur->next;
