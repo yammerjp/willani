@@ -1,16 +1,12 @@
 #include "willani.h"
 
-void error_at_token(Token *prevtoken, char *fmt, ...) {
-  va_list ap;
-  va_start(ap, fmt);
-
+void error_at_token(Token *prevtoken, char *msg) {
   int position = (prevtoken->location + prevtoken->length) - user_input;
   fprintf(stderr, "%s\n", user_input);
   fprintf(stderr, "%*s", position, "");
   fprintf(stderr, "^ ");
 
-  vfprintf(stderr, fmt, ap);
-  fprintf(stderr, "\n");
+  fprintf(stderr, "%s\n", msg);
   exit(1);
 }
 

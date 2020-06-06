@@ -171,7 +171,7 @@ void code_generate();
 
 //======================================
 // error.c
-void error_at_token(Token *prevtoken, char *fmt, ...);
+void error_at_token(Token *prevtoken, char *msg);
 void error(char *fmt, ...);
 
 
