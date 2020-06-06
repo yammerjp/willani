@@ -165,7 +165,7 @@ Token *tokenize(char *p) {
       continue;
     }
 
-    error_at(current, "Invalid token");
+    error_at_token(current, "Invalid token");
   }
 
   new_token(TK_EOF, current, p, 0);

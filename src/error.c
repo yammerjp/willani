@@ -1,6 +1,6 @@
 #include "willani.h"
 
-void error_at(Token *prevtoken, char *fmt, ...) {
+void error_at_token(Token *prevtoken, char *fmt, ...) {
   va_list ap;
   va_start(ap, fmt);
 

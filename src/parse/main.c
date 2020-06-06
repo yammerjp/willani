@@ -13,7 +13,7 @@ void *program(Token *token) {
 
     // function name
     if (!is_identifer_token(token)) {
-      error_at(token, "expected identifer");
+      error_at_token(token, "expected identifer");
     }
 
     char *name = token->location;
@@ -30,7 +30,7 @@ void *program(Token *token) {
     Function *func_samename = find_function(name, namelen);
     Function *func = function_definition(&token, token, type, name, namelen);
     if (func_samename && !cmp_function(func, func_samename)) {
-      error_at(token, "type is conflict with the same name function definition");
+      error_at_token(token, "type is conflict with the same name function definition");
     }
 
     add_function(func);
@@ -40,10 +40,10 @@ void *program(Token *token) {
       continue;
     }
     if (func->definition) {
-      error_at(token, "need arguments' identifer");
+      error_at_token(token, "need arguments' identifer");
     }
     if (func_samename && !func_samename->definition) {
-      error_at(token, "a entitiy of the same name function is exist");
+      error_at_token(token, "a entitiy of the same name function is exist");
     }
     Var *lvars = func->args;
     func->node = block_stmt(&token, token, &lvars);
@@ -56,12 +56,12 @@ void *program(Token *token) {
 static void read_new_gvar(Token **rest, Token *token, Type *type_without_suffix, char *name, int namelen) {
   Type *type = type_suffix(&token, token, type_without_suffix);
   if (find_var(name, namelen, gvars)) {
-    error_at(token, "duplicate declarations '%.*s'", namelen, name);
+    error_at_token(token, "duplicate declarations '%.*s'", namelen, name);
   }
   new_var(type, name, namelen, &gvars);
 
   if (!equal(token, ";")) {
-    error_at(token, "expected ;");
+    error_at_token(token, "expected ;");
   }
   token = token->next;
 

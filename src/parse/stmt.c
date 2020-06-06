@@ -3,7 +3,7 @@
 // block_stmt = "{" stmt* "}"
 Node *block_stmt(Token **rest, Token *token, Var **lvarsp) {
   if (!equal(token, "{")) {
-    error_at(token, "expected {");
+    error_at_token(token, "expected {");
   }
   token = token->next;
 
@@ -60,18 +60,18 @@ Node *stmt(Token **rest, Token *token, Var **lvarsp) {
 // if_stmt = "if" "(" expr ")" stmt ( "else" stmt ) ?
 Node *if_stmt(Token **rest, Token *token, Var **lvarsp) {
   if (!equal(token, "if" )) {
-    error_at(token, "expected if");
+    error_at_token(token, "expected if");
   }
   token = token->next;
   if (!equal(token, "(")) {
-    error_at(token, "expected (");
+    error_at_token(token, "expected (");
   }
   token = token->next;
 
   Node *cond = expr(&token, token, lvarsp);
 
   if (!equal(token, ")")) {
-    error_at(token, "expected )");
+    error_at_token(token, "expected )");
   }
   token = token->next;
 
@@ -91,18 +91,18 @@ Node *if_stmt(Token **rest, Token *token, Var **lvarsp) {
 // while_stmt = "while" "(" expr ")" stmt
 Node *while_stmt(Token **rest, Token *token, Var **lvarsp) {
   if (!equal(token, "while" )) {
-    error_at(token, "expected while");
+    error_at_token(token, "expected while");
   }
   token = token->next;
   if (!equal(token, "(")) {
-    error_at(token, "expected (");
+    error_at_token(token, "expected (");
   }
   token = token->next;
 
   Node *cond = expr(&token, token, lvarsp);
 
   if (!equal(token, ")")) {
-    error_at(token, "expected )");
+    error_at_token(token, "expected )");
   }
   token = token->next;
 
@@ -118,13 +118,13 @@ Node *while_stmt(Token **rest, Token *token, Var **lvarsp) {
 Node *for_stmt(Token **rest, Token *token, Var **lvarsp) {
   // "for"
   if (!equal(token, "for")) {
-    error_at(token, "expected for");
+    error_at_token(token, "expected for");
   }
   token = token->next;
 
   // "("
   if (!equal(token, "(")) {
-    error_at(token, "expected (");
+    error_at_token(token, "expected (");
   }
   token = token->next;
 
@@ -134,7 +134,7 @@ Node *for_stmt(Token **rest, Token *token, Var **lvarsp) {
     init = expr(&token, token, lvarsp);
   }
   if (!equal(token, ";")) {
-    error_at(token, "expected ;");
+    error_at_token(token, "expected ;");
   }
   token = token->next;
 
@@ -144,7 +144,7 @@ Node *for_stmt(Token **rest, Token *token, Var **lvarsp) {
     cond = expr(&token, token, lvarsp);
   }
   if (!equal(token, ";")) {
-    error_at(token, "expected ;");
+    error_at_token(token, "expected ;");
   }
   token = token->next;
 
@@ -154,7 +154,7 @@ Node *for_stmt(Token **rest, Token *token, Var **lvarsp) {
     increment = expr(&token, token, lvarsp);
   }
   if (!equal(token, ")")) {
-    error_at(token, "expected )");
+    error_at_token(token, "expected )");
   }
   token = token->next;
 
@@ -169,14 +169,14 @@ Node *for_stmt(Token **rest, Token *token, Var **lvarsp) {
 // return_stmt = return expr ";"
 Node *return_stmt(Token **rest, Token *token, Var **lvarsp) {
   if (!equal(token, "return")) {
-    error_at(token, "expected return");
+    error_at_token(token, "expected return");
   }
   token = token->next;
 
   Node *node = new_node_return(expr(&token, token, lvarsp));
 
   if (!equal(token, ";")) {
-    error_at(token, "expected ;");
+    error_at_token(token, "expected ;");
   }
   token = token->next;
 
@@ -189,7 +189,7 @@ Node *expr_stmt(Token **rest, Token *token, Var **lvarsp) {
   Node *node = new_node_expr_stmt(expr(&token, token, lvarsp));
 
   if (!equal(token, ";")) {
-    error_at(token, "expected ;");
+    error_at_token(token, "expected ;");
   }
   token = token->next;
 
@@ -204,7 +204,7 @@ Node *expr_stmt(Token **rest, Token *token, Var **lvarsp) {
 Node *declare_lvar_stmt(Token **rest, Token *token, Var **lvarsp, Type *ancestor) {
   // identifer
   if (!is_identifer_token(token)) {
-    error_at(token, "expected identifer");
+    error_at_token(token, "expected identifer");
   }
   char *name = token->location;
   int namelen = token->length;
@@ -225,14 +225,14 @@ Node *declare_lvar_stmt(Token **rest, Token *token, Var **lvarsp, Type *ancestor
   }
 
   if (!equal(token, "=")) {
-    error_at(token, "expected ; or =");
+    error_at_token(token, "expected ; or =");
   }
   token = token->next;
 
   Node *node = init_lvar_stmts(&token, token, lvarsp, NULL);
 
   if (!equal(token, ";")) {
-    error_at(token, "expected ;");
+    error_at_token(token, "expected ;");
   }
   token = token->next;
 
@@ -249,7 +249,7 @@ Type *type_suffix(Token **rest, Token *token, Type *ancestor) {
   int length = strtol(token->location, NULL, 10);
   token = token->next;
   if (!equal(token,"]")) {
-    error_at(token, "expected ]");
+    error_at_token(token, "expected ]");
   }
   token = token->next;
 
