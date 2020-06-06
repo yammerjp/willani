@@ -155,13 +155,11 @@ Node *new_node_func_call(char *name, int len, Node *args, Token *token) {
   if (!func)
     return NULL;
 
-  FuncCall *fncl = calloc(1, sizeof(FuncCall));
-  fncl->name = name;
-  fncl->args = args;
-  fncl->length = len;
   Node *node = calloc(1, sizeof(Node));
   node->kind = ND_FUNC_CALL;
-  node->fncl = fncl;
+  node->func_name = name;
+  node->func_args = args;
+  node->func_namelen = len;
   node->type = func->type;
   node->token = token;
 

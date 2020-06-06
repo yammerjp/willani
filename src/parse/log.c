@@ -49,7 +49,7 @@ void print_node(FILE *file, Node *node) {
     case ND_WHILE:        fprintf(file, "while"); break;
     case ND_FOR:          fprintf(file, "for"); break;
     case ND_BLOCK:        fprintf(file, "{}"); break;
-    case ND_FUNC_CALL:    fprintf(file, "%.*s()",node->fncl->length, node->fncl->name); break;
+    case ND_FUNC_CALL:    fprintf(file, "%.*s()",node->func_namelen, node->func_name); break;
     case ND_EXPR_STMT:    fprintf(file, ";"); break;
     default : error("unexpected node->kind");
   }
@@ -79,8 +79,7 @@ static void parse_log_nodes(Node *node, int depth) {
   parse_log_nodes(node->els, depth+1);
   parse_log_nodes(node->body, depth+1);
   parse_log_nodes(node->next, depth);
-  if (node->fncl)
-    parse_log_nodes(node->fncl->args, depth+1);
+  parse_log_nodes(node->func_args, depth+1);
 }
 
 

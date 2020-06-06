@@ -119,30 +119,28 @@ typedef enum {
 
 typedef struct Node Node;
 
-typedef struct FuncCall FuncCall;
-struct FuncCall {
-  char *name;
-  int length;
-  Node *args;
-};
-
 struct Node {
   NodeKind kind;
+  Token *token;     // Representative token (FOR DEBUG!!!)
+
+  Type *type;       // Used if node is expression
+  long value;       // Used if kind == ND_NUM
+  String *string;   // Used if kind == ND_STRING
+  Var *var;         // Used if kind is ND_GVAR or ND_LVAR
+
+  char *func_name;  // Used if kind == ND_FUNC_CALL
+  int func_namelen; // Used if kind == ND_FUNC_CALL
+  Node *func_args;  // Used if kind == ND_FUNC_CALL
+
   Node *next;
   Node *left;
   Node *right;
-  Type *type;       // Used if node is expression
-  long value;       // Used if kind == ND_NUM
-  String *string;    // Used if kind == ND_STRING
-  Var *var;         // Used if kind is ND_GVAR or ND_LVAR
   Node *cond;       // Used if kind is ND_IF or ND_WHILE or ND_FOR
   Node *then;       // Used if kind is ND_IF or ND_WHILE or ND_FOR
   Node *els;        // Used if kind == ND_IF
   Node *init;       // Used if kind == ND_FOR
   Node *increment;  // Used id kind == ND_FOR
   Node *body;       // Used if kind == ND_BLOCK
-  FuncCall *fncl;   // Used if kind == ND_FUNC_CALL
-  Token *token;     // Representative token (FOR DEBUG!!!)
 };
 
 typedef struct Function Function;

@@ -163,7 +163,7 @@ static void gen_func_call(Node *node) {
     error("expected function call");
 
   int i = 0;
-  for (Node *cur = node->fncl->args; cur; cur = cur->next) {
+  for (Node *cur = node->func_args; cur; cur = cur->next) {
     gen(cur);
     printf("  popq  %%%s\n", arg_regs8[i++]);
   }
@@ -175,12 +175,12 @@ static void gen_func_call(Node *node) {
   printf("  jne .L.needAlign.%d\n", labct);
 
   printf("  mov $0, %%al\n"); // set zero to al for calling variadic arguments
-  printf("  call %.*s\n", node->fncl->length, node->fncl->name);
+  printf("  call %.*s\n", node->func_namelen, node->func_name);
   printf("  jmp .L.end.%d\n", labct);
 
   printf(".L.needAlign.%d:\n", labct);
   printf("  sub $8, %%rsp\n");
-  printf("  call %.*s\n", node->fncl->length, node->fncl->name);
+  printf("  call %.*s\n", node->func_namelen, node->func_name);
   printf("  add $8, %%rsp\n");
 
   printf(".L.end.%d:\n", labct);
