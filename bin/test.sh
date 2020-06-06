@@ -158,4 +158,5 @@ assert 0    'int main() { int k[3][2] = {}; return k[2][1]; }'
 assert 1    'int main() { int k[3][2] = {{1}}; return k[0][0]; }'
 assert 0    'int main() { int k[3][2] = {{1}}; return k[0][1]; }'
 assert 1    'int main() { char *k = "a  b"; return k[3] - k[0]; }'
+assert 0    'int main() { char *k = "\0"; return *k; }'
 echo OK
