@@ -51,7 +51,7 @@ Function *function_definition(Token **rest, Token *token, Type *return_type, cha
 
   // arguments
   if (!equal(token, "(")) {
-    error_at_token(token, "expected (");
+    error_at(token, "expected (");
   }
   token = token->next;
 
@@ -75,7 +75,7 @@ Function *function_definition(Token **rest, Token *token, Type *return_type, cha
     }
 
     if(!is_identifer_token(token)) {
-      error_at_token(token, "expected identifer");
+      error_at(token, "expected identifer");
     }
     new_var(arg_type, token->location, token->length, &args);
     token = token->next;
@@ -87,7 +87,7 @@ Function *function_definition(Token **rest, Token *token, Type *return_type, cha
   }
 
   if (!equal(token, ")")) {
-    error_at_token(token, "expected )");
+    error_at(token, "expected )");
   }
   token = token->next;
 

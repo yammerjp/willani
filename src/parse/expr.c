@@ -140,7 +140,7 @@ Node *unary(Token **rest, Token *token, Var **lvarsp) {
       node = new_node_deref(new_node_add(node, expr_node, bracket_token), bracket_token);
 
       if (!equal(token, "]")) {
-        error_at_token(token, "expected ]");
+        error_at(token, "expected ]");
       }
       token = token->next;
     }
@@ -154,7 +154,7 @@ Node *unary(Token **rest, Token *token, Var **lvarsp) {
 Node *sizeofunary(Token **rest, Token *token, Var **lvarsp) {
   Token *op_token = token;
   if (!equal(op_token, "sizeof")) {
-    error_at_token(op_token, "expected sizeof");
+    error_at(op_token, "expected sizeof");
   }
   token = op_token->next;
 
@@ -198,14 +198,14 @@ Node *primary(Token **rest, Token *token, Var **lvarsp) {
 
   // "(" expr ")"
   if (!equal(token,"(")) {
-    error_at_token(token, "expected (");
+    error_at(token, "expected (");
   }
 
   token = token->next;
   node = expr(&token, token, lvarsp);
 
   if (!equal(token,")")) {
-    error_at_token(token, "expected )");
+    error_at(token, "expected )");
   }
   token = token->next;
 
@@ -220,7 +220,7 @@ Node *primary_identifer(Token **rest, Token *token, Var **lvarsp) {
   // identifer
   Token *ident_token = token;
   if (!is_identifer_token(ident_token)) {
-    error_at_token(ident_token, "expected identifer");
+    error_at(ident_token, "expected identifer");
   }
   char *name = ident_token->location;
   int length = ident_token->length;
@@ -251,13 +251,13 @@ Node *primary_identifer(Token **rest, Token *token, Var **lvarsp) {
   }
 
   if (!equal(token, ")")) {
-    error_at_token(token, "expected )");
+    error_at(token, "expected )");
   }
   token = token->next;
 
   node = new_node_func_call(name, length, args_head.next, ident_token);
   if (!node)
-    error_at_token(token, "called undefined function");
+    error_at(token, "called undefined function");
 
   *rest = token;
   return node;

@@ -88,7 +88,7 @@ Type *read_type_tokens_with_pars(Token **rest, Token *token) {
 
   for (int i=0; i<pars; i++) {
     if (!equal(token, ")")) {
-      error_at_token(token, "expected )");
+      error_at(token, "expected )");
     }
     token = token->next;
   }

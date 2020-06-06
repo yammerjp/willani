@@ -1,6 +1,6 @@
 #include "willani.h"
 
-void error_at_token(Token *token, char *msg) {
+void error_at(Token *token, char *msg) {
   char *line = get_line_head(token);
   char line_num = get_line_number(line);
   char *end = get_line_end(token);
