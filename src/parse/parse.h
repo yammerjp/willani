@@ -29,7 +29,7 @@ Node *new_node_not_equal(Node *left, Node *right, Token *token);
 Node *new_node_less_than(Node *left, Node *right, Token *token);
 Node *new_node_less_equal(Node *left, Node *right, Token *token);
 Node *new_node_num(long value, Token *token);
-Node *new_node_string(char *p, int length, Token *token);
+Node *new_node_string(Token *token);
 Node *new_node_var(char *name, int length, Var *lvars, Token *token);
 Node *new_node_return(Node *left, Token *token);
 Node *new_node_if(Node *cond, Node *then, Node *els, Token *token);

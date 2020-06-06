@@ -210,7 +210,7 @@ Node *primary(Token **rest, Token *token, Var **lvarsp) {
   }
 
   if (is_string_token(token)) {
-    node = new_node_string(token->location + 1, token->length - 2, token);
+    node = new_node_string(token);
     token = token->next;
     *rest = token;
     return node;
