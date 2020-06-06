@@ -4,9 +4,8 @@ Var *gvars;
 
 Var *find_var(char *name, int length, Var *vars) {
   for (Var *var = vars; var; var = var->next) {
-    if (length == var->length && !strncmp(name, var->name, length)) {
+    if (length == var->length && !strncmp(name, var->name, length))
       return var;
-    }
   }
   return NULL;
 }

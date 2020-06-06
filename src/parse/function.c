@@ -2,9 +2,8 @@
 
 Function *find_function(char *name, int namelen) {
   for (Function *cur = functions; cur; cur = cur->next) {
-    if (strncmp(name, cur->name, namelen)==0 && cur->namelen == namelen) {
+    if (strncmp(name, cur->name, namelen)==0 && cur->namelen == namelen)
       return cur;
-    }
   }
   return NULL;
 }
@@ -22,9 +21,8 @@ bool cmp_function(Function *f1, Function *f2) {
   Var *arg_f1 = f1->args;
   Var *arg_f2 = f2->args;
   for (int i=0; i < f1->argc; i++) {
-    if (!arg_f1 || !arg_f2 || !cmp_type(arg_f1->type, arg_f2->type)) {
+    if (!arg_f1 || !arg_f2 || !cmp_type(arg_f1->type, arg_f2->type))
       return false;
-    }
     arg_f1 = arg_f1->next;
     arg_f2 = arg_f2->next;
   }
@@ -38,9 +36,9 @@ void add_function(Function *func) {
   }
 
   Function *tail  = functions;
-  while (tail->next) {
+  while (tail->next)
     tail = tail->next;
-  }
+
   tail->next = func;
 }
 
@@ -50,9 +48,8 @@ Function *function_definition(Token **rest, Token *token, Type *return_type, cha
   bool definition = false;
 
   // arguments
-  if (!equal(token, "(")) {
+  if (!equal(token, "("))
     error_at(token, "expected (");
-  }
   token = token->next;
 
   int argc = 0;
@@ -74,21 +71,19 @@ Function *function_definition(Token **rest, Token *token, Type *return_type, cha
       break;
     }
 
-    if(!is_identifer_token(token)) {
+    if(!is_identifer_token(token))
       error_at(token, "expected identifer");
-    }
+
     new_var(arg_type, token->location, token->length, &args);
     token = token->next;
 
-    if (!equal(token, ",")) {
+    if (!equal(token, ","))
       break;
-    }
     token = token->next;
   }
 
-  if (!equal(token, ")")) {
+  if (!equal(token, ")"))
     error_at(token, "expected )");
-  }
   token = token->next;
 
 

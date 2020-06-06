@@ -71,9 +71,8 @@ bool equal(Token *token, char *str) {
 // ==========  read input and check token ==========
 static int digit_token_length(char *p) {
   int i = 0;
-  while (isdigit(p[i])) {
+  while (isdigit(p[i]))
     i++;
-  }
   return i;
 }
 
@@ -86,21 +85,19 @@ static bool is_alnum(char c) {
 
 static bool is_all_alnum(char *c) {
   for (int i=0; i < strlen(c); i++){
-    if (!is_alnum(c[i])) {
+    if (!is_alnum(c[i]))
       return false;
-    }
   }
   return true;
 }
 
 static int identifer_token_length(char *p) {
-  if (!isalpha(*p)) {
+  if (!isalpha(*p))
     return 0;
-  }
+
   int i = 1;
-  while (is_alnum(p[i])) {
+  while (is_alnum(p[i]))
     i++;
-  }
   return i;
 }
 
@@ -119,13 +116,12 @@ static int reserved_token_length(char *p) {
 }
 
 static int string_token_length(char *p) {
-  if (*p != '"') {
+  if (*p != '"')
     return 0;
-  }
+
   for (int i = 1; p[i]; i++) {
-    if (p[i] == '"') {
+    if (p[i] == '"')
       return i+1;
-    }
   }
   error("unclosed \"");
 }
@@ -153,9 +149,8 @@ Token *tokenize(char *p) {
 
   // for debug
   tokenize_log_file = fopen("tokenize.log","w");
-  if (tokenize_log_file == NULL) {
+  if (tokenize_log_file == NULL)
     error("fail to open tokenize.log");
-  }
 
   while (*p) {
     if (isspace(*p)) {

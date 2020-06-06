@@ -10,33 +10,23 @@ static Node *new_node_op2(NodeKind kind, Node *left, Node *right, Token *token) 
   return node;
 }
 
+static bool type_is_pointer_or_array(Node *node) {
+  return node->type->kind == TYPE_PTR || node->type->kind == TYPE_ARRAY;
+}
+
 Node *new_node_add(Node *left, Node *right, Token *token) {
-  if (
-    left->type->kind == TYPE_PTR
-    || left->type->kind == TYPE_ARRAY
-  ) {
+  if (type_is_pointer_or_array(left))
     right = new_node_mul(right, new_node_num( type_size(left->type->ptr_to), left->token ), right->token);
-  } else if (
-    right->type->kind == TYPE_PTR
-    || right->type->kind == TYPE_ARRAY
-  ) {
+  else if (type_is_pointer_or_array(right))
     left = new_node_mul(left, new_node_num( type_size(right->type->ptr_to), right->token ), left->token);
-  }
   return new_node_op2(ND_ADD, left, right, token);
 }
 
 Node *new_node_sub(Node *left, Node *right, Token *token) {
-  if (
-    left->type->kind == TYPE_PTR
-    || left->type->kind == TYPE_ARRAY
-  ) {
+  if (type_is_pointer_or_array(left))
     right = new_node_mul(right, new_node_num( type_size(left->type->ptr_to), left->token ), right->token);
-  } else if (
-    right->type->kind == TYPE_PTR
-    || right->type->kind == TYPE_ARRAY
-  ) {
+  else if (type_is_pointer_or_array(right))
     left = new_node_mul(left, new_node_num( type_size(right->type->ptr_to), right->token ), left->token);
-  }
   return new_node_op2(ND_SUB, left, right, token);
 }
 
@@ -162,9 +152,8 @@ Node *new_node_block(Node *body, Token *token) {
 
 Node *new_node_func_call(char *name, int len, Node *args, Token *token) {
   Function *func = find_function(name, len);
-  if (!func) {
+  if (!func)
     return NULL;
-  }
 
   FuncCall *fncl = calloc(1, sizeof(FuncCall));
   fncl->name = name;

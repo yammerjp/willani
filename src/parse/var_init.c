@@ -17,9 +17,9 @@ static int var_array_length(Var *var, ArrayIndexes *indexes) {
 }
 
 static Node *new_node_array_cell(Var *var, ArrayIndexes *indexes, Token *token) {
-  if (!indexes) {
+  if (!indexes)
     return new_node_var(var->name, var->length, var, token);
-  }
+
   return new_node_deref(new_node_add(
     new_node_array_cell(var, indexes->parent, token),
     new_node_num(indexes->index, token),
@@ -36,18 +36,17 @@ static Node *new_node_zero_padding_array(Var *var, ArrayIndexes *descendant, Tok
   while(indexes) {
     indexes = indexes->parent;
     type = type->ptr_to;
-    if (!type) {
+    if (!type)
       error("too deep initializer of array");
-    }
   }
-  if (type->kind != TYPE_ARRAY) {
+
+  if (type->kind != TYPE_ARRAY)
     return new_node_assign(new_node_array_cell(var, descendant, token), new_node_num(0, token), token);
-  }
+
   for (int i = 0; i < type->array_length; i++) {
     tail->next = new_node_zero_padding_array(var, add_descendant(descendant, i), token);
-    while (tail->next) {
+    while (tail->next)
       tail = tail->next;
-    }
   }
   return head.next;
 }
@@ -71,30 +70,26 @@ Node *init_lvar_stmts(Token **rest, Token *token, Var **lvarsp, ArrayIndexes *de
 
   while (!equal(token, "}")) {
     tail->next = init_lvar_stmts(&token, token, lvarsp, add_descendant(descendant, ct++));
-    while(tail->next) {
+    while(tail->next)
       tail = tail->next;
-    }
 
-    if (!equal(token,",")) {
+    if (!equal(token,","))
       break;
-    }
     token = token->next;
 
-    if (ct > array_length) {
+    if (ct > array_length)
       error_at(token, "too many initializer of array");
-    }
   }
-  if (!equal(token, "}")) {
+
+  if (!equal(token, "}"))
     error_at(token, "expected }");
-  }
   token = token->next;
 
   // Zero padding
   for (;ct< array_length; ct++) {
     tail->next = new_node_zero_padding_array(var, add_descendant(descendant, ct), token);
-    while(tail->next) {
+    while(tail->next)
       tail = tail->next;
-    }
   }
 
   node = head.next;

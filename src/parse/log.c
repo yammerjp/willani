@@ -4,9 +4,9 @@ FILE *var_logfile;
 FILE *parse_logfile;
 
 static void print_type(FILE *file, Type *type) {
-  if (type->ptr_to) {
+  if (type->ptr_to)
     print_type(file, type->ptr_to);
-  }
+
   switch (type->kind) {
   case TYPE_LONG:
     fprintf(file, "long");
@@ -100,13 +100,12 @@ static void parse_vars(Var *vars, Var *args) {
 
 void parse_log() {
   var_logfile = fopen("var.log","w");
-  if (var_logfile == NULL) {
+  if (var_logfile == NULL)
     error("fail to open var.log");
-  }
+
   parse_logfile = fopen("parse.log","w");
-  if (parse_logfile == NULL) {
+  if (parse_logfile == NULL)
     error("fail to open parse.log");
-  }
 
   fprintf(var_logfile, ".global:\n");
   parse_vars(gvars, NULL);

@@ -54,15 +54,15 @@ int type_size(Type *type) {
 
 Type *read_type_tokens(Token **rest, Token *token) {
   Type *type;
-  if(equal(token, "long")) {
+  if(equal(token, "long"))
     type = new_type_long();
-  } else if(equal(token, "int")) {
+  else if(equal(token, "int"))
     type = new_type_int();
-  } else if(equal(token, "char")) {
+  else if(equal(token, "char"))
     type = new_type_char();
-  } else {
+  else
     return NULL;
-  }
+
   token = token->next;
 
   while (equal(token, "*")) {
@@ -82,14 +82,12 @@ Type *read_type_tokens_with_pars(Token **rest, Token *token) {
   }
 
   Type *type = read_type_tokens(&token, token);
-  if (!type) {
+  if (!type)
     return NULL;
-  }
 
   for (int i=0; i<pars; i++) {
-    if (!equal(token, ")")) {
+    if (!equal(token, ")"))
       error_at(token, "expected )");
-    }
     token = token->next;
   }
 
@@ -99,27 +97,27 @@ Type *read_type_tokens_with_pars(Token **rest, Token *token) {
 
 // Add Type to all expression node after parsing
 Type *type_conversion(Type *left, Type *right) {
-  if (left->kind == TYPE_PTR || left->kind == TYPE_ARRAY) {
+  if (left->kind == TYPE_PTR || left->kind == TYPE_ARRAY)
     return left;
-  }
-  if (right->kind == TYPE_PTR || right->kind == TYPE_ARRAY) {
+
+  if (right->kind == TYPE_PTR || right->kind == TYPE_ARRAY)
     return right;
-  }
-  if (type_size(left) >= type_size(right)) {
+
+  if (type_size(left) >= type_size(right))
     return left;
-  }
+
   return right;
 }
 
 bool cmp_type(Type *t1, Type *t2) {
-  if (!t1 || !t2) {
+  if (!t1 || !t2)
     error("comparing type is NULL");
-  }
-  if ( t1->kind != t2->kind || t1->array_length != t2->array_length) {
+
+  if ( t1->kind != t2->kind || t1->array_length != t2->array_length)
     return false;
-  }
-  if (t1->kind == TYPE_ARRAY || t1->kind == TYPE_PTR) {
+
+  if (t1->kind == TYPE_ARRAY || t1->kind == TYPE_PTR)
     return cmp_type(t1->ptr_to, t2->ptr_to);
-  }
+
   return true;
 }

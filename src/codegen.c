@@ -1,6 +1,5 @@
 #include "willani.h"
 
-static void gen_num(Node *node);
 static void load(Type *type);
 
 static void store(Type *type);
@@ -20,15 +19,10 @@ int label_count = 1;
 char *funcname = NULL;
 int funcnamelen = 0;
 
-static void gen_num(Node *node) {
-  printf("  pushq $%ld\n", node->value); // pushq constant
-}
-
 // change the stack top from addr to value
 static void load(Type *type) {
-  if (type->kind == TYPE_ARRAY) {
+  if (type->kind == TYPE_ARRAY)
     return;
-  }
 
   printf("  popq %%rax\n");          // load the stack top to rax
   switch (type_size(type)) {
@@ -54,12 +48,8 @@ static void store(Type *type) {
   // after  : (top) value, ...
   printf("  popq %%rdi\n");          // load the stack top to rdi
   printf("  popq %%rax\n");          // load the stack top to rax
-  int size;
-  if (type->kind == TYPE_ARRAY) {
-    size = type_size_pointer;
-  } else {
-    size = type_size(type);
-  }
+
+  int size = type->kind == TYPE_ARRAY ? type_size_pointer : type_size(type);
   switch (size) {
   case 1:
     printf("  movb %%dil, (%%rax)\n");   // copy rdi's value to the address pointed by rax
@@ -99,9 +89,9 @@ static void gen_addr(Node *node) {
 
 static void gen_if(Node *node) {
   int labct = label_count ++;
-  if (node->kind != ND_IF) {
+  if (node->kind != ND_IF)
     error("expected node->kind is ND_IF");
-  }
+
   gen(node->cond);               // calculate condition
   printf("  popq %%rax\n");         // load result to the stach top
   printf("  cmp $0, %%rax\n");      // evaluate result
@@ -122,9 +112,9 @@ static void gen_if(Node *node) {
 
 static void gen_while(Node *node) {
   int labct = label_count ++;
-  if (node->kind != ND_WHILE) {
+  if (node->kind != ND_WHILE)
     error("expected node->kind is ND_WHILE");
-  }
+
   printf(".L.begin.%d:\n", labct);
   gen(node->cond);               // calculate condition
   printf("  popq %%rax\n");         // load result to the stach top
@@ -140,9 +130,9 @@ static void gen_while(Node *node) {
 
 static void gen_for(Node *node) {
   int labct = label_count ++;
-  if (node->kind != ND_FOR) {
+  if (node->kind != ND_FOR)
     error("expected node->kind is ND_FOR");
-  }
+
   gen(node->init);
 
   printf(".L.begin.%d:\n", labct);
@@ -160,18 +150,18 @@ static void gen_for(Node *node) {
 }
 
 static void gen_block(Node *node) {
-  if (node->kind != ND_BLOCK) {
+  if (node->kind != ND_BLOCK)
     error("expected { ... }");
-  }
+
   for(Node *n = node->body; n; n = n->next) {
     gen(n);
   }
 }
 
 static void gen_func_call(Node *node) {
-  if (node->kind != ND_FUNC_CALL) {
+  if (node->kind != ND_FUNC_CALL)
     error("expected function call");
-  }
+
   int i = 0;
   for (Node *cur = node->fncl->args; cur; cur = cur->next) {
     gen(cur);
@@ -203,27 +193,27 @@ static void gen_var(Node *node) {
 }
 
 static void gen_assign(Node *node) {
-  if (node->kind != ND_ASSIGN) {
+  if (node->kind != ND_ASSIGN)
     error("expected node->kind is ND_ASSIGN");
-  }
+
   gen_addr(node->left);
   gen(node->right);
   store(node->type);
 }
 
 static void gen_return(Node *node) {
-  if (node->kind != ND_RETURN) {
+  if (node->kind != ND_RETURN)
     error("expected node->kind is ND_RETURN");
-  }
+
   gen(node->left);
   printf("  popq %%rax\n");
   printf("  jmp .L.return.%.*s\n", funcnamelen, funcname);
 }
 
 static void gen_expr_stmt(Node *node) {
-  if (node->kind != ND_EXPR_STMT) {
+  if (node->kind != ND_EXPR_STMT)
     error("expected node->kind is ND_EXPR_STMT");
-  }
+
   gen(node->left);
   printf("  add $8, %%rsp\n"); // stmt is not leave any values in the stack
 }
@@ -255,7 +245,7 @@ static void gen(Node *node) {
 
   // expression
   case ND_NUM:
-    gen_num(node);
+    printf("  pushq $%ld\n", node->value); // pushq constant
     break;
   case ND_STRING:
     printf("  pushq $.LC%d\n", node->string->id);
@@ -382,9 +372,8 @@ void gen_function(Function *func) {
 
 void gen_func_names(Function *head) {
   for (Function *current = head; current; current = current->next) {
-    if (head != current) {
+    if (head != current)
       printf(", ");
-    }
     printf("%.*s", current->namelen, current->name);
   }
 }
