@@ -10,6 +10,9 @@ void *program(Token *token) {
 
     // type
     Type *type = read_type_tokens(&token, token);
+    if (!type) {
+      error_at_token(token, "unexpected type");
+    }
 
     // function name
     if (!is_identifer_token(token)) {
