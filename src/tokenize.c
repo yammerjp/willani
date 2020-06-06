@@ -121,7 +121,7 @@ static int string_token_length(char *p) {
 
   for (int i = 1; p[i] && p[i] != '\n'; i++) {
     if (p[i] == '\\')
-      i++;
+      i+=2;
     if (p[i] == '"')
       return i+1;
   }
