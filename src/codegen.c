@@ -162,11 +162,13 @@ static void gen_func_call(Node *node) {
   if (node->kind != ND_FUNC_CALL)
     error("expected function call");
 
-  int i = 0;
+  int argc = 0;
   for (Node *cur = node->func_args; cur; cur = cur->next) {
     gen(cur);
-    printf("  popq  %%%s\n", arg_regs8[i++]);
+    argc++;
   }
+  while (argc>0)
+    printf("  popq  %%%s\n", arg_regs8[--argc]);
 
   // align RSP to a 16 bite boundary
   int labct = label_count ++;
