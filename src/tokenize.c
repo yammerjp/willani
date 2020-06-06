@@ -158,6 +158,21 @@ Token *tokenize(char *p) {
       continue;
     }
 
+    if (strncmp(p, "//", 2) == 0) {
+      p +=2;
+      while (*p != '\n')
+        p++;
+      continue;
+    }
+
+    if (strncmp(p, "/*", 2) == 0) {
+      char *q =  strstr(p+2, "*/");
+      if (!q)
+        error("comment is not closed");
+      p = q+2;
+      continue;
+    }
+
     int dlen = digit_token_length(p);
     if (dlen > 0) {
       current = new_token(TK_NUM, current, p, dlen);
