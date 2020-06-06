@@ -382,7 +382,9 @@ void code_generate() {
   printf(".data\n");
   for (String *str = strings; str; str = str->next) {
     printf(".LC%d:\n", str->id);
-    printf("  .string \"%.*s\"\n", str->length, str->p);
+    for (int i=0; i<str->length; i++)
+      printf("  .byte %d\n", (str->p)[i]);
+    printf("  .byte 0\n");
   }
   for (Var *var = gvars; var; var = var->next) {
     printf("%.*s:\n", var->length, var->name);
