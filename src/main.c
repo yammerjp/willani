@@ -1,7 +1,7 @@
 #include "willani.h"
 
+char *filename;
 char *user_input;
-
 Function *functions;
 
 int main(int argc, char **argv) {
@@ -9,7 +9,8 @@ int main(int argc, char **argv) {
     error("%s: invalid number of arguments.\n", argv[0]);
   }
 
-  user_input = argv[1];
+  filename = argv[1];
+  user_input = read_file(filename);
   Token *token = tokenize(user_input);
 
   // parse

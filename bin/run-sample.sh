@@ -6,7 +6,7 @@ cd "$REPO_DIR"
 echo "Build willani by gcc"
 make
 echo "Build sample.c by willani"
-cat sample.c | xargs -0 ./willani > tmp.s
+./willani sample.c > tmp.s
 gcc tmp.s -static -o tmp > /dev/null
 echo "Run sample.c"
 ./tmp

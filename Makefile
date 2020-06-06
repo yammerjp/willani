@@ -17,5 +17,5 @@ debug: willani
 	bin/gdb-sample.sh
 
 clean:
-	rm -f willani src/*.o src/parse/*.o *~ tmp* *.log core 
+	rm -f willani src/*.o src/parse/*.o *~ tmp* *.log core test.c
 .PHONY: test clean sample debug

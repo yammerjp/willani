@@ -1,6 +1,7 @@
 *~
 *.o
 tmp*
+test.c
 a.out
 willani
 *.log

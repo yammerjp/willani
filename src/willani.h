@@ -177,7 +177,13 @@ void error(char *fmt, ...);
 
 //======================================
 // main.c
+extern char *filename;
 extern char *user_input;
 extern Function *functions;
+
+
+//======================================
+// read_file.c
+char *read_file(char *path);
 
 #endif

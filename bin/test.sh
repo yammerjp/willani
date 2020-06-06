@@ -10,7 +10,8 @@ assert() {
   expected="$1"
   input="$2"
 
-  ./willani "$input" > tmp.s
+  echo "$input" > test.c
+  ./willani test.c > tmp.s
   gcc -static -o tmp tmp.s tmp2.o tmp3.o
   ./tmp
   actual="$?"
