@@ -159,4 +159,13 @@ assert 1    'int main() { int k[3][2] = {{1}}; return k[0][0]; }'
 assert 0    'int main() { int k[3][2] = {{1}}; return k[0][1]; }'
 assert 1    'int main() { char *k = "a  b"; return k[3] - k[0]; }'
 assert 0    'int main() { char *k = "\0"; return *k; }'
+assert 7    'int main() { char *k = "\a"; return *k; }'
+assert 8    'int main() { char *k = "\b"; return *k; }'
+assert 12   'int main() { char *k = "\f"; return *k; }'
+assert 10   'int main() { char *k = "\n"; return *k; }'
+assert 13   'int main() { char *k = "\r"; return *k; }'
+assert 9    'int main() { char *k = "\t"; return *k; }'
+assert 92   'int main() { char *k = "\\"; return *k; }'
+assert 39   "int main() { char *k = \"\\'\"; return *k; }"
+assert 34   'int main() { char *k = "\""; return *k; }'
 echo OK
