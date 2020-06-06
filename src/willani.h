@@ -23,6 +23,7 @@ extern String *strings;
 
 //======================================
 // tokenize.c
+
 typedef enum {
   TK_RESERVED,  // Keywords or punctuators
   TK_IDENT,     // Identifers
@@ -45,6 +46,11 @@ bool is_string_token(Token *token);
 bool is_eof_token(Token *token);
 bool equal(Token *token, char *str);
 Token *tokenize(char *p);
+
+char *get_line_head(Token *token);
+char *get_line_end(Token *token);
+int get_line_number(char *line_head);
+
 
 //======================================
 // type.c

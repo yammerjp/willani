@@ -19,6 +19,32 @@ static void tokenize_log(Token *token) {
   fprintf(tokenize_log_file, "%.*s\n",token->length ,token->location);
 }
 
+char *get_line_head(Token *token) {
+  // get line head
+  char *head = token->location;
+  while (user_input < head && head[-1] != '\n')
+    head--;
+  return head;
+}
+
+char *get_line_end(Token *token) {
+  // get line end
+  char *end = token->location;
+  while (*end != '\n')
+    end++;
+  return end;
+}
+
+int get_line_number(char *line_head) {
+  // get line number
+  int line_num = 1;
+  for (char *p  = user_input; p< line_head; p++)
+    if (*p == '\n')
+      line_num++;
+  return line_num;
+}
+
+
 // ========== check token type ==========
 bool is_identifer_token(Token *token) {
   return token->kind == TK_IDENT;
