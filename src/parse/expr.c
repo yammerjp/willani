@@ -247,6 +247,8 @@ Node *primary_identifer(Token **rest, Token *token, Var **lvarsp) {
   token = token->next;
 
   node = new_node_func_call(name, length, args_head.next);
+  if (!node)
+    error_at_token(token, "called undefined function");
 
   *rest = token;
   return node;

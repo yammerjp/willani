@@ -153,7 +153,7 @@ Node *new_node_block(Node *body) {
 Node *new_node_func_call(char *name, int len, Node *args) {
   Function *func = find_function(name, len);
   if (!func) {
-    error("called undefined function '%.*s'", len, name);
+    return NULL;
   }
 
   FuncCall *fncl = calloc(1, sizeof(FuncCall));
