@@ -20,29 +20,27 @@ void *new_gvar(Type *type, char *name, int length);
 // new_node.c
 Type *type_suffix(Token **rest, Token *token, Type *ancestor);
 
-Node *new_node_add(Node *left, Node *right);
-Node *new_node_sub(Node *left, Node *right);
-Node *new_node_mul(Node *left, Node *right);
-Node *new_node_div(Node *left, Node *right);
-Node *new_node_equal(Node *left, Node *right);
-Node *new_node_not_equal(Node *left, Node *right);
-Node *new_node_less_than(Node *left, Node *right);
-Node *new_node_less_equal(Node *left, Node *right);
-
-Node *new_node_num(long value);
-Node *new_node_string(char *p, int length);
-Node *new_node_var(char *name, int length, Var *lvars);
-Node *new_node_return(Node *left);
-Node *new_node_if(Node *cond, Node *then, Node *els);
-Node *new_node_while(Node *cond, Node *then);
-Node *new_node_for(Node *init, Node *cond, Node* increment, Node *then);
-Node *new_node_block(Node *body);
-Node *new_node_func_call(char *name, int len, Node *args);
-Node *new_node_expr_stmt(Node *stmt_node);
-Node *new_node_addr(Node *unary_node);
-Node *new_node_deref(Node *unary_node);
-Node *new_node_assign(Node *left, Node *right);
-
+Node *new_node_add(Node *left, Node *right, Token *token);
+Node *new_node_sub(Node *left, Node *right, Token *token);
+Node *new_node_mul(Node *left, Node *right, Token *token);
+Node *new_node_div(Node *left, Node *right, Token *token);
+Node *new_node_equal(Node *left, Node *right, Token *token);
+Node *new_node_not_equal(Node *left, Node *right, Token *token);
+Node *new_node_less_than(Node *left, Node *right, Token *token);
+Node *new_node_less_equal(Node *left, Node *right, Token *token);
+Node *new_node_num(long value, Token *token);
+Node *new_node_string(char *p, int length, Token *token);
+Node *new_node_var(char *name, int length, Var *lvars, Token *token);
+Node *new_node_return(Node *left, Token *token);
+Node *new_node_if(Node *cond, Node *then, Node *els, Token *token);
+Node *new_node_while(Node *cond, Node *then, Token *token);
+Node *new_node_for(Node *init, Node *cond, Node* increment, Node *then, Token *token);
+Node *new_node_block(Node *body, Token *token);
+Node *new_node_func_call(char *name, int len, Node *args, Token *token);
+Node *new_node_expr_stmt(Node *stmt_node, Token *token);
+Node *new_node_addr(Node *unary_node, Token *token);
+Node *new_node_deref(Node *unary_node, Token *token);
+Node *new_node_assign(Node *left, Node *right, Token *token);
 
 //======================================
 // log.c

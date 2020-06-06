@@ -53,6 +53,7 @@ void print_node(FILE *file, Node *node) {
     case ND_EXPR_STMT:    fprintf(file, ";"); break;
     default : error("unexpected node->kind");
   }
+  fprintf(file, " (token: %.*s)", node->token->length, node->token->location);
   fprintf(file, "\n");
 }
 

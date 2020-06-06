@@ -2,10 +2,11 @@
 
 // block_stmt = "{" stmt* "}"
 Node *block_stmt(Token **rest, Token *token, Var **lvarsp) {
-  if (!equal(token, "{")) {
-    error_at_token(token, "expected {");
+  Token *bracket_token = token;
+  if (!equal(bracket_token, "{")) {
+    error_at_token(bracket_token, "expected {");
   }
-  token = token->next;
+  token = bracket_token->next;
 
   Node head = {};
   Node *tail = &head;
@@ -18,7 +19,7 @@ Node *block_stmt(Token **rest, Token *token, Var **lvarsp) {
   }
   token = token->next;
 
-  Node *node = new_node_block(head.next);
+  Node *node = new_node_block(head.next, bracket_token);
 
   *rest = token;
   return node;
@@ -59,10 +60,11 @@ Node *stmt(Token **rest, Token *token, Var **lvarsp) {
 
 // if_stmt = "if" "(" expr ")" stmt ( "else" stmt ) ?
 Node *if_stmt(Token **rest, Token *token, Var **lvarsp) {
-  if (!equal(token, "if" )) {
-    error_at_token(token, "expected if");
+  Token *if_token = token;
+  if (!equal(if_token, "if" )) {
+    error_at_token(if_token, "expected if");
   }
-  token = token->next;
+  token = if_token->next;
   if (!equal(token, "(")) {
     error_at_token(token, "expected (");
   }
@@ -82,7 +84,7 @@ Node *if_stmt(Token **rest, Token *token, Var **lvarsp) {
     token = token->next;
     els = stmt(&token, token, lvarsp);
   }
-  Node *node = new_node_if(cond, then, els);
+  Node *node = new_node_if(cond, then, els, if_token);
 
   *rest = token;
   return node;
@@ -90,10 +92,11 @@ Node *if_stmt(Token **rest, Token *token, Var **lvarsp) {
 
 // while_stmt = "while" "(" expr ")" stmt
 Node *while_stmt(Token **rest, Token *token, Var **lvarsp) {
-  if (!equal(token, "while" )) {
-    error_at_token(token, "expected while");
+  Token *while_token = token;
+  if (!equal(while_token, "while" )) {
+    error_at_token(while_token, "expected while");
   }
-  token = token->next;
+  token = while_token->next;
   if (!equal(token, "(")) {
     error_at_token(token, "expected (");
   }
@@ -108,7 +111,7 @@ Node *while_stmt(Token **rest, Token *token, Var **lvarsp) {
 
   Node *then = stmt(&token, token, lvarsp);
 
-  Node *node = new_node_while(cond, then);
+  Node *node = new_node_while(cond, then, while_token);
 
   *rest = token;
   return node;
@@ -117,10 +120,11 @@ Node *while_stmt(Token **rest, Token *token, Var **lvarsp) {
 // for_stmt = "for" "(" expr? ";" expr? ";" expr? ")" stmt
 Node *for_stmt(Token **rest, Token *token, Var **lvarsp) {
   // "for"
-  if (!equal(token, "for")) {
-    error_at_token(token, "expected for");
+  Token *for_token = token;
+  if (!equal(for_token, "for")) {
+    error_at_token(for_token, "expected for");
   }
-  token = token->next;
+  token = for_token->next;
 
   // "("
   if (!equal(token, "(")) {
@@ -160,7 +164,7 @@ Node *for_stmt(Token **rest, Token *token, Var **lvarsp) {
 
   // stmt
   Node *then = stmt(&token, token, lvarsp);
-  Node *node = new_node_for(init, cond, increment, then);
+  Node *node = new_node_for(init, cond, increment, then, token);
 
   *rest = token;
   return node;
@@ -168,12 +172,13 @@ Node *for_stmt(Token **rest, Token *token, Var **lvarsp) {
 
 // return_stmt = return expr ";"
 Node *return_stmt(Token **rest, Token *token, Var **lvarsp) {
-  if (!equal(token, "return")) {
-    error_at_token(token, "expected return");
+  Token *return_token = token;
+  if (!equal(return_token, "return")) {
+    error_at_token(return_token, "expected return");
   }
-  token = token->next;
+  token = return_token->next;
 
-  Node *node = new_node_return(expr(&token, token, lvarsp));
+  Node *node = new_node_return(expr(&token, token, lvarsp), return_token);
 
   if (!equal(token, ";")) {
     error_at_token(token, "expected ;");
@@ -186,7 +191,8 @@ Node *return_stmt(Token **rest, Token *token, Var **lvarsp) {
 
 // expr_stmt  =  expr ";"
 Node *expr_stmt(Token **rest, Token *token, Var **lvarsp) {
-  Node *node = new_node_expr_stmt(expr(&token, token, lvarsp));
+  Token *expr_token = token;
+  Node *node = new_node_expr_stmt(expr(&token, token, lvarsp), expr_token);
 
   if (!equal(token, ";")) {
     error_at_token(token, "expected ;");

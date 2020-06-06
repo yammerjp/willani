@@ -136,6 +136,7 @@ struct Node {
   Node *increment;  // Used id kind == ND_FOR
   Node *body;       // Used if kind == ND_BLOCK
   FuncCall *fncl;   // Used if kind == ND_FUNC_CALL
+  Token *token;     // Representative token (FOR DEBUG!!!)
 };
 
 typedef struct Function Function;

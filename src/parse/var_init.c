@@ -16,17 +16,18 @@ static int var_array_length(Var *var, ArrayIndexes *indexes) {
   return type->array_length;
 }
 
-static Node *new_node_array_cell(Var *var, ArrayIndexes *indexes) {
+static Node *new_node_array_cell(Var *var, ArrayIndexes *indexes, Token *token) {
   if (!indexes) {
-    return new_node_var(var->name, var->length, var);
+    return new_node_var(var->name, var->length, var, token);
   }
   return new_node_deref(new_node_add(
-    new_node_array_cell(var, indexes->parent),
-    new_node_num(indexes->index)
-  ));
+    new_node_array_cell(var, indexes->parent, token),
+    new_node_num(indexes->index, token),
+    token
+  ),token);
 }
 
-static Node *new_node_zero_padding_array(Var *var, ArrayIndexes *descendant) {
+static Node *new_node_zero_padding_array(Var *var, ArrayIndexes *descendant, Token *token) {
   Node head = {};
   Node *tail = &head;
 
@@ -40,10 +41,10 @@ static Node *new_node_zero_padding_array(Var *var, ArrayIndexes *descendant) {
     }
   }
   if (type->kind != TYPE_ARRAY) {
-    return new_node_assign(new_node_array_cell(var, descendant), new_node_num(0));
+    return new_node_assign(new_node_array_cell(var, descendant, token), new_node_num(0, token), token);
   }
   for (int i = 0; i < type->array_length; i++) {
-    tail->next = new_node_zero_padding_array(var, add_descendant(descendant, i));
+    tail->next = new_node_zero_padding_array(var, add_descendant(descendant, i), token);
     while (tail->next) {
       tail = tail->next;
     }
@@ -57,7 +58,7 @@ Node *init_lvar_stmts(Token **rest, Token *token, Var **lvarsp, ArrayIndexes *de
 
   if (!equal(token, "{")) {
     Node *right = assign(&token, token, lvarsp);
-    node = new_node_assign(new_node_array_cell(var, descendant), right);
+    node = new_node_assign(new_node_array_cell(var, descendant, token), right, token);
     *rest = token;
     return node;
   }
@@ -90,7 +91,7 @@ Node *init_lvar_stmts(Token **rest, Token *token, Var **lvarsp, ArrayIndexes *de
 
   // Zero padding
   for (;ct< array_length; ct++) {
-    tail->next = new_node_zero_padding_array(var, add_descendant(descendant, ct));
+    tail->next = new_node_zero_padding_array(var, add_descendant(descendant, ct), token);
     while(tail->next) {
       tail = tail->next;
     }

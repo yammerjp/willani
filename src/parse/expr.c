@@ -12,8 +12,9 @@ Node *assign(Token **rest, Token *token, Var **lvarsp) {
   Node *node = equality(&token, token, lvarsp);
 
   if(equal(token, "=")) {
+    Token *op_token = token;
     token = token->next;
-    node = new_node_assign(node, assign(&token, token, lvarsp));
+    node = new_node_assign(node, assign(&token, token, lvarsp), op_token);
   }
 
   *rest = token;
@@ -24,12 +25,13 @@ Node *assign(Token **rest, Token *token, Var **lvarsp) {
 Node *equality(Token **rest, Token *token, Var **lvarsp) {
   Node *node = relational(&token, token, lvarsp);
   for(;;) {
+    Token *op_token = token;
     if (equal(token, "==")){
       token = token->next;
-      node = new_node_equal(node, relational(&token, token, lvarsp));
+      node = new_node_equal(node, relational(&token, token, lvarsp), op_token);
     } else if (equal(token, "!=")) {
       token = token->next;
-      node = new_node_not_equal(node, relational(&token, token, lvarsp));
+      node = new_node_not_equal(node, relational(&token, token, lvarsp), op_token);
     } else {
       *rest = token;
       return node;
@@ -41,24 +43,25 @@ Node *equality(Token **rest, Token *token, Var **lvarsp) {
 Node *relational(Token **rest, Token *token, Var ** lvarsp) {
   Node *node = add(&token, token, lvarsp);
   for(;;) {
-    if (equal(token, "<")){
-      token = token->next;
-      node = new_node_less_than(node, add(&token, token, lvarsp));
+    Token *op_token = token;
+    if (equal(op_token, "<")){
+      token = op_token->next;
+      node = new_node_less_than(node, add(&token, token, lvarsp), op_token);
       continue;
     }
-    if (equal(token, "<=")) {
-      token = token->next;
-      node = new_node_less_equal(node, add(&token, token, lvarsp));
+    if (equal(op_token, "<=")) {
+      token = op_token->next;
+      node = new_node_less_equal(node, add(&token, token, lvarsp), op_token);
       continue;
     }
-    if (equal(token, ">")){
+    if (equal(op_token, ">")){
       token = token->next;
-      node = new_node_less_than(add(&token, token, lvarsp), node);
+      node = new_node_less_than(add(&token, token, lvarsp), node, op_token);
       continue;
     }
-    if (equal(token, ">=")) {
+    if (equal(op_token, ">=")) {
       token = token->next;
-      node = new_node_less_equal(add(&token, token, lvarsp), node);
+      node = new_node_less_equal(add(&token, token, lvarsp), node, op_token);
       continue;
     }
     *rest = token;
@@ -71,12 +74,13 @@ Node *add(Token **rest, Token *token, Var **lvarsp) {
   Node *node = mul(&token, token, lvarsp);
 
   for(;;) {
-    if (equal(token, "+")){
-      token = token->next;
-      node = new_node_add(node, mul(&token, token, lvarsp));
-    } else if (equal(token, "-")) {
-      token = token->next;
-      node = new_node_sub(node, mul(&token, token, lvarsp));
+    Token *op_token = token;
+    if (equal(op_token, "+")){
+      token = op_token->next;
+      node = new_node_add(node, mul(&token, token, lvarsp), op_token);
+    } else if (equal(op_token, "-")) {
+      token = op_token->next;
+      node = new_node_sub(node, mul(&token, token, lvarsp), op_token);
     } else {
       *rest = token;
       return node;
@@ -89,12 +93,13 @@ Node *mul(Token **rest, Token *token, Var **lvarsp) {
   Node *node = unary(&token, token, lvarsp);
 
   for(;;) {
-    if (equal(token, "*")) {
-      token = token->next;
-      node = new_node_mul(node, unary(&token, token, lvarsp));
-    } else if (equal(token, "/")) {
-      token = token->next;
-      node = new_node_div(node, unary(&token, token, lvarsp));
+    Token *op_token = token;
+    if (equal(op_token, "*")) {
+      token = op_token->next;
+      node = new_node_mul(node, unary(&token, token, lvarsp), op_token);
+    } else if (equal(op_token, "/")) {
+      token = op_token->next;
+      node = new_node_div(node, unary(&token, token, lvarsp), op_token);
     } else {
       *rest = token;
       return node;
@@ -108,29 +113,31 @@ Node *mul(Token **rest, Token *token, Var **lvarsp) {
 //       | primary ("[" expr "]")*
 Node *unary(Token **rest, Token *token, Var **lvarsp) {
   Node *node;
-  if (equal(token,"+")) {
-    token = token->next;
+  Token *op_token = token;
+  if (equal(op_token,"+")) {
+    token = op_token->next;
     node = primary(&token, token, lvarsp);
-  } else if (equal(token,"-")) {
-    token = token->next;
-    node = new_node_sub(new_node_num(0), primary(&token, token, lvarsp));
-  } else if (equal(token, "*")) {
-    token = token->next;
-    node = new_node_deref(unary(&token, token, lvarsp));
-  } else if (equal(token, "&")) {
-    token = token->next;
-    node = new_node_addr(unary(&token, token, lvarsp));
-  } else if (equal(token, "sizeof")) {
+  } else if (equal(op_token,"-")) {
+    token = op_token->next;
+    node = new_node_sub(new_node_num(0, op_token), primary(&token, token, lvarsp), op_token);
+  } else if (equal(op_token, "*")) {
+    token = op_token->next;
+    node = new_node_deref(unary(&token, token, lvarsp), op_token);
+  } else if (equal(op_token, "&")) {
+    token = op_token->next;
+    node = new_node_addr(unary(&token, token, lvarsp), op_token);
+  } else if (equal(op_token, "sizeof")) {
     node = sizeofunary(&token, token, lvarsp);
   } else {
     node = primary(&token, token, lvarsp);
 
     // ("[" expr "]")*
     while(equal(token, "[")) {
+      Token *bracket_token = token;
       token = token->next;
 
       Node *expr_node = expr(&token,token, lvarsp);
-      node = new_node_deref(new_node_add(node, expr_node));
+      node = new_node_deref(new_node_add(node, expr_node, bracket_token), bracket_token);
 
       if (!equal(token, "]")) {
         error_at_token(token, "expected ]");
@@ -145,10 +152,11 @@ Node *unary(Token **rest, Token *token, Var **lvarsp) {
 // sizeofunary = "sizeof" ( type_with_pars | unary )
 // type_with_pars = "(" type_with_pars ")" | type
 Node *sizeofunary(Token **rest, Token *token, Var **lvarsp) {
-  if (!equal(token, "sizeof")) {
-    error_at_token(token, "expected sizeof");
+  Token *op_token = token;
+  if (!equal(op_token, "sizeof")) {
+    error_at_token(op_token, "expected sizeof");
   }
-  token = token->next;
+  token = op_token->next;
 
   Type *type = read_type_tokens_with_pars(&token, token);
 
@@ -159,7 +167,7 @@ Node *sizeofunary(Token **rest, Token *token, Var **lvarsp) {
   int size = type_size(type);
 
   *rest = token;
-  return new_node_num(size);
+  return new_node_num(size, op_token);
 }
 
 // primary    = num | primary_identifer | "(" expr ")" | string
@@ -168,7 +176,7 @@ Node *primary(Token **rest, Token *token, Var **lvarsp) {
 
   // num
   if (is_number_token(token)) {
-    node = new_node_num(strtol(token->location, NULL, 10));
+    node = new_node_num(strtol(token->location, NULL, 10), token);
     token = token->next;
     *rest = token;
     return node;
@@ -182,7 +190,7 @@ Node *primary(Token **rest, Token *token, Var **lvarsp) {
   }
 
   if (is_string_token(token)) {
-    node = new_node_string(token->location + 1, token->length - 2);
+    node = new_node_string(token->location + 1, token->length - 2, token);
     token = token->next;
     *rest = token;
     return node;
@@ -210,15 +218,16 @@ Node *primary_identifer(Token **rest, Token *token, Var **lvarsp) {
   Node *node;
 
   // identifer
-  if (!is_identifer_token(token)) {
-    error_at_token(token, "expected identifer");
+  Token *ident_token = token;
+  if (!is_identifer_token(ident_token)) {
+    error_at_token(ident_token, "expected identifer");
   }
-  char *name = token->location;
-  int length = token->length;
-  token = token->next;
+  char *name = ident_token->location;
+  int length = ident_token->length;
+  token = ident_token->next;
 
   if (!equal(token, "(")) {
-    node = new_node_var(name,length, *lvarsp);
+    node = new_node_var(name,length, *lvarsp, ident_token);
     *rest = token;
     return node;
   }
@@ -246,7 +255,7 @@ Node *primary_identifer(Token **rest, Token *token, Var **lvarsp) {
   }
   token = token->next;
 
-  node = new_node_func_call(name, length, args_head.next);
+  node = new_node_func_call(name, length, args_head.next, ident_token);
   if (!node)
     error_at_token(token, "called undefined function");
 
