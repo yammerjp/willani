@@ -35,21 +35,36 @@ Node *block_stmt(Token **rest, Token *token, Var *outer_scope_lvars) {
 //            | for_stmt
 //            | return_stmt
 //            | expr_stmt
+
 //            | declare_lvar_stmt
+
 Node *stmt(Token **rest, Token *token, Var *outer_scope_lvars) {
   Node *node;
 
   Type *type = read_type_tokens(&token, token); // Proceed token if only token means type
   if (type)
     node = declare_lvar_stmt(&token, token, type, outer_scope_lvars);
-  else if (equal(token, "if"))
+  else
+    node = stmt_without_declaration(&token, token, lvars);
+
+  *rest = token;
+  return node;
+}
+
+Node *stmt_without_declaration(Token **rest, Token *token, Var *outer_scope_lvars) {
+  if (read_type_tokens(&token, token))
+    error_at(token, "declaration statement is invalid here");
+
+  Node *node;
+
+  if (equal(token, "if"))
     node = if_stmt(&token, token);
   else if (equal(token, "while"))
     node = while_stmt(&token, token);
   else if (equal(token, "for"))
     node = for_stmt(&token, token);
   else if (equal(token, "{"))
-    node = block_stmt(&token, token, lvars);
+    node = block_stmt(&token, token, outer_scope_lvars);
   else if (equal(token, "return"))
     node = return_stmt(&token, token);
   else
@@ -57,7 +72,9 @@ Node *stmt(Token **rest, Token *token, Var *outer_scope_lvars) {
 
   *rest = token;
   return node;
+
 }
+
 
 // if_stmt = "if" "(" expr ")" stmt ( "else" stmt ) ?
 Node *if_stmt(Token **rest, Token *token) {
@@ -76,12 +93,12 @@ Node *if_stmt(Token **rest, Token *token) {
     error_at(token, "expected )");
   token = token->next;
 
-  Node *then = stmt(&token, token, lvars);
+  Node *then = stmt_without_declaration(&token, token, lvars);
 
   Node *els = NULL;
   if (equal(token, "else")) {
     token = token->next;
-    els = stmt(&token, token, lvars);
+    els = stmt_without_declaration(&token, token, lvars);
   }
   Node *node = new_node_if(cond, then, els, if_token);
 
@@ -106,7 +123,7 @@ Node *while_stmt(Token **rest, Token *token) {
     error_at(token, "expected )");
   token = token->next;
 
-  Node *then = stmt(&token, token, lvars);
+  Node *then = stmt_without_declaration(&token, token, lvars);
 
   Node *node = new_node_while(cond, then, while_token);
 
@@ -116,6 +133,8 @@ Node *while_stmt(Token **rest, Token *token) {
 
 // for_stmt = "for" "(" expr? ";" expr? ";" expr? ")" stmt
 Node *for_stmt(Token **rest, Token *token) {
+  Var *outer_scope_lvars = lvars;
+
   // "for"
   Token *for_token = token;
   if (!equal(for_token, "for"))
@@ -156,7 +175,7 @@ Node *for_stmt(Token **rest, Token *token) {
   token = token->next;
 
   // stmt
-  Node *then = stmt(&token, token, lvars);
+  Node *then = stmt_without_declaration(&token, token, outer_scope_lvars);
   Node *node = new_node_for(init, cond, increment, then, token);
 
   *rest = token;

@@ -6,6 +6,9 @@ int main() {
 
   sum = sum + a;
   printf("%d\n", a);
+  if (1) {
+    int i = 2;
+  }
 
   {
     int a = 2;

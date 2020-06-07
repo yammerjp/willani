@@ -51,6 +51,7 @@ void parse_log();
 //======================================
 // stmt.c
 Node *stmt(Token **rest, Token *token, Var *outer_scope_lvars);
+Node *stmt_without_declaration(Token **rest, Token *token, Var *outer_scope_lvars);
 Node *if_stmt(Token **rest, Token *token);
 Node *while_stmt(Token **rest, Token *token);
 Node *for_stmt(Token **rest, Token *token);
