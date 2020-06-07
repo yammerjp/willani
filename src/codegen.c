@@ -182,6 +182,7 @@ static void gen_func_call(Node *node) {
 
   printf(".L.needAlign.%d:\n", labct);
   printf("  sub $8, %%rsp\n");
+  printf("  mov $0, %%al\n"); // set zero to al for calling variadic arguments
   printf("  call %.*s\n", node->func_namelen, node->func_name);
   printf("  add $8, %%rsp\n");
 
