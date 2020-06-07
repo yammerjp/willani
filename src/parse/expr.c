@@ -244,24 +244,19 @@ Node *stmt_expr(Token **rest, Token *token, Var **lvarsp) {
 
   if (!equal(token, "(") || !equal(token->next, "{"))
     error_at(token->next, "expected statement expression");
-
-  Token *paren_token = token->next;
-  token = paren_token->next;
-
-  Node head;
-  Node *tail = &head;
-
-  while(!equal(token, "}")) {
-    tail->next = stmt(&token, token, lvarsp);
-    tail = tail->next;
-  }
   token = token->next;
+
+  Node *node = block_stmt(&token, token, lvarsp);
+  node->kind = ND_STMT_EXPR;
+
+  Node *tail = node->body;
+  while (tail && tail->next)
+    tail = tail->next;
+  node->type = (tail && tail->kind == ND_EXPR_STMT) ?  tail->left->type : NULL;
 
   if (!equal(token, ")"))
     error_at(token, "expected )");
   token = token->next;
-
-  Node *node = new_node_stmt_expr(head.next, paren_token);
 
   *rest = token;
   return node;

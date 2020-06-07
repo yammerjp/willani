@@ -41,7 +41,6 @@ Node *new_node_expr_stmt(Node *stmt_node, Token *token);
 Node *new_node_addr(Node *unary_node, Token *token);
 Node *new_node_deref(Node *unary_node, Token *token);
 Node *new_node_assign(Node *left, Node *right, Token *token);
-Node *new_node_stmt_expr(Node *body, Token *token);
 
 //======================================
 // log.c
