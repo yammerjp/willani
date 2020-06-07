@@ -1,1 +1,9 @@
-int main() { int a = 0; for (int i = 0; i<3; i++) { a++; } return a; }
+int main() {
+  int i = 0;
+  for (;;) {
+    if (i<3)
+      i = i + 1;
+    else
+      return i;
+  }
+}

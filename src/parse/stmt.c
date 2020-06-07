@@ -168,7 +168,8 @@ Node *for_stmt(Token **rest, Token *token) {
   Node *cond = NULL;
   if (!equal(token, ";"))
     cond = expr(&token, token);
-  // TODO: else push 1 (true)
+  else
+    cond = new_node_num(1, token);
 
   if (!equal(token, ";"))
     error_at(token, "expected ;");
