@@ -166,10 +166,10 @@ Node *new_node_func_call(char *name, int len, Node *args, Token *token) {
   return node;
 }
 
-Node *new_node_expr_stmt(Node *stmt_node, Token *token) {
+Node *new_node_expr_stmt(Node *expr_node, Token *token) {
   Node *node = calloc(1, sizeof(Node));
   node->kind = ND_EXPR_STMT;
-  node->left = stmt_node;
+  node->left = expr_node;
   node->token = token;
   return node;
 }

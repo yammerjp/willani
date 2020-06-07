@@ -37,7 +37,7 @@ Node *new_node_while(Node *cond, Node *then, Token *token);
 Node *new_node_for(Node *init, Node *cond, Node* increment, Node *then, Token *token);
 Node *new_node_block(Node *body, Token *token);
 Node *new_node_func_call(char *name, int len, Node *args, Token *token);
-Node *new_node_expr_stmt(Node *stmt_node, Token *token);
+Node *new_node_expr_stmt(Node *expr_node, Token *token);
 Node *new_node_addr(Node *unary_node, Token *token);
 Node *new_node_deref(Node *unary_node, Token *token);
 Node *new_node_assign(Node *left, Node *right, Token *token);

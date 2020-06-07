@@ -141,7 +141,7 @@ struct Node {
   Node *then;       // Used if kind is ND_IF or ND_WHILE or ND_FOR
   Node *els;        // Used if kind == ND_IF
   Node *init;       // Used if kind == ND_FOR  // stmt
-  Node *increment;  // Used id kind == ND_FOR
+  Node *increment;  // Used id kind == ND_FOR  // expression statement
   Node *body;       // Used if kind is ND_BLOCK or ND_STMT_EXPR
 };
 

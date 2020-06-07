@@ -177,9 +177,10 @@ Node *for_stmt(Token **rest, Token *token) {
 
   // expr? ")"
   Node *increment = NULL;
-  if (!equal(token, ")"))
-    increment = expr(&token, token);
-    // TODO: expr_stmt
+  if (!equal(token, ")")) {
+    Token *expr_token = token;
+    increment = new_node_expr_stmt(expr(&token, token), expr_token);
+  }
 
   if (!equal(token, ")"))
     error_at(token, "expected )");
