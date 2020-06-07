@@ -30,7 +30,7 @@ Node *new_node_less_than(Node *left, Node *right, Token *token);
 Node *new_node_less_equal(Node *left, Node *right, Token *token);
 Node *new_node_num(long value, Token *token);
 Node *new_node_string(Token *token);
-Node *new_node_var(char *name, int length, Var *lvars, Token *token);
+Node *new_node_var(char *name, int length, Token *token);
 Node *new_node_return(Node *left, Token *token);
 Node *new_node_if(Node *cond, Node *then, Node *els, Token *token);
 Node *new_node_while(Node *cond, Node *then, Token *token);
@@ -50,30 +50,30 @@ void parse_log();
 
 //======================================
 // stmt.c
-Node *stmt(Token **rest, Token *token, Var **lvarsp);
-Node *if_stmt(Token **rest, Token *token, Var **lvarsp);
-Node *while_stmt(Token **rest, Token *token, Var **lvarsp);
-Node *for_stmt(Token **rest, Token *token, Var **lvarsp);
-Node *block_stmt(Token **rest, Token *token, Var **lvarsp);
-Node *expr_stmt(Token **rest, Token *token, Var **lvarsp);
-Node *return_stmt(Token **rest, Token *token, Var **lvarsp);
-Node *declare_lvar_stmt(Token **rest, Token *token, Var **lvarsp, Type *type);
+Node *stmt(Token **rest, Token *token);
+Node *if_stmt(Token **rest, Token *token);
+Node *while_stmt(Token **rest, Token *token);
+Node *for_stmt(Token **rest, Token *token);
+Node *block_stmt(Token **rest, Token *token);
+Node *expr_stmt(Token **rest, Token *token);
+Node *return_stmt(Token **rest, Token *token);
+Node *declare_lvar_stmt(Token **rest, Token *token, Type *type);
 Type *type_suffix(Token **rest, Token *token, Type *ancestor);
 
 
 //======================================
 // expr.c
-Node *expr(Token **rest, Token *token, Var **lvarsp);
-Node *assign(Token **rest, Token *token, Var **lvarsp);
-Node *equality(Token **rest, Token *token, Var **lvarsp);
-Node *relational(Token **rest, Token *token, Var **lvarsp);
-Node *add(Token **rest, Token *token, Var **lvarsp);
-Node *mul(Token **rest, Token *token, Var **lvarsp);
-Node *unary(Token **rest, Token *token, Var **lvarsp);
-Node *sizeofunary(Token **rest, Token *token, Var **lvarsp);
-Node *primary(Token **rest, Token *token, Var **lvarsp);
-Node *primary_identifer(Token **rest, Token *token, Var **lvarsp);
-Node *stmt_expr(Token **rest, Token *token, Var **lvarsp);
+Node *expr(Token **rest, Token *token);
+Node *assign(Token **rest, Token *token);
+Node *equality(Token **rest, Token *token);
+Node *relational(Token **rest, Token *token);
+Node *add(Token **rest, Token *token);
+Node *mul(Token **rest, Token *token);
+Node *unary(Token **rest, Token *token);
+Node *sizeofunary(Token **rest, Token *token);
+Node *primary(Token **rest, Token *token);
+Node *primary_identifer(Token **rest, Token *token);
+Node *stmt_expr(Token **rest, Token *token);
 
 
 //======================================
@@ -84,7 +84,7 @@ struct ArrayIndexes {
   ArrayIndexes *parent;
 };
 
-Node *init_lvar_stmts(Token **rest, Token *token, Var **lvarsp, ArrayIndexes *descendant);
+Node *init_lvar_stmts(Token **rest, Token *token, ArrayIndexes *descendant);
 
 
 //======================================

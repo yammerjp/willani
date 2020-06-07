@@ -163,6 +163,7 @@ void *program(Token *token);
 //======================================
 // parse/var.c
 extern Var *gvars;
+extern Var *lvars;
 
 
 //======================================

@@ -45,8 +45,8 @@ void *program(Token *token) {
     if (func_samename && !func_samename->definition)
       error_at(token, "a entitiy of the same name function is exist");
 
-    Var *lvars = func->args;
-    func->node = block_stmt(&token, token, &lvars);
+    lvars = func->args;
+    func->node = block_stmt(&token, token);
     func->var = lvars;
 
   }

@@ -80,7 +80,7 @@ Node *new_node_string(Token *token) {
   return node;
 }
 
-Node *new_node_var(char *name, int length, Var *lvars, Token *token) {
+Node *new_node_var(char *name, int length, Token *token) {
   Node *node = calloc(1, sizeof(Node));
 
   Var *gvar = find_var(name, length, gvars);

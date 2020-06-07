@@ -1,6 +1,7 @@
 #include "parse.h"
 
 Var *gvars;
+Var *lvars;
 
 Var *find_var(char *name, int length, Var *vars) {
   for (Var *var = vars; var; var = var->next) {
