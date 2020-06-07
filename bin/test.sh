@@ -169,4 +169,26 @@ assert 92   'int main() { char *k = "\\"; return *k; }'
 assert 39   "int main() { char *k = \"\\'\"; return *k; }"
 assert 34   'int main() { char *k = "\""; return *k; }'
 assert 0    'int main() { return ({int a = 1; 1-a;});}'
+assert 13 '
+int sum;
+int main() {
+  sum = 0;
+  int a = 1;
+  sum = sum + a;
+  {
+    int a = 2;
+    sum = sum + a;
+  }
+  sum = sum + a;
+  {
+    int a = 3;
+    sum = sum + a;
+  }
+  sum = sum + a;
+  ({int a = 4; sum =sum+a;a;});
+  sum = sum + a;
+
+  return sum;
+}'
+
 echo OK

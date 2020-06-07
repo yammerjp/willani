@@ -11,7 +11,7 @@ String *new_string(char *p, int length);
 
 //======================================
 // var.c
-Var *find_var(char *name, int length, Var *vars);
+Var *find_var(char *name, int length, Var *head, Var *ignore);
 void *new_var(Type *type, char *name, int length, Var **varsp);
 void *new_gvar(Type *type, char *name, int length);
 
@@ -50,14 +50,14 @@ void parse_log();
 
 //======================================
 // stmt.c
-Node *stmt(Token **rest, Token *token);
+Node *stmt(Token **rest, Token *token, Var *outer_scope_lvars);
 Node *if_stmt(Token **rest, Token *token);
 Node *while_stmt(Token **rest, Token *token);
 Node *for_stmt(Token **rest, Token *token);
-Node *block_stmt(Token **rest, Token *token);
+Node *block_stmt(Token **rest, Token *token, Var *outer_scope_lvars);
 Node *expr_stmt(Token **rest, Token *token);
 Node *return_stmt(Token **rest, Token *token);
-Node *declare_lvar_stmt(Token **rest, Token *token, Type *type);
+Node *declare_lvar_stmt(Token **rest, Token *token, Type *type, Var *outer_scope_lvars);
 Type *type_suffix(Token **rest, Token *token, Type *ancestor);
 
 

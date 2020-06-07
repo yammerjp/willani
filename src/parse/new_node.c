@@ -83,7 +83,7 @@ Node *new_node_string(Token *token) {
 Node *new_node_var(char *name, int length, Token *token) {
   Node *node = calloc(1, sizeof(Node));
 
-  Var *gvar = find_var(name, length, gvars);
+  Var *gvar = find_var(name, length, gvars, NULL);
   if (gvar) {
     node->kind = ND_GVAR;
     node->var = gvar;
@@ -92,7 +92,7 @@ Node *new_node_var(char *name, int length, Token *token) {
     return node;
   }
 
-  Var *lvar = find_var(name, length, lvars);
+  Var *lvar = find_var(name, length, lvars, NULL);
   if (lvar) {
     node->kind = ND_LVAR;
     node->var = lvar;

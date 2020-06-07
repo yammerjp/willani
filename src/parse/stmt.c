@@ -1,7 +1,7 @@
 #include "parse.h"
 
 // block_stmt = "{" stmt* "}"
-Node *block_stmt(Token **rest, Token *token) {
+Node *block_stmt(Token **rest, Token *token, Var *outer_scope_lvars) {
   Token *bracket_token = token;
   if (!equal(bracket_token, "{"))
     error_at(bracket_token, "expected {");
@@ -11,13 +11,17 @@ Node *block_stmt(Token **rest, Token *token) {
   Node *tail = &head;
   
   while (!equal(token, "}")) {
-    tail->next = stmt(&token, token);
+    tail->next = stmt(&token, token, outer_scope_lvars);
     while (tail->next)
       tail = tail->next;
   }
   token = token->next;
 
   Node *node = new_node_block(head.next, bracket_token);
+
+  // variables declared in the block, is not be able to refered from outer the block.
+  for (Var *var = lvars; var && var != outer_scope_lvars; var = var->next)
+    var->referable = false;
 
   *rest = token;
   return node;
@@ -32,12 +36,12 @@ Node *block_stmt(Token **rest, Token *token) {
 //            | return_stmt
 //            | expr_stmt
 //            | declare_lvar_stmt
-Node *stmt(Token **rest, Token *token) {
+Node *stmt(Token **rest, Token *token, Var *outer_scope_lvars) {
   Node *node;
 
   Type *type = read_type_tokens(&token, token); // Proceed token if only token means type
   if (type)
-    node = declare_lvar_stmt(&token, token, type);
+    node = declare_lvar_stmt(&token, token, type, outer_scope_lvars);
   else if (equal(token, "if"))
     node = if_stmt(&token, token);
   else if (equal(token, "while"))
@@ -45,7 +49,7 @@ Node *stmt(Token **rest, Token *token) {
   else if (equal(token, "for"))
     node = for_stmt(&token, token);
   else if (equal(token, "{"))
-    node = block_stmt(&token, token);
+    node = block_stmt(&token, token, lvars);
   else if (equal(token, "return"))
     node = return_stmt(&token, token);
   else
@@ -72,12 +76,12 @@ Node *if_stmt(Token **rest, Token *token) {
     error_at(token, "expected )");
   token = token->next;
 
-  Node *then = stmt(&token, token);
+  Node *then = stmt(&token, token, lvars);
 
   Node *els = NULL;
   if (equal(token, "else")) {
     token = token->next;
-    els = stmt(&token, token);
+    els = stmt(&token, token, lvars);
   }
   Node *node = new_node_if(cond, then, els, if_token);
 
@@ -102,7 +106,7 @@ Node *while_stmt(Token **rest, Token *token) {
     error_at(token, "expected )");
   token = token->next;
 
-  Node *then = stmt(&token, token);
+  Node *then = stmt(&token, token, lvars);
 
   Node *node = new_node_while(cond, then, while_token);
 
@@ -127,6 +131,7 @@ Node *for_stmt(Token **rest, Token *token) {
   Node *init = NULL;
   if (!equal(token, ";"))
     init = expr(&token, token);
+    // TODO: expression or declaration expression
 
   if (!equal(token, ";"))
     error_at(token, "expected ;");
@@ -151,7 +156,7 @@ Node *for_stmt(Token **rest, Token *token) {
   token = token->next;
 
   // stmt
-  Node *then = stmt(&token, token);
+  Node *then = stmt(&token, token, lvars);
   Node *node = new_node_for(init, cond, increment, then, token);
 
   *rest = token;
@@ -192,7 +197,7 @@ Node *expr_stmt(Token **rest, Token *token) {
 // type_suffix       = "[" num "]" type_suffix | ε
 // declare node is skipped by codegen
 
-Node *declare_lvar_stmt(Token **rest, Token *token, Type *ancestor) {
+Node *declare_lvar_stmt(Token **rest, Token *token, Type *ancestor, Var *outer_scope_lvars) {
   // identifer
   if (!is_identifer_token(token))
     error_at(token, "expected identifer");
@@ -204,7 +209,7 @@ Node *declare_lvar_stmt(Token **rest, Token *token, Type *ancestor) {
   // ("[" num "]")*
   Type *type = type_suffix(&token, token, ancestor);
 
-  if (find_var(name, namelen, lvars))
+  if (find_var(name, namelen, lvars, outer_scope_lvars))
     error("duplicate declarations '%.*s'", namelen, name);
   new_var(type, name, namelen, &lvars);
 

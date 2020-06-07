@@ -246,7 +246,7 @@ Node *stmt_expr(Token **rest, Token *token) {
     error_at(token->next, "expected statement expression");
   token = token->next;
 
-  Node *node = block_stmt(&token, token);
+  Node *node = block_stmt(&token, token, lvars);
   node->kind = ND_STMT_EXPR;
 
   Node *tail = node->body;

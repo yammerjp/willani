@@ -46,7 +46,7 @@ void *program(Token *token) {
       error_at(token, "a entitiy of the same name function is exist");
 
     lvars = func->args;
-    func->node = block_stmt(&token, token);
+    func->node = block_stmt(&token, token, NULL);
     func->var = lvars;
 
   }
@@ -55,7 +55,7 @@ void *program(Token *token) {
 
 static void read_new_gvar(Token **rest, Token *token, Type *type_without_suffix, char *name, int namelen) {
   Type *type = type_suffix(&token, token, type_without_suffix);
-  if (find_var(name, namelen, gvars))
+  if (find_var(name, namelen, gvars, NULL))
     error_at(token, "duplicate declarations");
   new_var(type, name, namelen, &gvars);
 

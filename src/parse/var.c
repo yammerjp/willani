@@ -3,8 +3,10 @@
 Var *gvars;
 Var *lvars;
 
-Var *find_var(char *name, int length, Var *vars) {
-  for (Var *var = vars; var; var = var->next) {
+Var *find_var(char *name, int length, Var *head, Var *ignore) {
+  for (Var *var = head; var && var != ignore; var = var->next) {
+    if (!var->referable)
+      continue;
     if (length == var->length && !strncmp(name, var->name, length))
       return var;
   }
@@ -21,6 +23,7 @@ void *new_var(Type *type, char *name, int length, Var **varsp) {
   var->name = name;
   var->length = length;
   var->offset = type_size(type) + already_reserved_offset;
+  var->referable = true;
 
   *varsp = var;
 }

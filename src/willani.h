@@ -90,6 +90,7 @@ struct Var {
   char *name;
   int length;
   int offset;
+  bool referable;
 };
 
 typedef enum {
