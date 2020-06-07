@@ -137,10 +137,10 @@ struct Node {
   Node *next;
   Node *left;
   Node *right;
-  Node *cond;       // Used if kind is ND_IF or ND_WHILE or ND_FOR
+  Node *cond;       // Used if kind is ND_IF or ND_WHILE or ND_FOR // expr
   Node *then;       // Used if kind is ND_IF or ND_WHILE or ND_FOR
   Node *els;        // Used if kind == ND_IF
-  Node *init;       // Used if kind == ND_FOR
+  Node *init;       // Used if kind == ND_FOR  // stmt
   Node *increment;  // Used id kind == ND_FOR
   Node *body;       // Used if kind is ND_BLOCK or ND_STMT_EXPR
 };

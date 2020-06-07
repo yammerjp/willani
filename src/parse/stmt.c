@@ -148,18 +148,27 @@ Node *for_stmt(Token **rest, Token *token) {
 
   // expr? ";"
   Node *init = NULL;
-  if (!equal(token, ";"))
-    init = expr(&token, token);
-    // TODO: expression or declaration expression
+  if (!equal(token, ";")) {
+    Type *type = read_type_tokens(&token, token);
+    if (type) {
+      init = declare_lvar_stmt(&token, token, type, outer_scope_lvars);
+    } else {
+      Token *expr_token = token;
+      init = new_node_expr_stmt(expr(&token, token), expr_token);
 
-  if (!equal(token, ";"))
-    error_at(token, "expected ;");
-  token = token->next;
+      if (!equal(token, ";"))
+        error_at(token, "expected ;");
+      token = token->next;
+    }
+  } else {
+    token = token->next;
+  }
 
-  // expr? ";"
+    // expr? ";"
   Node *cond = NULL;
   if (!equal(token, ";"))
     cond = expr(&token, token);
+  // TODO: else push 1 (true)
 
   if (!equal(token, ";"))
     error_at(token, "expected ;");
@@ -169,6 +178,7 @@ Node *for_stmt(Token **rest, Token *token) {
   Node *increment = NULL;
   if (!equal(token, ")"))
     increment = expr(&token, token);
+    // TODO: expr_stmt
 
   if (!equal(token, ")"))
     error_at(token, "expected )");

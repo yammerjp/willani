@@ -232,6 +232,9 @@ static void gen_expr_stmt(Node *node) {
 }
 
 static void gen(Node *node) {
+  if (!node)
+    return;
+
   // for debug
   printf ("  # >>> "); print_node(stdout, node);
 
