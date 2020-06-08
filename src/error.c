@@ -2,7 +2,7 @@
 
 void error_at(Token *token, char *msg) {
   char *line = get_line_head(token);
-  char line_num = get_line_number(line);
+  int line_num = get_line_number(line);
   char *end = get_line_end(token);
 
   // print filename and line number

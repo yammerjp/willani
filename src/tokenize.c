@@ -38,7 +38,7 @@ char *get_line_end(Token *token) {
 int get_line_number(char *line_head) {
   // get line number
   int line_num = 1;
-  for (char *p  = user_input; p< line_head; p++)
+  for (char *p  = user_input; p < line_head; p++)
     if (*p == '\n')
       line_num++;
   return line_num;
