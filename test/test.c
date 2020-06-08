@@ -1,3 +1,9 @@
+// This is a line comment.
+
+/*
+ * This is a block comment.
+ */
+
 int printf();
 int exit();
 
@@ -206,6 +212,8 @@ int main() {
   assert("({ int a = 0; for (int i = 0; i<3; i = i + 1) { a = a + 1; } a; })",
     ({ int a = 0; for (int i = 0; i<3; i = i + 1) { a = a + 1; } a; }), 3);
   assert("int ret10(){ int i = 0; for (;;) { if (i<10) i = i + 1; else return i; } }", ret10() , 10);
+
+//  assert(4, sizeof("abc"), "sizeof(\"abc\")");
 
   printf("\nOK\n");
   return 0;

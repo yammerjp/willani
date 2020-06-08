@@ -164,6 +164,7 @@ Token *tokenize(char *p) {
       continue;
     }
 
+    // line comment
     if (strncmp(p, "//", 2) == 0) {
       p +=2;
       while (*p != '\n')
@@ -171,6 +172,7 @@ Token *tokenize(char *p) {
       continue;
     }
 
+    // comment
     if (strncmp(p, "/*", 2) == 0) {
       char *q =  strstr(p+2, "*/");
       if (!q)
