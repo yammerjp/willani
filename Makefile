@@ -8,7 +8,10 @@ willani: $(OBJS)
 $(OBJS): src/willani.h src/parse/parse.h
 
 test: willani
-	bin/test.sh
+	rm -f test.s test.out
+	./willani test/test.c > test.s
+	gcc -static test.s -o test.out
+	./test.out
 
 sample: willani
 	bin/run-sample.sh
@@ -17,5 +20,5 @@ debug: willani
 	bin/gdb-sample.sh
 
 clean:
-	rm -f willani src/*.o src/parse/*.o *~ tmp* *.log core test.c
+	rm -f willani src/*.o src/parse/*.o *~ tmp* *.log core test.s test.out
 .PHONY: test clean sample debug
