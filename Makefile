@@ -14,10 +14,14 @@ test: willani
 	./test.out
 
 sample: willani
-	bin/run-sample.sh
+	./willani sample.c > tmp.s
+	gcc -static tmp.s -o tmp
+	-./tmp
 
 debug: willani
-	bin/gdb-sample.sh
+	./willani sample.c > tmp.s
+	gcc -g -static tmp.s -o tmp
+	gdb tmp
 
 clean:
 	rm -f willani src/*.o src/parse/*.o *~ tmp* *.log core test.s test.out
