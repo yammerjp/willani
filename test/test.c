@@ -207,6 +207,7 @@ int main() {
     ({ int a = 0; for (int i = 0; i<3; i = i + 1) { a = a + 1; } a; }), 3);
   assert("int ret10(){ int i = 0; for (;;) { if (i<10) i = i + 1; else return i; } }", ret10() , 10);
 
+  assert("sizeof(\"abc\")", sizeof("abc") , 4);
   printf("\nOK\n");
   return 0;
 }

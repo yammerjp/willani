@@ -75,7 +75,7 @@ Node *new_node_string(Token *token) {
   Node *node = calloc(1, sizeof(Node));
   node->kind = ND_STRING;
   node->string = new_string(token->location+1, token->length-2);
-  node->type = new_type_pointer(new_type_char());
+  node->type = new_type_array(new_type_char(), node->string->length);
   node->token = token;
   return node;
 }

@@ -1,4 +1,6 @@
+int printf();
+
 int main() {
-  ({ int *x; sizeof(x); });
-  ({ int *x;int y; x = &y; *x = 3 ; *x;});
+  printf("hello,world!\n");
+  return 0;
 }
