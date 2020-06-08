@@ -12,7 +12,7 @@ elif [ "$sub_command" = "run" ]; then
 elif [ "$sub_command" = "sh" ]; then
   docker run --rm -it -v "$REPO_DIR:/willani" -w /willani compilerbook
 elif [ "$sub_command" = "sample" ]; then
-  docker run --rm -v "$REPO_DIR:/willani" -w /willani compilerbook ./run-sample.sh
+  docker run --rm -v "$REPO_DIR:/willani" -w /willani compilerbook make sample
 else
   echo "usage: ./docker.sh pull ... download and build Dockerfile"
   echo "usage: ./docker.sh run  ... compile and run test"
