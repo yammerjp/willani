@@ -245,6 +245,10 @@ static void gen(Node *node) {
       gen(cur);
     if (node->type)  // type is not NULL if tail stmt is expr_stmt
       printf("  sub $8, %%rsp\n");
+    else
+      // return void
+      // TODO: Add void type
+      printf("  push $0\n");
     break;
 
   default:
