@@ -106,11 +106,11 @@ static int reserved_token_length(char *p) {
   for (int i=0; i<sizeof(tokens); i++) {
     char *str = tokens[i];
     int len = strlen(str);
-    if ( strncmp(p, str, len) == 0
-      && ( !is_all_alnum(str) || !is_alnum(p[len]) ) // not include 'ifn' and so on
-    ) {
-      return len;
-    }
+    if ( strncmp(p, str, len) != 0 )
+      continue;
+    if ( is_all_alnum(str) && is_alnum(p[len]) ) // not include 'ifn' and so on
+      continue;
+    return len;
   }
   return 0;
 }
@@ -164,6 +164,7 @@ Token *tokenize(char *p) {
       continue;
     }
 
+    // Skip comment
     if (strncmp(p, "//", 2) == 0) {
       p +=2;
       while (*p != '\n')
@@ -171,6 +172,7 @@ Token *tokenize(char *p) {
       continue;
     }
 
+    // Skip comment
     if (strncmp(p, "/*", 2) == 0) {
       char *q =  strstr(p+2, "*/");
       if (!q)
