@@ -149,15 +149,6 @@ static void gen_for(Node *node) {
   printf(".L.end.%d:\n", labct);
 }
 
-static void gen_block(Node *node) {
-  if (node->kind != ND_BLOCK)
-    error("expected { ... }");
-
-  for(Node *n = node->body; n; n = n->next) {
-    gen(n);
-  }
-}
-
 static void gen_func_call(Node *node) {
   if (node->kind != ND_FUNC_CALL)
     error("expected function call");
@@ -187,48 +178,7 @@ static void gen_func_call(Node *node) {
   printf("  add $8, %%rsp\n");
 
   printf(".L.end.%d:\n", labct);
-  printf("  pushq %%rax\n");    // restore saved rax
-}
-
-static void gen_var(Node *node) {
-  gen_addr(node);
-  load(node->type);
-}
-
-static void gen_assign(Node *node) {
-  if (node->kind != ND_ASSIGN)
-    error("expected node->kind is ND_ASSIGN");
-
-  gen_addr(node->left);
-  gen(node->right);
-  store(node->type);
-}
-
-static void gen_return(Node *node) {
-  if (node->kind != ND_RETURN)
-    error("expected node->kind is ND_RETURN");
-
-  gen(node->left);
-  printf("  popq %%rax\n");
-  printf("  jmp .L.return.%.*s\n", funcnamelen, funcname);
-}
-
-static void gen_stmt_expr(Node *node) {
-  if (node->kind != ND_STMT_EXPR)
-    error_at(node->token, "expected statement expression");
-
-  for (Node *cur = node->body; cur; cur = cur->next)
-    gen(cur);
-  if (node->type)  // type is not NULL if tail stmt is expr_stmt
-  printf("  sub $8, %%rsp\n");
-}
-
-static void gen_expr_stmt(Node *node) {
-  if (node->kind != ND_EXPR_STMT)
-    error("expected node->kind is ND_EXPR_STMT");
-
-  gen(node->left);
-  printf("  add $8, %%rsp\n"); // stmt is not leave any values in the stack
+  printf("  pushq %%rax\n");    // push returned value
 }
 
 static void gen(Node *node) {
@@ -241,7 +191,9 @@ static void gen(Node *node) {
   switch (node->kind) {
   // statements
   case ND_RETURN:
-    gen_return(node);
+    gen(node->left);
+    printf("  popq %%rax\n");
+    printf("  jmp .L.return.%.*s\n", funcnamelen, funcname);
     break;
   case ND_IF:
     gen_if(node);
@@ -253,10 +205,12 @@ static void gen(Node *node) {
     gen_for(node);
     break;
   case ND_BLOCK:
-    gen_block(node);
+    for(Node *n = node->body; n; n = n->next)
+      gen(n);
     break;
   case ND_EXPR_STMT:
-    gen_expr_stmt(node);
+    gen(node->left);
+    printf("  add $8, %%rsp\n"); // stmt is not leave any values in the stack
     break;
 
   // expression
@@ -268,10 +222,13 @@ static void gen(Node *node) {
     break;
   case ND_GVAR:
   case ND_LVAR:
-    gen_var(node);
+    gen_addr(node);
+    load(node->type);
     break;
   case ND_ASSIGN:
-    gen_assign(node);
+    gen_addr(node->left);
+    gen(node->right);
+    store(node->type);
     break;
   case ND_FUNC_CALL:
     gen_func_call(node);
@@ -284,7 +241,10 @@ static void gen(Node *node) {
     load(node->type);
     break;
   case ND_STMT_EXPR:
-    gen_stmt_expr(node);
+    for (Node *cur = node->body; cur; cur = cur->next)
+      gen(cur);
+    if (node->type)  // type is not NULL if tail stmt is expr_stmt
+      printf("  sub $8, %%rsp\n");
     break;
 
   default:
@@ -377,7 +337,7 @@ static void epilogue(void) {
   printf("  ret\n");
 }
 
-void gen_function(Function *func) {
+static void gen_function(Function *func) {
   funcname = func->name;
   funcnamelen = func->namelen;
   printf("%.*s:\n", func->namelen, func->name);
@@ -389,7 +349,7 @@ void gen_function(Function *func) {
   epilogue();
 }
 
-void gen_func_names(Function *head) {
+static void gen_func_names(Function *head) {
   for (Function *current = head; current; current = current->next) {
     if (head != current)
       printf(", ");
@@ -398,6 +358,7 @@ void gen_func_names(Function *head) {
 }
 
 void code_generate() {
+  // data sectioon
   printf(".data\n");
   for (String *str = strings; str; str = str->next) {
     printf(".LC%d:\n", str->id);
@@ -409,6 +370,7 @@ void code_generate() {
     printf("  .zero %d\n", type_size(var->type));
   }
 
+  // text section
   printf(".text\n");
   printf(".globl "); gen_func_names(functions); printf("\n");
 
