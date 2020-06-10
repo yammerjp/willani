@@ -1,7 +1,6 @@
 #include "willani.h"
 
 static void load(Type *type);
-
 static void store(Type *type);
 static void gen_if(Node *node);
 static void gen_while(Node *node);
@@ -68,23 +67,23 @@ static void store(Type *type) {
 
 // load the address of node's variable to the stack top
 static void gen_addr(Node *node) {
-  if (node->kind == ND_GVAR) {
-    printf("  mov $%.*s, %%rax\n", node->var->length, node->var->name); // load the address of the actual value of (rbp - offset)
+  switch (node->kind) {
+  case ND_GVAR:
+    // load the address of the actual value of (rbp - offset) 
+    printf("  mov $%.*s, %%rax\n", node->var->length, node->var->name);
     printf("  pushq %%rax\n");         // pushq rbp - offset
     return;
-  }
-
-  if (node->kind == ND_LVAR) {
-    printf("  lea -%d(%%rbp), %%rax\n", node->var->offset); // load the address of the actual value of (rbp - offset)
+  case ND_LVAR:
+    // load the address of the actual value of (rbp - offset)
+    printf("  lea -%d(%%rbp), %%rax\n", node->var->offset);
     printf("  pushq %%rax\n");         // pushq rbp - offset
     return;
-  }
-
-  if (node->kind == ND_DEREF) {
+  case ND_DEREF:
     gen(node->left);
     return;
+  default:
+    error("Left side is expected a variable or *variable.");
   }
-  error("Left side is expected a variable or *variable.");
 }
 
 static void gen_if(Node *node) {
@@ -367,7 +366,7 @@ void code_generate() {
   for (String *str = strings; str; str = str->next) {
     printf(".LC%d:\n", str->id);
     for (int i=0; i < str->length; i++)
-      printf("  .byte %d\n", (str->p)[i]);
+      printf("  .byte 0x%x\n", (str->p)[i]);
   }
   for (Var *var = gvars; var; var = var->next) {
     printf("%.*s:\n", var->length, var->name);

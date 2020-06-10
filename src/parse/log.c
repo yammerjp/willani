@@ -65,7 +65,7 @@ void print_node(FILE *file, Node *node) {
 }
 
 static void parse_log_nodes(Node *node, int depth) {
-  if (node == NULL)
+  if (!node)
     return;
 
   fprintf(parse_logfile, "%*s",depth*2, "");
@@ -101,11 +101,11 @@ static void parse_vars(Var *vars, Var *args) {
 
 void parse_log() {
   var_logfile = fopen("var.log","w");
-  if (var_logfile == NULL)
+  if (!var_logfile)
     error("fail to open var.log");
 
   parse_logfile = fopen("parse.log","w");
-  if (parse_logfile == NULL)
+  if (!parse_logfile)
     error("fail to open parse.log");
 
   fprintf(var_logfile, ".global:\n");
