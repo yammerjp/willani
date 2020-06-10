@@ -22,7 +22,7 @@ void *new_var(Type *type, char *name, int length, Var **varsp) {
   var->next = vars;
   var->name = name;
   var->length = length;
-  var->offset = type_size(type) + already_reserved_offset;
+  var->offset = type->size + already_reserved_offset;
   var->referable = true;
 
   *varsp = var;

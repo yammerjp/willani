@@ -25,7 +25,7 @@ static void load(Type *type) {
     return;
 
   printf("  popq %%rax\n");          // load the stack top to rax
-  switch (type_size(type)) {
+  switch (type->size) {
   case 1:
     printf("  movzbl (%%rax), %%rax\n");   // load the actual value of rax to rax
     break;
@@ -49,7 +49,7 @@ static void store(Type *type) {
   printf("  popq %%rdi\n");          // load the stack top to rdi
   printf("  popq %%rax\n");          // load the stack top to rax
 
-  int size = type->kind == TYPE_ARRAY ? type_size_pointer : type_size(type);
+  int size = type->kind == TYPE_ARRAY ? type_size_pointer : type->size;
   switch (size) {
   case 1:
     printf("  movb %%dil, (%%rax)\n");   // copy rdi's value to the address pointed by rax
@@ -318,7 +318,7 @@ static void prologue(Function *func) {
 
   int i = func->argc;
   for (Var *arg = func->args; arg; arg = arg->next) {
-    switch (type_size(arg->type)) {
+    switch (arg->type->size) {
     case 1:
       printf("  movb %%%s, -%d(%%rbp)\n",  arg_regs1[--i], arg->offset);
       break;
@@ -371,7 +371,7 @@ void code_generate() {
   }
   for (Var *var = gvars; var; var = var->next) {
     printf("%.*s:\n", var->length, var->name);
-    printf("  .zero %d\n", type_size(var->type));
+    printf("  .zero %d\n", var->type->size);
   }
 
   // text section

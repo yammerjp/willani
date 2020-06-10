@@ -187,7 +187,7 @@ Node *sizeofunary(Token **rest, Token *token) {
   }
 
   *rest = token;
-  return new_node_num(type_size(type), op_token);
+  return new_node_num(type->size, op_token);
 }
 
 // primary    = num | primary_identifer | string | "(" expr ")" | "(" "{" stmt+ "}" ")"

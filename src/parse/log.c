@@ -21,7 +21,7 @@ static void print_type(FILE *file, Type *type) {
     fprintf(file, "*");
     return;
   case TYPE_ARRAY:
-    fprintf(file, "[%d]", type_size(type) / type_size(type->ptr_to));
+    fprintf(file, "[%d]", type->size / type->ptr_to->size);
     return;
   default : error("unexpected Type.kind");
   }
@@ -87,7 +87,7 @@ static void parse_log_nodes(Node *node, int depth) {
 
 static void parse_vars(Var *vars, Var *args) {
   for( Var *cur = vars; cur; cur = cur->next) {
-    fprintf(var_logfile, "  size:%3d", type_size(cur->type));
+    fprintf(var_logfile, "  size:%3d", cur->type->size);
     fprintf(var_logfile, ", offset:%3d", cur->offset);
     fprintf(var_logfile, ", name: %.*s ", cur->length, cur->name);
 

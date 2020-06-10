@@ -65,6 +65,7 @@ typedef enum {
 typedef struct Type Type;
 struct Type {
   TypeKind kind;
+  int size;
   Type *ptr_to;     // Used if kind is TYPE_PTR
   int array_length; // Used if kind is TYPE_ARRAY
 };
@@ -74,7 +75,6 @@ Type *new_type_int();
 Type *new_type_char();
 Type *new_type_pointer(Type *parent);
 Type *new_type_array(Type *parent, int length);
-int type_size(Type *type);
 Type *read_type_tokens(Token **rest, Token *token);
 Type *read_type_tokens_with_pars(Token **rest, Token *token);
 Type *type_conversion(Type *left, Type *right);

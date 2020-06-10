@@ -1,26 +1,32 @@
 #include "willani.h"
 
+const int type_size_pointer = 8;
+
 Type *new_type_long() {
   Type *type = calloc(1, sizeof(Type));
   type->kind = TYPE_LONG;
+  type->size = 8;
   return type;
 }
 
 Type *new_type_int() {
   Type *type = calloc(1, sizeof(Type));
   type->kind = TYPE_INT;
+  type->size = 4;
   return type;
 }
 
 Type *new_type_char() {
   Type *type = calloc(1, sizeof(Type));
   type->kind = TYPE_CHAR;
+  type->size = 1;
   return type;
 }
 
 Type *new_type_pointer(Type *parent) {
   Type *type = calloc(1, sizeof(Type));
   type->kind = TYPE_PTR;
+  type->size = type_size_pointer;
   type->ptr_to = parent;
   return type;
 }
@@ -28,28 +34,10 @@ Type *new_type_pointer(Type *parent) {
 Type *new_type_array(Type *parent, int length) {
   Type *type = calloc(1, sizeof(Type));
   type->kind = TYPE_ARRAY;
+  type->size = length * parent->size;
   type->ptr_to = parent;
   type->array_length  = length;
   return type;
-}
-
-const int type_size_pointer = 8;
-
-int type_size(Type *type) {
-  switch (type->kind) {
-    case TYPE_LONG:
-      return 8;
-    case TYPE_INT:
-      return 4;
-    case TYPE_CHAR:
-      return 1;
-    case TYPE_PTR:
-      return type_size_pointer;
-    case TYPE_ARRAY:
-      return type->array_length * type_size(type->ptr_to);
-    default:
-      error("unknown type size");
-  }
 }
 
 Type *read_type_tokens(Token **rest, Token *token) {
@@ -103,7 +91,7 @@ Type *type_conversion(Type *left, Type *right) {
   if (right->kind == TYPE_PTR || right->kind == TYPE_ARRAY)
     return right;
 
-  if (type_size(left) >= type_size(right))
+  if (left->size >= right->size)
     return left;
 
   return right;
