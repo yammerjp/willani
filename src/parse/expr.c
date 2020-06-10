@@ -194,6 +194,7 @@ static Node *postfix(Token **rest, Token *token, Node *primary_node) {
 // primary    = num
 //            | "true"
 //            | "false"
+//            | ' ... '
 //            | primary_identifer
 //            | string
 //            | "(" expr ")"
@@ -222,6 +223,16 @@ Node *primary(Token **rest, Token *token) {
   if (equal(token, "false")) {
     node = new_node_num(0, token);
     node->type = new_type_bool();
+    token = token->next;
+    *rest = token;
+    return node;
+  }
+
+  // ' ... '
+  if (is_char_token(token)) {
+    char c = (token->length == 3) ? *(token->location+1) : get_escape_char(*(token->location+2));
+    node = new_node_num(c, token);
+    node->type = new_type_char();
     token = token->next;
     *rest = token;
     return node;

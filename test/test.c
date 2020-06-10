@@ -213,6 +213,12 @@ int main() {
   assert("false", false, false);
   assert("({ bool boolean = true; boolean;})", ({ bool boolean = true; boolean; }), true);
 
+  assert("'c'", 'c', 'c');
+  assert("'&'", '&', '&');
+  assert("'\\''", '\'', '\'');
+  assert("'\\\\'", '\\', '\\');
+  assert("'\\n'", '\n', '\n');
+
   printf("\nOK\n");
   return 0;
 }

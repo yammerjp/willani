@@ -27,7 +27,8 @@ extern String *strings;
 typedef enum {
   TK_RESERVED,  // Keywords or punctuators
   TK_IDENT,     // Identifers
-  TK_STRING,     // "..."
+  TK_STRING,    // "..."
+  TK_CHAR,      // '.'
   TK_NUM,       // Numeric literals
   TK_EOF,       // End-of-file markers
 } TokenKind;
@@ -42,6 +43,7 @@ struct Token {
 
 bool is_number_token(Token *token);
 bool is_identifer_token(Token *token);
+bool is_char_token(Token *token);
 bool is_string_token(Token *token);
 bool is_eof_token(Token *token);
 bool equal(Token *token, char *str);

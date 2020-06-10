@@ -6,6 +6,7 @@
 
 //======================================
 // strings.c
+char get_escape_char(char c);
 String *new_string(char *p, int length);
 
 

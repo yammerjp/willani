@@ -9,6 +9,7 @@ static char *token_kind_str(Token *token) {
     case TK_IDENT:    return("TK_INDENT  ");
     case TK_NUM:      return("TK_NUM     ");
     case TK_STRING:   return("TK_STRING  ");
+    case TK_CHAR:     return("TK_CHAR    ");
     case TK_EOF:      return("TK_EOF     ");
     default : error("unexpected token->kind");
   }
@@ -56,6 +57,10 @@ bool is_number_token(Token *token) {
 
 bool is_string_token(Token *token) {
   return token->kind == TK_STRING;
+}
+
+bool is_char_token(Token *token) {
+  return token->kind == TK_CHAR;
 }
 
 bool is_eof_token(Token *token) {
@@ -148,6 +153,16 @@ static int reserved_token_length(char *p) {
   return 0;
 }
 
+static int char_token_length(char *p) {
+  if (p[0] != '\'')
+    return 0;
+
+  int length =  (p[1] == '\\') ? 4 : 3;
+  if (p[length-1] !='\'')
+    error("quote is invalid");
+  return length;
+}
+
 static int string_token_length(char *p) {
   if (*p != '"')
     return 0;
@@ -232,6 +247,13 @@ Token *tokenize(char *p) {
     if (ilen > 0) {
       current = new_token(TK_IDENT, current, p, ilen);
       p += ilen;
+      continue;
+    }
+
+    int clen = char_token_length(p);
+    if (clen > 0) {
+      current = new_token(TK_CHAR, current, p, clen);
+      p += clen;
       continue;
     }
 

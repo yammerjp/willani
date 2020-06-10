@@ -2,7 +2,7 @@
 
 String *strings;
 
-static char get_escape_char(char c) {
+char get_escape_char(char c) {
   switch (c) {
   case 'a': return '\a';
   case 'b': return '\b';
