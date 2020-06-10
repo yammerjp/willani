@@ -23,6 +23,13 @@ Type *new_type_char() {
   return type;
 }
 
+Type *new_type_bool() {
+  Type *type = calloc(1, sizeof(Type));
+  type->kind = TYPE_BOOL;
+  type->size = 1;
+  return type;
+}
+
 Type *new_type_pointer(Type *parent) {
   Type *type = calloc(1, sizeof(Type));
   type->kind = TYPE_PTR;
@@ -48,6 +55,8 @@ Type *read_type(Token **rest, Token *token) {
     type = new_type_int();
   else if(equal(token, "char"))
     type = new_type_char();
+  else if(equal(token, "bool"))
+    type = new_type_bool();
   else
     return NULL;
 

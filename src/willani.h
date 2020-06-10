@@ -58,6 +58,7 @@ typedef enum {
   TYPE_LONG,
   TYPE_INT,
   TYPE_CHAR,
+  TYPE_BOOL,
   TYPE_PTR,
   TYPE_ARRAY,
 } TypeKind;
@@ -73,6 +74,7 @@ struct Type {
 Type *new_type_long();
 Type *new_type_int();
 Type *new_type_char();
+Type *new_type_bool();
 Type *new_type_pointer(Type *parent);
 Type *new_type_array(Type *parent, int length);
 Type *read_type(Token **rest, Token *token);

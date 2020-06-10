@@ -208,6 +208,11 @@ int main() {
   assert("int ret10(){ int i = 0; for (;;) { if (i<10) i = i + 1; else return i; } }", ret10() , 10);
 
   assert("sizeof(\"abc\")", sizeof("abc") , 4);
+
+  assert("true", true, true);
+  assert("false", false, false);
+  assert("({ bool boolean = true; boolean;})", ({ bool boolean = true; boolean; }), true);
+
   printf("\nOK\n");
   return 0;
 }
