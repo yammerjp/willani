@@ -9,7 +9,7 @@ void *program(Token *token) {
   while (!is_eof_token(token)) {
 
     // type
-    Type *type = read_type_tokens(&token, token);
+    Type *type = read_type(&token, token);
     if (!type)
       error_at(token, "unexpected type");
 

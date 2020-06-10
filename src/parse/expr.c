@@ -179,10 +179,23 @@ Node *sizeofunary(Token **rest, Token *token) {
 
   token = op_token->next;
 
-  Type *type = read_type_tokens_with_pars(&token, token);
 
-  if (!type) {
-    Node *measuring_node = unary(&token, token);
+  int pars = 0;
+  while (equal(token, "(")) {
+    token = token->next;
+    pars++;
+  }
+
+  Type *type = read_type(&token, token);
+
+  if (type) {
+    for (int i=0; i<pars; i++) {
+      if (!equal(token, ")"))
+        error_at(token, "expected )");
+      token = token->next;
+    }
+  } else {
+    Node *measuring_node = unary(&token, op_token->next);
     type = measuring_node->type;
   }
 

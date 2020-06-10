@@ -41,7 +41,7 @@ Node *block_stmt(Token **rest, Token *token, Var *outer_scope_lvars) {
 Node *stmt(Token **rest, Token *token, Var *outer_scope_lvars) {
   Node *node;
 
-  Type *type = read_type_tokens(&token, token); // Proceed token if only token means type
+  Type *type = read_type(&token, token); // Proceed token if only token means type
   if (type)
     node = declare_lvar_stmt(&token, token, type, outer_scope_lvars);
   else
@@ -52,7 +52,7 @@ Node *stmt(Token **rest, Token *token, Var *outer_scope_lvars) {
 }
 
 Node *stmt_without_declaration(Token **rest, Token *token, Var *outer_scope_lvars) {
-  if (read_type_tokens(&token, token))
+  if (read_type(&token, token))
     error_at(token, "declaration statement is invalid here");
 
   Node *node;
@@ -149,7 +149,7 @@ Node *for_stmt(Token **rest, Token *token) {
   // expr? ";"
   Node *init = NULL;
   if (!equal(token, ";")) {
-    Type *type = read_type_tokens(&token, token);
+    Type *type = read_type(&token, token);
     if (type) {
       init = declare_lvar_stmt(&token, token, type, outer_scope_lvars);
     } else {

@@ -40,7 +40,7 @@ Type *new_type_array(Type *parent, int length) {
   return type;
 }
 
-Type *read_type_tokens(Token **rest, Token *token) {
+Type *read_type(Token **rest, Token *token) {
   Type *type;
   if(equal(token, "long"))
     type = new_type_long();
@@ -55,27 +55,6 @@ Type *read_type_tokens(Token **rest, Token *token) {
 
   while (equal(token, "*")) {
     type = new_type_pointer(type);
-    token = token->next;
-  }
-
-  *rest = token;
-  return type;
-}
-
-Type *read_type_tokens_with_pars(Token **rest, Token *token) {
-  int pars = 0;
-  while (equal(token, "(")) {
-    token = token->next;
-    pars++;
-  }
-
-  Type *type = read_type_tokens(&token, token);
-  if (!type)
-    return NULL;
-
-  for (int i=0; i<pars; i++) {
-    if (!equal(token, ")"))
-      error_at(token, "expected )");
     token = token->next;
   }
 
