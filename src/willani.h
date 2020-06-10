@@ -66,7 +66,7 @@ typedef struct Type Type;
 struct Type {
   TypeKind kind;
   int size;
-  Type *ptr_to;     // Used if kind is TYPE_PTR
+  Type *base;     // Used if kind is TYPE_PTR
   int array_length; // Used if kind is TYPE_ARRAY
 };
 

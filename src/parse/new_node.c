@@ -16,17 +16,17 @@ static bool type_is_pointer_or_array(Node *node) {
 
 Node *new_node_add(Node *left, Node *right, Token *token) {
   if (type_is_pointer_or_array(left))
-    right = new_node_mul(right, new_node_num( left->type->ptr_to->size, left->token ), right->token);
+    right = new_node_mul(right, new_node_num( left->type->base->size, left->token ), right->token);
   else if (type_is_pointer_or_array(right))
-    left = new_node_mul(left, new_node_num( right->type->ptr_to->size, right->token ), left->token);
+    left = new_node_mul(left, new_node_num( right->type->base->size, right->token ), left->token);
   return new_node_op2(ND_ADD, left, right, token);
 }
 
 Node *new_node_sub(Node *left, Node *right, Token *token) {
   if (type_is_pointer_or_array(left))
-    right = new_node_mul(right, new_node_num( left->type->ptr_to->size, left->token ), right->token);
+    right = new_node_mul(right, new_node_num( left->type->base->size, left->token ), right->token);
   else if (type_is_pointer_or_array(right))
-    left = new_node_mul(left, new_node_num( right->type->ptr_to->size, right->token ), left->token);
+    left = new_node_mul(left, new_node_num( right->type->base->size, right->token ), left->token);
   return new_node_op2(ND_SUB, left, right, token);
 }
 
@@ -187,7 +187,7 @@ Node *new_node_deref(Node *unary_node, Token *token) {
   Node *node = calloc(1, sizeof(Node));
   node->kind = ND_DEREF;
   node->left = unary_node;
-  node->type = unary_node->type->ptr_to;
+  node->type = unary_node->type->base;
   node->token = token;
   return node;
 }

@@ -4,8 +4,8 @@ FILE *var_logfile;
 FILE *parse_logfile;
 
 static void print_type(FILE *file, Type *type) {
-  if (type->ptr_to)
-    print_type(file, type->ptr_to);
+  if (type->base)
+    print_type(file, type->base);
 
   switch (type->kind) {
   case TYPE_LONG:
@@ -21,7 +21,7 @@ static void print_type(FILE *file, Type *type) {
     fprintf(file, "*");
     return;
   case TYPE_ARRAY:
-    fprintf(file, "[%d]", type->size / type->ptr_to->size);
+    fprintf(file, "[%d]", type->size / type->base->size);
     return;
   default : error("unexpected Type.kind");
   }

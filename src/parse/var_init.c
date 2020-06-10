@@ -11,7 +11,7 @@ static int var_array_length(ArrayIndexes *indexes) {
   Type *type = lvars->type;
   while(indexes) {
     indexes = indexes->parent;
-    type = type->ptr_to;
+    type = type->base;
   }
   return type->array_length;
 }
@@ -35,7 +35,7 @@ static Node *new_node_zero_padding_array(ArrayIndexes *descendant, Token *token)
   Type *type = lvars->type;
   while(indexes) {
     indexes = indexes->parent;
-    type = type->ptr_to;
+    type = type->base;
     if (!type)
       error("too deep initializer of array");
   }

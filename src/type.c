@@ -27,7 +27,7 @@ Type *new_type_pointer(Type *parent) {
   Type *type = calloc(1, sizeof(Type));
   type->kind = TYPE_PTR;
   type->size = type_size_pointer;
-  type->ptr_to = parent;
+  type->base = parent;
   return type;
 }
 
@@ -35,7 +35,7 @@ Type *new_type_array(Type *parent, int length) {
   Type *type = calloc(1, sizeof(Type));
   type->kind = TYPE_ARRAY;
   type->size = length * parent->size;
-  type->ptr_to = parent;
+  type->base = parent;
   type->array_length  = length;
   return type;
 }
@@ -105,7 +105,7 @@ bool cmp_type(Type *t1, Type *t2) {
     return false;
 
   if (t1->kind == TYPE_ARRAY || t1->kind == TYPE_PTR)
-    return cmp_type(t1->ptr_to, t2->ptr_to);
+    return cmp_type(t1->base, t2->base);
 
   return true;
 }
