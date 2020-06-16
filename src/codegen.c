@@ -157,6 +157,9 @@ static void gen_func_call(Node *node) {
     gen(cur);
     argc++;
   }
+  if (argc > 6)
+    error_at(node->token, "unsupport calling function with over 6 argoments");
+
   while (argc>0)
     printf("  popq  %%%s\n", arg_regs8[--argc]);
 

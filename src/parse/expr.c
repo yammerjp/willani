@@ -205,8 +205,7 @@ Node *primary(Token **rest, Token *token) {
   // num
   if (is_number_token(token)) {
     node = new_node_num(strtol(token->location, NULL, 10), token);
-    token = token->next;
-    *rest = token;
+    *rest = token->next;
     return node;
   }
 
@@ -214,8 +213,7 @@ Node *primary(Token **rest, Token *token) {
   if (equal(token, "true")) {
     node = new_node_num(1, token);
     node->type = new_type_bool();
-    token = token->next;
-    *rest = token;
+    *rest = token->next;
     return node;
   }
 
@@ -223,8 +221,7 @@ Node *primary(Token **rest, Token *token) {
   if (equal(token, "false")) {
     node = new_node_num(0, token);
     node->type = new_type_bool();
-    token = token->next;
-    *rest = token;
+    *rest = token->next;
     return node;
   }
 
@@ -233,16 +230,14 @@ Node *primary(Token **rest, Token *token) {
     char c = (token->length == 3) ? *(token->location+1) : get_escape_char(*(token->location+2));
     node = new_node_num(c, token);
     node->type = new_type_char();
-    token = token->next;
-    *rest = token;
+    *rest = token->next;
     return node;
   }
 
   // string
   if (is_string_token(token)) {
     node = new_node_string(token);
-    token = token->next;
-    *rest = token;
+    *rest = token->next;
     return node;
   }
 
@@ -255,15 +250,12 @@ Node *primary(Token **rest, Token *token) {
       return node;
     }
 
-    token = token->next;
-
-    node = expr(&token, token);
+    node = expr(&token, token->next);
 
     if (!equal(token,")"))
       error_at(token, "expected )");
-    token = token->next;
 
-    *rest = token;
+    *rest = token->next;
     return node;
   }
 
@@ -274,7 +266,45 @@ Node *primary(Token **rest, Token *token) {
     return node;
   }
 
-  error_at(token, "expected (");
+  error_at(token, "expected primary");
+}
+
+// primary_identifer = ident ( "(" ")" )?
+Node *primary_identifer(Token **rest, Token *token) {
+  // identifer
+  Token *ident_token = token;
+  if (!is_identifer_token(ident_token))
+    error_at(ident_token, "expected identifer");
+
+  char *name = ident_token->location;
+  int namelen = ident_token->length;
+  token = ident_token->next;
+
+  if (!equal(token, "(")) {
+    *rest = token;
+    return new_node_var(name,namelen, ident_token);
+  }
+
+  // "(" ... ")"
+  token = token->next;
+
+  Node args_head = {};
+  Node *args_tail = &args_head;
+
+  while(!equal(token, ")")) {
+    args_tail->next = expr(&token, token);
+    args_tail = args_tail->next;
+
+    if (!equal(token, ","))
+      break;
+    token = token->next;
+  }
+
+  if (!equal(token, ")"))
+    error_at(token, "expected )");
+
+  *rest = token->next;
+  return new_node_func_call(name, namelen, args_head.next, ident_token);
 }
 
 Node *stmt_expr(Token **rest, Token *token) {
@@ -293,55 +323,6 @@ Node *stmt_expr(Token **rest, Token *token) {
   if (!equal(token, ")"))
     error_at(token, "expected )");
   token = token->next;
-
-  *rest = token;
-  return node;
-}
-
-// primary_identifer = ident ( "(" ")" )?
-Node *primary_identifer(Token **rest, Token *token) {
-  Node *node;
-
-  // identifer
-  Token *ident_token = token;
-  if (!is_identifer_token(ident_token))
-    error_at(ident_token, "expected identifer");
-
-  char *name = ident_token->location;
-  int length = ident_token->length;
-  token = ident_token->next;
-
-  if (!equal(token, "(")) {
-    node = new_node_var(name,length, ident_token);
-    *rest = token;
-    return node;
-  }
-
-  // "(" ... ")"
-  token = token->next;
-
-  Node args_head = {};
-  Node *args_tail = &args_head;
-
-  for(int i=0;i<6;i++) {
-    if (equal(token, ")"))
-      break;
-
-    args_tail->next = expr(&token, token);
-    args_tail = args_tail->next;
-
-    if (!equal(token, ","))
-      break;
-    token = token->next;
-  }
-
-  if (!equal(token, ")"))
-    error_at(token, "expected )");
-  token = token->next;
-
-  node = new_node_func_call(name, length, args_head.next, ident_token);
-  if (!node)
-    error_at(token, "called undefined function");
 
   *rest = token;
   return node;

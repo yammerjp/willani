@@ -153,7 +153,7 @@ Node *new_node_block(Node *body, Token *token) {
 Node *new_node_func_call(char *name, int len, Node *args, Token *token) {
   Function *func = find_function(name, len);
   if (!func)
-    return NULL;
+    error_at(token, "called undefined function");
 
   Node *node = calloc(1, sizeof(Node));
   node->kind = ND_FUNC_CALL;
