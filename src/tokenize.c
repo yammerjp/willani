@@ -107,7 +107,7 @@ static int identifer_token_length(char *p) {
 }
 
 static int reserved_token_length(char *p) {
-  char tokens[][7] = {
+  char reserved_words[][7] = {
     "return",
     "sizeof",
     "while",
@@ -141,8 +141,9 @@ static int reserved_token_length(char *p) {
     "[",
     "]"
   };
-  for (int i=0; i<sizeof(tokens); i++) {
-    char *str = tokens[i];
+  int words_length = sizeof(reserved_words)/sizeof(*reserved_words);
+  for (int i=0; i < words_length; i++) {
+    char *str = reserved_words[i];
     int len = strlen(str);
     if ( strncmp(p, str, len) != 0 )
       continue;
