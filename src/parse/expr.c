@@ -238,13 +238,6 @@ Node *primary(Token **rest, Token *token) {
     return node;
   }
 
-  // primary_identifer
-  if (is_identifer_token(token)) {
-    node = primary_identifer(&token, token);
-    *rest = token;
-    return node;
-  }
-
   // string
   if (is_string_token(token)) {
     node = new_node_string(token);
@@ -273,6 +266,14 @@ Node *primary(Token **rest, Token *token) {
     *rest = token;
     return node;
   }
+
+  // primary_identifer
+  if (is_identifer_token(token)) {
+    node = primary_identifer(&token, token);
+    *rest = token;
+    return node;
+  }
+
   error_at(token, "expected (");
 }
 
