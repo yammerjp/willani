@@ -254,26 +254,26 @@ Node *primary(Token **rest, Token *token) {
   }
 
   // "(" expr ")"  | "(" "{" stmt+ "}" ")"
-  if (!equal(token,"("))
-    error_at(token, "expected (");
+  if (equal(token,"(")) {
+    if (equal(token->next, "{")) {
+      // stmt_expr
+      node = stmt_expr(&token, token);
+      *rest = token;
+      return node;
+    }
 
-  if (equal(token->next, "{")) {
-    // stmt_expr
-    node = stmt_expr(&token, token);
+    token = token->next;
+
+    node = expr(&token, token);
+
+    if (!equal(token,")"))
+      error_at(token, "expected )");
+    token = token->next;
+
     *rest = token;
     return node;
   }
-
-  token = token->next;
-
-  node = expr(&token, token);
-
-  if (!equal(token,")"))
-    error_at(token, "expected )");
-  token = token->next;
-
-  *rest = token;
-  return node;
+  error_at(token, "expected (");
 }
 
 Node *stmt_expr(Token **rest, Token *token) {
