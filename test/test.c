@@ -209,9 +209,8 @@ int main() {
 
   assert("sizeof(\"abc\")", sizeof("abc") , 4);
 
-  assert("true", true, true);
-  assert("false", false, false);
-  assert("({ bool boolean = true; boolean;})", ({ bool boolean = true; boolean; }), true);
+  assert("({ bool boolean = 1; boolean;})", ({ bool boolean = 1; boolean; }), 1==1);
+  assert("({ bool boolean = 0; boolean;})", ({ bool boolean = 0; boolean; }), 1==0);
 
   assert("'c'", 'c', 'c');
   assert("'&'", '&', '&');
