@@ -81,6 +81,12 @@ static void gen_addr(Node *node) {
   case ND_DEREF:
     gen(node->left);
     return;
+  case ND_MEMBER:
+    gen_addr(node->left);
+    printf("  pop %%rax\n");
+    printf("  add $%d, %%rax\n", node->member->offset);
+    printf("  push %%rax\n");
+    return;
   default:
     error("Left side is expected a variable or *variable.");
   }
@@ -224,6 +230,7 @@ static void gen(Node *node) {
     break;
   case ND_GVAR:
   case ND_LVAR:
+  case ND_MEMBER:
     gen_addr(node);
     load(node->type);
     break;

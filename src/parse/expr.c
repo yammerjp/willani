@@ -113,7 +113,7 @@ static Node *postfix(Token **rest, Token *token, Node *primary_node);
 //       | "sizeof" unary
 //       | "*" unary
 //       | "&" unary
-//       | primary ("[" expr "]")*
+//       | primary postfix
 Node *unary(Token **rest, Token *token) {
   Node *node;
   Token *op_token = token;
@@ -172,7 +172,7 @@ Node *sizeofunary(Token **rest, Token *token) {
 static Node *postfix(Token **rest, Token *token, Node *primary_node) {
   Node *node = primary_node;
 
-  // ("[" expr "]")*
+  // ( "[" expr "]" | "." identifer )*
   for (;;) {
     if (equal(token, "[")) {
       Token *bracket_token = token;
@@ -183,6 +183,18 @@ static Node *postfix(Token **rest, Token *token, Node *primary_node) {
       if (!equal(token, "]")) {
         error_at(token, "expected ]");
       }
+      token = token->next;
+      continue;
+    }
+    if (equal(token, ".")) {
+      token = token->next;
+      if (!is_identifer_token(token))
+        error_at(token, "expected identifer");
+      char *name = token->location;
+      int namelen = token->length;
+
+      node = new_node_member(node, name, namelen, token);
+
       token = token->next;
       continue;
     }

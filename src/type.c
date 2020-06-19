@@ -47,20 +47,82 @@ Type *new_type_array(Type *parent, int length) {
   return type;
 }
 
+Type *new_type_struct(Token **rest, Token *token) {
+  if (!equal(token, "{"))
+    error_at(token, "expected {");
+  token = token->next;
+
+  Member head;
+  Member *tail = &head;
+  int offset = 0;
+  while (!equal(token, "}")) {
+    tail->next = read_member(&token, token, offset);
+    tail = tail->next;
+    offset += tail->type->size;
+  }
+  token = token->next;
+
+  Type *type = calloc(1, sizeof(Type));
+  type->kind = TYPE_STRUCT;
+  type->size = offset;
+  type->members = head.next;
+
+  *rest = token;
+  return type;
+}
+
+Member *read_member(Token **rest, Token *token, int offset) {
+  Type *type = read_type(&token, token);
+
+  if (!is_identifer_token(token))
+    error_at(token, "expected identifer");
+  char *name = token->location;
+  int namelen = token->length;
+  token = token->next;
+
+  type = type_suffix(&token, token, type);
+
+  if (!equal(token, ";"))
+    error_at(token, "expected ;");
+  token = token->next;
+
+  Member *member = calloc(1, sizeof(Member));
+  member->name = name;
+  member->namelen = namelen;
+  member->type = type;
+  member->offset = offset;
+
+  *rest = token;
+  return member;
+}
+
+Member *find_member(Type *type, char *name, int namelen) {
+  for (Member *cur = type->members; cur; cur = cur->next) {
+    if (cur->namelen == namelen && strncmp(cur->name, name, namelen) == 0)
+      return cur;
+  }
+  return NULL;
+}
+
 Type *read_type(Token **rest, Token *token) {
   Type *type;
-  if(equal(token, "long"))
+  if(equal(token, "long")) {
     type = new_type_long();
-  else if(equal(token, "int"))
+    token = token->next;
+  } else if(equal(token, "int")) {
     type = new_type_int();
-  else if(equal(token, "char"))
+    token = token->next;
+  } else if(equal(token, "char")) {
     type = new_type_char();
-  else if(equal(token, "bool"))
+    token = token->next;
+  } else if(equal(token, "bool")) {
     type = new_type_bool();
-  else
+    token = token->next;
+  } else if(equal(token, "struct")) {
+    type = new_type_struct(&token, token->next);
+  } else {
     return NULL;
-
-  token = token->next;
+  }
 
   while (equal(token, "*")) {
     type = new_type_pointer(type);

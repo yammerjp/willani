@@ -23,6 +23,9 @@ static void print_type(FILE *file, Type *type) {
   case TYPE_PTR:
     fprintf(file, "*");
     return;
+  case TYPE_STRUCT:
+    fprintf(file, "struct");
+    return;
   case TYPE_ARRAY:
     fprintf(file, "[%d]", type->size / type->base->size);
     return;
@@ -47,6 +50,7 @@ void print_node(FILE *file, Node *node) {
     case ND_STRING:       fprintf(file, "%.*s",node->token->length, node->token->location); break;
     case ND_ADDR:         fprintf(file, "&"); break;
     case ND_DEREF:        fprintf(file, "*"); break;
+    case ND_MEMBER:       fprintf(file, ".%.*s", node->member->namelen, node->member->name); break;
     case ND_RETURN:       fprintf(file, "return"); break;
     case ND_IF:           fprintf(file, "if"); break;
     case ND_WHILE:        fprintf(file, "while"); break;
@@ -87,18 +91,32 @@ static void parse_log_nodes(Node *node, int depth) {
   parse_log_nodes(node->func_args, depth+1);
 }
 
+static void parse_var_line(int depth, int size, int offset, int namelen, char *name, bool is_arg) {
+  fprintf(var_logfile, "%*s", (depth+1)*2, "");
+  fprintf(var_logfile, "size:%3d", size);
+  fprintf(var_logfile, ", offset:%3d", offset);
+  fprintf(var_logfile, ", name: %.*s ", namelen, name);
+  fprintf(var_logfile, is_arg ? " (argument)" : "" );
+  fprintf(var_logfile, "\n");
+}
+
+static void parse_members(Member *members, int depth) {
+  if (!members)
+    return;
+  for (Member *cur = members; cur; cur = cur->next) {
+    parse_var_line(depth+1, cur->type->size, - cur->offset, cur->namelen, cur->name, false);
+    parse_members(cur->type->members, depth+1);
+  }
+}
 
 static void parse_vars(Var *vars, Var *args) {
-  for( Var *cur = vars; cur; cur = cur->next) {
-    fprintf(var_logfile, "  size:%3d", cur->type->size);
-    fprintf(var_logfile, ", offset:%3d", cur->offset);
-    fprintf(var_logfile, ", name: %.*s ", cur->length, cur->name);
+  for (Var *cur = vars; cur; cur = cur->next) {
+    parse_var_line(0, cur->type->size, cur->offset, cur->length, cur->name, cur==args);
 
-    if (cur == args) {
-      fprintf(var_logfile, " (argument)");
+    if (cur==args)
       args = cur->next;
-    }
-    fprintf(var_logfile, "\n");
+
+    parse_members(cur->type->members, 0);
   }
 }
 

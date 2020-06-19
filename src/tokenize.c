@@ -108,6 +108,7 @@ static int identifer_token_length(char *p) {
 
 static int reserved_token_length(char *p) {
   char reserved_words[][7] = {
+    "struct",
     "return",
     "sizeof",
     "while",
@@ -137,7 +138,8 @@ static int reserved_token_length(char *p) {
     ",",
     "&",
     "[",
-    "]"
+    "]",
+    ".",
   };
   int words_length = sizeof(reserved_words)/sizeof(*reserved_words);
   for (int i=0; i < words_length; i++) {

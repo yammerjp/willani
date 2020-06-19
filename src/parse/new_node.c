@@ -104,6 +104,20 @@ Node *new_node_var(char *name, int length, Token *token) {
   error("use undeclared identifer '%.*s'", length, name);
 }
 
+Node *new_node_member(Node *parent, char *name, int namelen,  Token *token) {
+  Member *member = find_member(parent->type, name, namelen);
+  if (!member)
+    error_at(token, "refered undefined member of struct");
+  
+  Node *node = calloc(1, sizeof(Node));
+  node->kind = ND_MEMBER;
+  node->left = parent;
+  node->type = member->type;
+  node->member = member;
+  node->token = token;
+  return node;
+}
+
 Node *new_node_return(Node *left, Token *token) {
   Node *node = calloc(1, sizeof(Node));
   node->kind = ND_RETURN;

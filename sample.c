@@ -1,6 +1,14 @@
 int printf();
 
 int main() {
-  printf("hello,world!\n");
-  return 1;
+  struct {
+    int b;
+    char c;
+  } x;
+  x.b=2;
+  x.c=3;
+
+  int p = x.b;
+  printf("%d\n", p);
+  return 0;
 }

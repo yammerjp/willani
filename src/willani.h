@@ -8,6 +8,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+typedef struct Type Type;
 
 //======================================
 // parse/strings.c
@@ -20,6 +21,14 @@ struct String {
 };
 extern String *strings;
 
+typedef struct Member Member;
+struct Member {
+  Member *next;
+  Type *type;
+  char *name;
+  int namelen;
+  int offset;  // offset from the memory address of parent
+};
 
 //======================================
 // tokenize.c
@@ -29,6 +38,7 @@ typedef enum {
   TK_IDENT,     // Identifers
   TK_STRING,    // "..."
   TK_CHAR,      // '.'
+  TK_STRUCT,    // struct
   TK_NUM,       // Numeric literals
   TK_EOF,       // End-of-file markers
 } TokenKind;
@@ -63,14 +73,15 @@ typedef enum {
   TYPE_BOOL,
   TYPE_PTR,
   TYPE_ARRAY,
+  TYPE_STRUCT,
 } TypeKind;
 
-typedef struct Type Type;
 struct Type {
   TypeKind kind;
   int size;
-  Type *base;     // Used if kind is TYPE_PTR
+  Type *base;       // Used if kind is TYPE_PTR
   int array_length; // Used if kind is TYPE_ARRAY
+  Member *members;   // Used if kind is TYPE_STRUCT
 };
 
 Type *new_type_long();
@@ -79,7 +90,10 @@ Type *new_type_char();
 Type *new_type_bool();
 Type *new_type_pointer(Type *parent);
 Type *new_type_array(Type *parent, int length);
+Type *new_type_struct(Token **rest, Token *token);
 Type *read_type(Token **rest, Token *token);
+Member *read_member(Token **rest, Token *token, int offset);
+Member *find_member(Type *type, char *name, int namelen);
 Type *type_conversion(Type *left, Type *right);
 bool cmp_type(Type *t1, Type *t2);
 extern const int type_size_pointer;
@@ -113,6 +127,7 @@ typedef enum {
   ND_FUNC_CALL,   // Function call
   ND_ADDR,        // & ...
   ND_DEREF,       // * ...
+  ND_MEMBER,      // struct member access
   ND_BLOCK,       // { ... }
   ND_IF,          // if
   ND_WHILE,       // while
@@ -132,6 +147,7 @@ struct Node {
   long value;       // Used if kind == ND_NUM
   String *string;   // Used if kind == ND_STRING
   Var *var;         // Used if kind is ND_GVAR or ND_LVAR
+  Member *member;   // Used if kind is ND_MEMBER (struct member access)
 
   char *func_name;  // Used if kind == ND_FUNC_CALL
   int func_namelen; // Used if kind == ND_FUNC_CALL
@@ -173,6 +189,12 @@ extern Var *lvars;
 //======================================
 // parse/log.c
 void print_node(FILE *file, Node *node);
+
+
+
+//======================================
+// parse/new_node.c
+Type *type_suffix(Token **rest, Token *token, Type *ancestor);
 
 
 //======================================

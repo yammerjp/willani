@@ -19,7 +19,6 @@ void *new_gvar(Type *type, char *name, int length);
 
 //======================================
 // new_node.c
-Type *type_suffix(Token **rest, Token *token, Type *ancestor);
 
 Node *new_node_add(Node *left, Node *right, Token *token);
 Node *new_node_sub(Node *left, Node *right, Token *token);
@@ -32,6 +31,7 @@ Node *new_node_less_equal(Node *left, Node *right, Token *token);
 Node *new_node_num(long value, Token *token);
 Node *new_node_string(Token *token);
 Node *new_node_var(char *name, int length, Token *token);
+Node *new_node_member(Node *parent, char *name, int namelen,  Token *token);
 Node *new_node_return(Node *left, Token *token);
 Node *new_node_if(Node *cond, Node *then, Node *els, Token *token);
 Node *new_node_while(Node *cond, Node *then, Token *token);
