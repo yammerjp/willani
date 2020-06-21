@@ -46,9 +46,8 @@ void *program(Token *token) {
       error_at(token, "a entitiy of the same name function is exist");
 
     lvars = func->args;
-    func->node = block_stmt(&token, token, false);
+    func->node = block_stmt(&token, token);
     func->var = lvars;
-
   }
   parse_log();
 }

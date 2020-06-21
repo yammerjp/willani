@@ -51,12 +51,13 @@ void parse_log();
 
 //======================================
 // stmt.c
+Node *create_scope(Token **rest, Token *token, Node *(* stmt_func_p)(Token **, Token*));
 Node *stmt(Token **rest, Token *token);
-Node *stmt_without_declaration(Token **rest, Token *token, bool creating_scope);
+Node *stmt_without_declaration(Token **rest, Token *token);
 Node *if_stmt(Token **rest, Token *token);
 Node *while_stmt(Token **rest, Token *token);
 Node *for_stmt(Token **rest, Token *token);
-Node *block_stmt(Token **rest, Token *token, bool creating_scope);
+Node *block_stmt(Token **rest, Token *token);
 Node *expr_stmt(Token **rest, Token *token);
 Node *return_stmt(Token **rest, Token *token);
 Node *declare_lvar_stmt(Token **rest, Token *token, Type *type);
