@@ -188,14 +188,12 @@ static Node *postfix(Token **rest, Token *token, Node *primary_node) {
     }
     if (equal(token, ".")) {
       token = token->next;
+
       if (!is_identifer_token(token))
         error_at(token, "expected identifer");
-      char *name = token->location;
-      int namelen = token->length;
-
-      node = new_node_member(node, name, namelen, token);
-
+      node = new_node_member(node, token->location, token->length, token);
       token = token->next;
+
       continue;
     }
     *rest = token;
