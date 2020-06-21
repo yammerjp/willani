@@ -72,7 +72,7 @@ Function *function_definition(Token **rest, Token *token, Type *return_type, cha
     }
 
     if(!is_identifer_token(token))
-      error_at(token, "expected identifer");
+      error_at(token, "expected identifer of argument");
 
     new_var(arg_type, token->location, token->length, &args);
     token = token->next;

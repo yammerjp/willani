@@ -190,7 +190,7 @@ static Node *postfix(Token **rest, Token *token, Node *primary_node) {
       token = token->next;
 
       if (!is_identifer_token(token))
-        error_at(token, "expected identifer");
+        error_at(token, "expected identifer of struct member");
       node = new_node_member(node, token->location, token->length, token);
       token = token->next;
 
@@ -266,7 +266,7 @@ Node *primary_identifer(Token **rest, Token *token) {
   // identifer
   Token *ident_token = token;
   if (!is_identifer_token(ident_token))
-    error_at(ident_token, "expected identifer");
+    error_at(ident_token, "expected identifer of variable or function name");
 
   char *name = ident_token->location;
   int namelen = ident_token->length;

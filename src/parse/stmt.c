@@ -2,6 +2,8 @@
 
 // block_stmt = "{" stmt* "}"
 Node *block_stmt(Token **rest, Token *token, Var *outer_scope_lvars) {
+  Tag *outer_own_scope_tags = tags;
+
   Token *bracket_token = token;
   if (!equal(bracket_token, "{"))
     error_at(bracket_token, "expected {");
@@ -22,6 +24,10 @@ Node *block_stmt(Token **rest, Token *token, Var *outer_scope_lvars) {
   // variables declared in the block, is not be able to refered from outer the block.
   for (Var *var = lvars; var && var != outer_scope_lvars; var = var->next)
     var->referable = false;
+
+  // tags of struct declared in the block, is not be able to refered from outer the block.
+  outer_scope_tags = outer_own_scope_tags;
+  unrefer_outer_scope_tags();
 
   *rest = token;
   return node;
@@ -134,6 +140,7 @@ Node *while_stmt(Token **rest, Token *token) {
 // for_stmt = "for" "(" expr? ";" expr? ";" expr? ")" stmt
 Node *for_stmt(Token **rest, Token *token) {
   Var *outer_scope_lvars = lvars;
+  outer_scope_tags = tags;
 
   // "for"
   Token *for_token = token;
@@ -230,8 +237,12 @@ Node *expr_stmt(Token **rest, Token *token) {
 
 Node *declare_lvar_stmt(Token **rest, Token *token, Type *ancestor, Var *outer_scope_lvars) {
   // identifer
-  if (!is_identifer_token(token))
-    error_at(token, "expected identifer");
+  if (!is_identifer_token(token)) {
+    if (!equal(token,  ";") || ancestor->kind != TYPE_STRUCT)
+      error_at(token, "expected identifer of new local variable");
+    *rest = token-> next;
+    return NULL;
+  }
 
   char *name = token->location;
   int namelen = token->length;

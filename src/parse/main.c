@@ -15,7 +15,7 @@ void *program(Token *token) {
 
     // function name
     if (!is_identifer_token(token))
-      error_at(token, "expected identifer");
+      error_at(token, "expected identifer of function name or global variable");
 
     char *name = token->location;
     int namelen = token->length;

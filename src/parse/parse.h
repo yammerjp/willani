@@ -104,4 +104,24 @@ Type *read_type(Token **rest, Token *token);
 Member *read_member(Token **rest, Token *token, int offset);
 
 
+//======================================
+// tag.c
+typedef struct Tag Tag;
+
+struct Tag {
+  char *name;
+  int namelen;
+  Type *type;
+  Tag *next;
+  bool referable;
+};
+
+extern Tag *tags;
+extern Tag *outer_scope_tags;
+
+void new_tag(char *name, int namelen, Type *type);
+Tag *find_tag(char *name, int namelen);
+void unrefer_outer_scope_tags();
+
+
 #endif

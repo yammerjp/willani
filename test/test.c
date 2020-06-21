@@ -230,14 +230,12 @@ int main() {
 
   assert("struct {char a; int b; char c;} x; x.a=1; x.b=2; x.c=3; x.c;", ({ struct {char a; int b; char c;} x; x.a=1; x.b=2; x.c=3; x.c; }), 3);
 
-/*
   assert("struct {int a; int b;} x[3]; int *p=x; p[0]=0; x[0].a;", ({ struct {int a; int b;} x[3]; int *p=x; p[0]=0; x[0].a; }), 0);
   assert("struct {int a; int b;} x[3]; int *p=x; p[1]=1; x[0].b;", ({ struct {int a; int b;} x[3]; int *p=x; p[1]=1; x[0].b; }), 1);
   assert("struct {int a; int b;} x[3]; int *p=x; p[2]=2; x[1].a;", ({ struct {int a; int b;} x[3]; int *p=x; p[2]=2; x[1].a; }), 2);
   assert("struct {int a; int b;} x[3]; int *p=x; p[3]=3; x[1].b;", ({ struct {int a; int b;} x[3]; int *p=x; p[3]=3; x[1].b; }), 3);
   assert("struct {int a[3]; int b[5];} x; int *p=&x; x.a[0]=6; p[0];", ({ struct {int a[3]; int b[5];} x; int *p=&x; x.a[0]=6; p[0]; }), 6);
   assert("struct {int a[3]; int b[5];} x; int *p=&x; x.b[0]=7; p[3];", ({ struct {int a[3]; int b[5];} x; int *p=&x; x.b[0]=7; p[3]; }), 7);
-*/
 
   assert("struct { struct { int b; } a; } x; x.a.b=6; x.a.b;", ({ struct { struct { int b; } a; } x; x.a.b=6; x.a.b; }), 6);
 
@@ -248,6 +246,11 @@ int main() {
   assert("struct {int a[3];} x[2]; sizeof(x)};", ({ struct {int a[3];} x[2]; sizeof(x); }), 24);
   assert("struct {char a; char b;} x; sizeof(x);", ({ struct {char a; char b;} x; sizeof(x); }), 2);
   assert("struct {char a; int b;} x; sizeof(x);", ({ struct {char a; int b;} x; sizeof(x); }), 5);
+
+  assert("struct t {int a; int b;} x; struct t y; sizeof(y);", ({ struct t {int a; int b;} x; struct t y; sizeof(y); }), 8);
+  assert("struct t {int a; int b;}; struct t y; sizeof(y);", ({ struct t {int a; int b;}; struct t y; sizeof(y); }), 8);
+  assert("struct t {char a[2];}; { struct t {char a[4];}; } struct t y; sizeof(y);", ({ struct t {char a[2];}; { struct t {char a[4];}; } struct t y; sizeof(y); }), 2);
+  assert("struct t {int x;}; int t=1; struct t y; y.x=2; t+y.x;", ({ struct t {int x;}; int t=1; struct t y; y.x=2; t+y.x; }), 3);
 
   printf("\nOK\n");
   return 0;

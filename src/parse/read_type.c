@@ -29,9 +29,23 @@ Type *read_type(Token **rest, Token *token) {
   return type;
 }
 
+// ident? ( "{" member "}" )? ;
 Type *read_new_type_struct(Token **rest, Token *token) {
-  if (!equal(token, "{"))
-    error_at(token, "expected {");
+  char *name = NULL;
+  int namelen;
+  if (is_identifer_token(token)) {
+    name = token->location;
+    namelen = token->length;
+    token = token->next;
+  }
+
+  if (!equal(token, "{")) {
+    Tag *tag = find_tag(name, namelen);
+    if (!tag)
+      error_at(token, "called a undefined tag of struct");
+    *rest = token;
+    return tag->type;
+  }
   token = token->next;
 
   Member head;
@@ -42,15 +56,23 @@ Type *read_new_type_struct(Token **rest, Token *token) {
     tail = tail->next;
     offset += tail->type->size;
   }
-  *rest = token->next;
-  return new_type_struct(offset, head.next);
+  token = token->next;
+
+
+  Type *type = new_type_struct(offset, head.next);
+  if (name) {
+    new_tag(name, namelen, type);
+  }
+
+  *rest = token;
+  return type;
 }
 
 Member *read_member(Token **rest, Token *token, int offset) {
   Type *type = read_type(&token, token);
 
   if (!is_identifer_token(token))
-    error_at(token, "expected identifer");
+    error_at(token, "expected member identifer");
   char *name = token->location;
   int namelen = token->length;
   token = token->next;
