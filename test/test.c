@@ -249,6 +249,9 @@ int main() {
   assert("struct t {char a[2];}; { struct t {char a[4];}; } struct t y; sizeof(y);", ({ struct t {char a[2];}; { struct t {char a[4];}; } struct t y; sizeof(y); }), 2);
   assert("struct t {int x;}; int t=1; struct t y; y.x=2; t+y.x;", ({ struct t {int x;}; int t=1; struct t y; y.x=2; t+y.x; }), 3);
 
+  assert("struct t {char a;} x; struct t *y = &x; x.a=3; y->a;", ({ struct t {char a;} x; struct t *y = &x; x.a=3; y->a; }), 3);
+  assert("struct t {char a;} x; struct t *y = &x; y->a=3; x.a;", ({ struct t {char a;} x; struct t *y = &x; y->a=3; x.a; }), 3);
+
   printf("\nOK\n");
   return 0;
 }

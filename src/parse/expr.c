@@ -172,7 +172,7 @@ Node *sizeofunary(Token **rest, Token *token) {
 static Node *postfix(Token **rest, Token *token, Node *primary_node) {
   Node *node = primary_node;
 
-  // ( "[" expr "]" | "." identifer )*
+  // ( "[" expr "]" | "." identifer | "->" identifer)*
   for (;;) {
     if (equal(token, "[")) {
       Token *bracket_token = token;
@@ -193,7 +193,15 @@ static Node *postfix(Token **rest, Token *token, Node *primary_node) {
         error_at(token->location, "expected identifer of struct member");
       node = new_node_member(node, token->location, token->length, token);
       token = token->next;
-
+      continue;
+    }
+    if (equal(token, "->")) {
+      Token *deref_token = token;
+      token = token->next;
+      if (!is_identifer_token(token))
+        error_at(token->location, "expected identifer of struct member");
+      node = new_node_member( new_node_deref(node, deref_token), token->location, token->length, token);
+      token = token->next;
       continue;
     }
     *rest = token;
