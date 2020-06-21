@@ -104,7 +104,7 @@ static void parse_members(Member *members, int depth) {
   if (!members)
     return;
   for (Member *cur = members; cur; cur = cur->next) {
-    parse_var_line(depth+1, cur->type->size, - cur->offset, cur->namelen, cur->name, false);
+    parse_var_line(depth+1, cur->type->size, cur->offset, cur->namelen, cur->name, false);
     parse_members(cur->type->members, depth+1);
   }
 }
