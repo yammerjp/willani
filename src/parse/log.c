@@ -62,7 +62,7 @@ void print_node(FILE *file, Node *node) {
     default : error("unexpected node->kind");
   }
 
-  fprintf(file, "    (line: %d", get_line_number(get_line_head(node->token)));
+  fprintf(file, "    (line: %d", get_line_number(get_line_head(node->token->location)));
   fprintf(file, ", token: %.*s", node->token->length, node->token->location);
   if (node->type) {
     fprintf(file, ", type: ");

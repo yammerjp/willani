@@ -225,9 +225,6 @@ int main() {
   assert("struct {char a; int b; char c;} x; x.a=1; x.b=2; x.c=3; x.a;", ({ struct {char a; int b; char c;} x; x.a=1; x.b=2; x.c=3; x.a; }), 1);
   assert("struct {char a; int b; char c;} a; x.b=1; x.b=2; x.c=3; x.b;", ({ struct {char a; int b; char c;} x; x.b=1; x.b=2; x.c=3; x.b; }), 2);
 
-
-
-
   assert("struct {char a; int b; char c;} x; x.a=1; x.b=2; x.c=3; x.c;", ({ struct {char a; int b; char c;} x; x.a=1; x.b=2; x.c=3; x.c; }), 3);
 
   assert("struct {int a; int b;} x[3]; int *p=x; p[0]=0; x[0].a;", ({ struct {int a; int b;} x[3]; int *p=x; p[0]=0; x[0].a; }), 0);

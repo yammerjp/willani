@@ -59,8 +59,8 @@ bool is_eof_token(Token *token);
 bool equal(Token *token, char *str);
 Token *tokenize(char *p);
 
-char *get_line_head(Token *token);
-char *get_line_end(Token *token);
+char *get_line_head(char *head);
+char *get_line_end(char *end);
 int get_line_number(char *line_head);
 
 

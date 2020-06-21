@@ -1,9 +1,9 @@
 #include "willani.h"
 
 void error_at(Token *token, char *msg) {
-  char *line = get_line_head(token);
+  char *line = get_line_head(token->location);
   int line_num = get_line_number(line);
-  char *end = get_line_end(token);
+  char *end = get_line_end(token->location);
 
   // print filename and line number
   int indent = fprintf(stderr, "%s:%d: ",filename, line_num);

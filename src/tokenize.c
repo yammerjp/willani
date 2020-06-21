@@ -6,7 +6,7 @@ static FILE *tokenize_log_file;
 static char *token_kind_str(Token *token) {
   switch (token->kind) {
     case TK_RESERVED: return("TK_RESERVED");
-    case TK_IDENT:    return("TK_INDENT  ");
+    case TK_IDENT:    return("TK_IDENT   ");
     case TK_NUM:      return("TK_NUM     ");
     case TK_STRING:   return("TK_STRING  ");
     case TK_CHAR:     return("TK_CHAR    ");
@@ -20,17 +20,14 @@ static void tokenize_log(Token *token) {
   fprintf(tokenize_log_file, "%.*s\n",token->length ,token->location);
 }
 
-char *get_line_head(Token *token) {
+char *get_line_head(char *head) {
   // get line head
-  char *head = token->location;
   while (user_input < head && head[-1] != '\n')
     head--;
   return head;
 }
 
-char *get_line_end(Token *token) {
-  // get line end
-  char *end = token->location;
+char *get_line_end(char *end) {
   while (*end != '\n')
     end++;
   return end;
