@@ -6,7 +6,7 @@ Tag *outer_scope_tags = NULL;
 void new_tag(char *name, int namelen, Type *type) {
   for (Tag *cur = tags; cur && cur != outer_scope_tags; cur = cur->next) {
     if (namelen == cur->namelen && strncmp(name, cur->name, namelen))
-      error("define a tag of struct is conflicted");
+      error_at(name, "define a tag of struct is conflicted");
   }
 
   Tag *tag = calloc(1, sizeof(Tag));

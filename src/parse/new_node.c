@@ -101,7 +101,7 @@ Node *new_node_var(char *name, int length, Token *token) {
     return node;
   }
 
-  error("use undeclared identifer '%.*s'", length, name);
+  error_at(name, "use undeclared identifer");
 }
 
 Node *new_node_member(Node *parent, char *name, int namelen,  Token *token) {

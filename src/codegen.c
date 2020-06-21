@@ -88,14 +88,14 @@ static void gen_addr(Node *node) {
     printf("  push %%rax\n");
     return;
   default:
-    error("Left side is expected a variable or *variable.");
+    error_at(node->token->location, "Left side is expected a variable or *variable.");
   }
 }
 
 static void gen_if(Node *node) {
   int labct = label_count ++;
   if (node->kind != ND_IF)
-    error("expected node->kind is ND_IF");
+    error_at(node->token->location, "expected node->kind is ND_IF");
 
   gen(node->cond);               // calculate condition
   printf("  popq %%rax\n");         // load result to the stach top
@@ -118,7 +118,7 @@ static void gen_if(Node *node) {
 static void gen_while(Node *node) {
   int labct = label_count ++;
   if (node->kind != ND_WHILE)
-    error("expected node->kind is ND_WHILE");
+    error_at(node->token->location, "expected node->kind is ND_WHILE");
 
   printf(".L.begin.%d:\n", labct);
   gen(node->cond);               // calculate condition
@@ -136,7 +136,7 @@ static void gen_while(Node *node) {
 static void gen_for(Node *node) {
   int labct = label_count ++;
   if (node->kind != ND_FOR)
-    error("expected node->kind is ND_FOR");
+    error_at(node->token->location, "expected node->kind is ND_FOR");
 
   gen(node->init);
 
@@ -156,7 +156,7 @@ static void gen_for(Node *node) {
 
 static void gen_func_call(Node *node) {
   if (node->kind != ND_FUNC_CALL)
-    error("expected function call");
+    error_at(node->token->location, "expected function call");
 
   int argc = 0;
   for (Node *cur = node->func_args; cur; cur = cur->next) {
@@ -313,7 +313,7 @@ static void gen_binary_operator(Node *node) {
     printf("  movzb %%al, %%rax\n");
     break;
   defalt:
-    error("unknown binary operator");
+    error_at(node->token->location, "unknown binary operator");
   }
   printf("  pushq %%rax\n");         // store result to stack top
 }
@@ -338,7 +338,7 @@ static void prologue(Function *func) {
       printf("  movq %%%s, -%d(%%rbp)\n",  arg_regs8[--i], arg->offset);
       break;
     default:
-      error("failed to load a argument becase of unknown type size");
+      error_at(arg->name, "failed to load a argument becase of unknown type size");
     }
   }
 }
