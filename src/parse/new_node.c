@@ -107,7 +107,7 @@ Node *new_node_var(char *name, int length, Token *token) {
 Node *new_node_member(Node *parent, char *name, int namelen,  Token *token) {
   Member *member = find_member(parent->type, name, namelen);
   if (!member)
-    error_at(token, "refered undefined member of struct");
+    error_at(token->location, "refered undefined member of struct");
   
   Node *node = calloc(1, sizeof(Node));
   node->kind = ND_MEMBER;
@@ -167,7 +167,7 @@ Node *new_node_block(Node *body, Token *token) {
 Node *new_node_func_call(char *name, int len, Node *args, Token *token) {
   Function *func = find_function(name, len);
   if (!func)
-    error_at(token, "called undefined function");
+    error_at(token->location, "called undefined function");
 
   Node *node = calloc(1, sizeof(Node));
   node->kind = ND_FUNC_CALL;

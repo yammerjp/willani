@@ -262,7 +262,7 @@ Token *tokenize(char *p) {
       continue;
     }
 
-    error_at(current, "Invalid token");
+    error_at(current->location, "Invalid token");
   }
 
   new_token(TK_EOF, current, p, 0);

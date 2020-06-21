@@ -42,7 +42,7 @@ Type *read_new_type_struct(Token **rest, Token *token) {
   if (!equal(token, "{")) {
     Tag *tag = find_tag(name, namelen);
     if (!tag)
-      error_at(token, "called a undefined tag of struct");
+      error_at(token->location, "called a undefined tag of struct");
     *rest = token;
     return tag->type;
   }
@@ -72,7 +72,7 @@ Member *read_member(Token **rest, Token *token, int offset) {
   Type *type = read_type(&token, token);
 
   if (!is_identifer_token(token))
-    error_at(token, "expected member identifer");
+    error_at(token->location, "expected member identifer");
   char *name = token->location;
   int namelen = token->length;
   token = token->next;
@@ -80,7 +80,7 @@ Member *read_member(Token **rest, Token *token, int offset) {
   type = type_suffix(&token, token, type);
 
   if (!equal(token, ";"))
-    error_at(token, "expected ;");
+    error_at(token->location, "expected ;");
   token = token->next;
 
   *rest = token;

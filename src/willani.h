@@ -205,7 +205,7 @@ void code_generate();
 
 //======================================
 // error.c
-void error_at(Token *token, char *msg);
+void error_at(char *location, char *msg);
 void error(char *fmt, ...);
 
 

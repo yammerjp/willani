@@ -49,7 +49,7 @@ Function *function_definition(Token **rest, Token *token, Type *return_type, cha
 
   // arguments
   if (!equal(token, "("))
-    error_at(token, "expected (");
+    error_at(token->location, "expected (");
   token = token->next;
 
   int argc = 0;
@@ -72,7 +72,7 @@ Function *function_definition(Token **rest, Token *token, Type *return_type, cha
     }
 
     if(!is_identifer_token(token))
-      error_at(token, "expected identifer of argument");
+      error_at(token->location, "expected identifer of argument");
 
     new_var(arg_type, token->location, token->length, &args);
     token = token->next;
@@ -83,7 +83,7 @@ Function *function_definition(Token **rest, Token *token, Type *return_type, cha
   }
 
   if (!equal(token, ")"))
-    error_at(token, "expected )");
+    error_at(token->location, "expected )");
   token = token->next;
 
 
