@@ -90,13 +90,13 @@ Type *new_type_char();
 Type *new_type_bool();
 Type *new_type_pointer(Type *parent);
 Type *new_type_array(Type *parent, int length);
-Type *new_type_struct(Token **rest, Token *token);
-Type *read_type(Token **rest, Token *token);
-Member *read_member(Token **rest, Token *token, int offset);
+Type *new_type_struct(int size, Member *members);
+Member *new_member(char *name, int namelen, Type *type, int offset);
 Member *find_member(Type *type, char *name, int namelen);
 Type *type_conversion(Type *left, Type *right);
 bool cmp_type(Type *t1, Type *t2);
 extern const int type_size_pointer;
+
 
 //======================================
 // parse/main.c

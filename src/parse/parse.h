@@ -96,4 +96,12 @@ void add_function(Function *func);
 bool cmp_function(Function *f1, Function *f2);
 Function *function_definition(Token **rest, Token *token, Type *return_type, char *name, int namelen);
 
+
+//======================================
+// read_type.c
+Type *read_new_type_struct(Token **rest, Token *token);
+Type *read_type(Token **rest, Token *token);
+Member *read_member(Token **rest, Token *token, int offset);
+
+
 #endif
