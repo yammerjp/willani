@@ -1,8 +1,13 @@
 #include "parse.h"
 
 // block_stmt = "{" stmt* "}"
-Node *block_stmt(Token **rest, Token *token, Var *outer_scope_lvars) {
+Node *block_stmt(Token **rest, Token *token, bool creating_scope) {
   Tag *outer_own_scope_tags = tags;
+  Var *outer_own_scope_lvars = lvars;
+  if (creating_scope) {
+    outer_scope_tags = tags;
+    outer_scope_lvars = lvars;
+  }
 
   Token *bracket_token = token;
   if (!equal(bracket_token, "{"))
@@ -13,15 +18,20 @@ Node *block_stmt(Token **rest, Token *token, Var *outer_scope_lvars) {
   Node *tail = &head;
   
   while (!equal(token, "}")) {
-    tail->next = stmt(&token, token, outer_scope_lvars);
+    tail->next = stmt(&token, token);
     while (tail->next)
       tail = tail->next;
   }
   token = token->next;
 
   Node *node = new_node_block(head.next, bracket_token);
+  *rest = token;
+
+  if (!creating_scope)
+    return node;
 
   // variables declared in the block, is not be able to refered from outer the block.
+  outer_scope_lvars = outer_own_scope_lvars;
   for (Var *var = lvars; var && var != outer_scope_lvars; var = var->next)
     var->referable = false;
 
@@ -29,7 +39,6 @@ Node *block_stmt(Token **rest, Token *token, Var *outer_scope_lvars) {
   outer_scope_tags = outer_own_scope_tags;
   unrefer_outer_scope_tags();
 
-  *rest = token;
   return node;
 }
 
@@ -44,20 +53,20 @@ Node *block_stmt(Token **rest, Token *token, Var *outer_scope_lvars) {
 
 //            | declare_lvar_stmt
 
-Node *stmt(Token **rest, Token *token, Var *outer_scope_lvars) {
+Node *stmt(Token **rest, Token *token) {
   Node *node;
 
   Type *type = read_type(&token, token); // Proceed token if only token means type
   if (type)
-    node = declare_lvar_stmt(&token, token, type, outer_scope_lvars);
+    node = declare_lvar_stmt(&token, token, type);
   else
-    node = stmt_without_declaration(&token, token, lvars);
+    node = stmt_without_declaration(&token, token, true);
 
   *rest = token;
   return node;
 }
 
-Node *stmt_without_declaration(Token **rest, Token *token, Var *outer_scope_lvars) {
+Node *stmt_without_declaration(Token **rest, Token *token, bool creating_scope) {
   if (read_type(&token, token))
     error_at(token, "declaration statement is invalid here");
 
@@ -70,7 +79,7 @@ Node *stmt_without_declaration(Token **rest, Token *token, Var *outer_scope_lvar
   else if (equal(token, "for"))
     node = for_stmt(&token, token);
   else if (equal(token, "{"))
-    node = block_stmt(&token, token, outer_scope_lvars);
+    node = block_stmt(&token, token, true);
   else if (equal(token, "return"))
     node = return_stmt(&token, token);
   else
@@ -99,12 +108,12 @@ Node *if_stmt(Token **rest, Token *token) {
     error_at(token, "expected )");
   token = token->next;
 
-  Node *then = stmt_without_declaration(&token, token, lvars);
+  Node *then = stmt_without_declaration(&token, token, true);
 
   Node *els = NULL;
   if (equal(token, "else")) {
     token = token->next;
-    els = stmt_without_declaration(&token, token, lvars);
+    els = stmt_without_declaration(&token, token, true);
   }
   Node *node = new_node_if(cond, then, els, if_token);
 
@@ -129,7 +138,7 @@ Node *while_stmt(Token **rest, Token *token) {
     error_at(token, "expected )");
   token = token->next;
 
-  Node *then = stmt_without_declaration(&token, token, lvars);
+  Node *then = stmt_without_declaration(&token, token, true);
 
   Node *node = new_node_while(cond, then, while_token);
 
@@ -139,8 +148,10 @@ Node *while_stmt(Token **rest, Token *token) {
 
 // for_stmt = "for" "(" expr? ";" expr? ";" expr? ")" stmt
 Node *for_stmt(Token **rest, Token *token) {
-  Var *outer_scope_lvars = lvars;
+  Tag *outer_own_scope_tags = tags;
+  Var *outer_own_scope_lvars = lvars;
   outer_scope_tags = tags;
+  outer_scope_lvars = lvars;
 
   // "for"
   Token *for_token = token;
@@ -158,7 +169,7 @@ Node *for_stmt(Token **rest, Token *token) {
   if (!equal(token, ";")) {
     Type *type = read_type(&token, token);
     if (type) {
-      init = declare_lvar_stmt(&token, token, type, outer_scope_lvars);
+      init = declare_lvar_stmt(&token, token, type);
     } else {
       Token *expr_token = token;
       init = new_node_expr_stmt(expr(&token, token), expr_token);
@@ -194,8 +205,17 @@ Node *for_stmt(Token **rest, Token *token) {
   token = token->next;
 
   // stmt
-  Node *then = stmt_without_declaration(&token, token, outer_scope_lvars);
+  Node *then = stmt_without_declaration(&token, token, false);
   Node *node = new_node_for(init, cond, increment, then, token);
+
+  // variables declared in the block, is not be able to refered from outer the block.
+  outer_scope_lvars = outer_own_scope_lvars;
+  for (Var *var = lvars; var && var != outer_scope_lvars; var = var->next)
+    var->referable = false;
+
+  // tags of struct declared in the block, is not be able to refered from outer the block.
+  outer_scope_tags = outer_own_scope_tags;
+  unrefer_outer_scope_tags();
 
   *rest = token;
   return node;
@@ -235,7 +255,7 @@ Node *expr_stmt(Token **rest, Token *token) {
 // type_suffix       = "[" num "]" type_suffix | ε
 // declare node is skipped by codegen
 
-Node *declare_lvar_stmt(Token **rest, Token *token, Type *ancestor, Var *outer_scope_lvars) {
+Node *declare_lvar_stmt(Token **rest, Token *token, Type *ancestor) {
   // identifer
   if (!is_identifer_token(token)) {
     if (!equal(token,  ";") || ancestor->kind != TYPE_STRUCT)

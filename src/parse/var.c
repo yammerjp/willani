@@ -2,6 +2,7 @@
 
 Var *gvars;
 Var *lvars;
+Var *outer_scope_lvars;
 
 Var *find_var(char *name, int length, Var *head, Var *ignore) {
   for (Var *var = head; var && var != ignore; var = var->next) {
