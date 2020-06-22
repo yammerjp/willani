@@ -159,8 +159,8 @@ static void gen_func_call(Node *node) {
     error_at(node->token->location, "expected function call");
 
   int argc = 0;
-  for (Node *cur = node->func_args; cur; cur = cur->next) {
-    gen(cur);
+  for (Node *arg_node = node->func_args; arg_node; arg_node = arg_node->next) {
+    gen(arg_node);
     argc++;
   }
   if (argc > 6)
@@ -250,8 +250,8 @@ static void gen(Node *node) {
     load(node->type);
     break;
   case ND_STMT_EXPR:
-    for (Node *cur = node->body; cur; cur = cur->next)
-      gen(cur);
+    for (Node *stmt_node = node->body; stmt_node; stmt_node = stmt_node->next)
+      gen(stmt_node);
     if (node->type)  // type is not NULL if tail stmt is expr_stmt
       printf("  sub $8, %%rsp\n");
     else
@@ -363,10 +363,10 @@ static void gen_function(Function *func) {
 }
 
 static void gen_func_names(Function *head) {
-  for (Function *current = head; current; current = current->next) {
-    if (head != current)
+  for (Function *func = head; func; func = func->next) {
+    if (head != func)
       printf(", ");
-    printf("%.*s", current->namelen, current->name);
+    printf("%.*s", func->namelen, func->name);
   }
 }
 
@@ -389,9 +389,9 @@ void code_generate() {
   printf(".text\n");
   printf(".globl "); gen_func_names(functions); printf("\n");
 
-  for (Function *current = functions; current; current = current->next) {
-    if (current->definition)
+  for (Function *func = functions; func; func = func->next) {
+    if (func->definition)
       continue;
-    gen_function(current);
+    gen_function(func);
   }
 }

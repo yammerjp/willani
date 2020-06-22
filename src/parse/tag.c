@@ -4,8 +4,8 @@ Tag *tags = NULL;
 Tag *outer_scope_tags = NULL;
 
 void new_tag(char *name, int namelen, Type *type) {
-  for (Tag *cur = tags; cur && cur != outer_scope_tags; cur = cur->next) {
-    if (namelen == cur->namelen && strncmp(name, cur->name, namelen))
+  for (Tag *tag = tags; tag && tag != outer_scope_tags; tag = tag->next) {
+    if (namelen == tag->namelen && strncmp(name, tag->name, namelen))
       error_at(name, "define a tag of struct is conflicted");
   }
 
@@ -19,9 +19,9 @@ void new_tag(char *name, int namelen, Type *type) {
 }
 
 Tag *find_tag(char *name, int namelen) {
-  for (Tag *cur = tags; cur; cur = cur->next) {
-    if (namelen == cur->namelen && strncmp(name, cur->name, namelen) == 0 && cur->referable) {
-      return cur;
+  for (Tag *tag = tags; tag; tag = tag->next) {
+    if (namelen == tag->namelen && strncmp(name, tag->name, namelen) == 0 && tag->referable) {
+      return tag;
     }
   }
   return NULL;

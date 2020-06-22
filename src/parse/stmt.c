@@ -14,8 +14,8 @@ Node *create_scope(Token **rest, Token *token, Node *(* stmt_func_p)(Token **, T
 
   // tags of struct declared in the block, is not be able to refered from outer the block.
   outer_scope_tags = outer_own_scope_tags;
-  for (Tag *cur = tags; cur && cur != outer_scope_tags; cur = cur->next)
-    cur->referable = false;
+  for (Tag *tag = tags; tag && tag != outer_scope_tags; tag = tag->next)
+    tag->referable = false;
 
   return node;
 }

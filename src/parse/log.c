@@ -103,9 +103,9 @@ static void parse_var_line(int depth, int size, int offset, int namelen, char *n
 static void parse_members(Member *members, int depth) {
   if (!members)
     return;
-  for (Member *cur = members; cur; cur = cur->next) {
-    parse_var_line(depth+1, cur->type->size, cur->offset, cur->namelen, cur->name, false);
-    parse_members(cur->type->members, depth+1);
+  for (Member *mem = members; mem; mem = mem->next) {
+    parse_var_line(depth+1, mem->type->size, mem->offset, mem->namelen, mem->name, false);
+    parse_members(mem->type->members, depth+1);
   }
 }
 
@@ -134,12 +134,12 @@ void parse_log() {
   fprintf(var_logfile, ".global:\n");
   parse_vars(gvars, NULL);
 
-  for (Function *cur = functions; cur; cur = cur->next) {
-    fprintf(var_logfile, "%.*s:\n", cur->namelen, cur->name);
-    parse_vars(cur->var, cur->args);
+  for (Function *func = functions; func; func = func->next) {
+    fprintf(var_logfile, "%.*s:\n", func->namelen, func->name);
+    parse_vars(func->var, func->args);
 
-    fprintf(parse_logfile, "%.*s: ", cur->namelen, cur->name);
-    parse_log_nodes(cur->node, 0);
+    fprintf(parse_logfile, "%.*s: ", func->namelen, func->name);
+    parse_log_nodes(func->node, 0);
   }
  
   fclose(parse_logfile);

@@ -1,9 +1,9 @@
 #include "parse.h"
 
 Function *find_function(char *name, int namelen) {
-  for (Function *cur = functions; cur; cur = cur->next) {
-    if (strncmp(name, cur->name, namelen)==0 && cur->namelen == namelen)
-      return cur;
+  for (Function *func = functions; func; func = func->next) {
+    if (strncmp(name, func->name, namelen)==0 && func->namelen == namelen)
+      return func;
   }
   return NULL;
 }

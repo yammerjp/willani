@@ -65,9 +65,9 @@ Member *new_member(char *name, int namelen, Type *type, int offset) {
 }
 
 Member *find_member(Type *type, char *name, int namelen) {
-  for (Member *cur = type->members; cur; cur = cur->next) {
-    if (cur->namelen == namelen && strncmp(cur->name, name, namelen) == 0)
-      return cur;
+  for (Member *mem = type->members; mem; mem = mem->next) {
+    if (mem->namelen == namelen && strncmp(mem->name, name, namelen) == 0)
+      return mem;
   }
   return NULL;
 }
