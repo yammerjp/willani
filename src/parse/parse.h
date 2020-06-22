@@ -13,6 +13,7 @@ String *new_string(char *p, int length);
 //======================================
 // var.c
 Var *find_var(char *name, int length, Var *head, Var *ignore);
+Var *find_var_without_typedef(char *name, int length, Var *head, Var *ignore);
 void *new_var(Type *type, char *name, int length, Var **varsp);
 void *new_gvar(Type *type, char *name, int length);
 
@@ -65,6 +66,7 @@ Node *expr_stmt(Token **rest, Token *token);
 Node *return_stmt(Token **rest, Token *token);
 Node *declare_lvar_stmt(Token **rest, Token *token, Type *type);
 Type *type_suffix(Token **rest, Token *token, Type *ancestor);
+void typedef_stmt(Token **rest, Token *token, Var **varsp);
 
 
 //======================================
@@ -125,7 +127,6 @@ extern Tag *outer_scope_tags;
 
 void new_tag(char *name, int namelen, Type *type);
 Tag *find_tag(char *name, int namelen);
-void unrefer_outer_scope_tags();
 
 
 #endif

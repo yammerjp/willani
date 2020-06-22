@@ -85,6 +85,8 @@ Node *new_node_var(char *name, int length, Token *token) {
 
   Var *lvar = find_var(name, length, lvars, NULL);
   if (lvar) {
+    if (lvar->is_typedef)
+      error_at(token->location, "expected a variable but typedef");
     node->kind = ND_LVAR;
     node->var = lvar;
     node->type = lvar->type;
@@ -94,6 +96,8 @@ Node *new_node_var(char *name, int length, Token *token) {
 
   Var *gvar = find_var(name, length, gvars, NULL);
   if (gvar) {
+    if (gvar->is_typedef)
+      error_at(token->location, "expected a variable but typedef");
     node->kind = ND_GVAR;
     node->var = gvar;
     node->type = gvar->type;

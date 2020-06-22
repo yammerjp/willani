@@ -1,13 +1,10 @@
 #include "parse.h"
 
 Node *create_scope(Token **rest, Token *token, Node *(* stmt_func_p)(Token **, Token*)) {
-  Tag *outer_own_scope_tags = tags;
-  Var *outer_own_scope_lvars = lvars;
-  outer_scope_tags = tags;
-  outer_scope_lvars = lvars;
+  Tag *outer_own_scope_tags = outer_scope_tags = tags;
+  Var *outer_own_scope_lvars = outer_scope_lvars = lvars;
 
   Node *node = stmt_func_p(&token, token);
-
   *rest = token;
 
   // variables declared in the block, is not be able to refered from outer the block.
@@ -17,7 +14,8 @@ Node *create_scope(Token **rest, Token *token, Node *(* stmt_func_p)(Token **, T
 
   // tags of struct declared in the block, is not be able to refered from outer the block.
   outer_scope_tags = outer_own_scope_tags;
-  unrefer_outer_scope_tags();
+  for (Tag *cur = tags; cur && cur != outer_scope_tags; cur = cur->next)
+    cur->referable = false;
 
   return node;
 }
@@ -54,6 +52,12 @@ Node *block_stmt(Token **rest, Token *token) {
 Node *stmt(Token **rest, Token *token) {
   Node *node;
 
+  if (equal(token, "typedef")) {
+    typedef_stmt(&token, token, &lvars);
+    *rest = token;
+    return NULL;
+  }
+
   Type *type = read_type(&token, token); // Proceed token if only token means type
   if (type)
     node = declare_lvar_stmt(&token, token, type);
@@ -84,7 +88,6 @@ Node *stmt_without_declaration(Token **rest, Token *token) {
 
   *rest = token;
   return node;
-
 }
 
 
@@ -252,7 +255,7 @@ Node *declare_lvar_stmt(Token **rest, Token *token, Type *ancestor) {
   // ("[" num "]")*
   Type *type = type_suffix(&token, token, ancestor);
 
-  if (find_var(name, namelen, lvars, outer_scope_lvars))
+  if (find_var_without_typedef(name, namelen, lvars, outer_scope_lvars))
     error("duplicate declarations '%.*s'", namelen, name);
   new_var(type, name, namelen, &lvars);
 
@@ -291,4 +294,23 @@ Type *type_suffix(Token **rest, Token *token, Type *ancestor) {
 
   *rest = token;
   return new_type_array(parent, length);
+}
+
+void typedef_stmt(Token **rest, Token *token, Var **varsp) {
+  if (!equal(token, "typedef"))
+     error_at(token->location, "expected 'typedef'");
+  token = token->next;
+
+  Type *type = read_type(&token, token);
+
+  if (!is_identifer_token(token))
+    error_at(token->location, "expected identifer of typedef");
+  new_typedef(type, token->location, token->length, varsp);
+  token = token->next;
+
+  if (!equal(token, ";"))
+    error_at(token->location, "expected ; of the end of the typedef statement");
+  token = token->next;
+
+  *rest = token;
 }

@@ -2,11 +2,16 @@
 
 static void read_new_gvar(Token **rest, Token *token, Type *type_without_suffix, char *name, int namelen);
 
-// program = (function | declare_gvar)*
+// program = (function | declare_gvar | typedef_stmt)*
 // declare_gvar = type ident type_suffix ";"
-void *program(Token *token) {
 
+void *program(Token *token) {
   while (!is_eof_token(token)) {
+    // "typedef" type identifer ";"
+    if (equal(token, "typedef")) {
+      typedef_stmt(&token, token, &gvars);
+      continue;
+    }
 
     // type
     Type *type = read_type(&token, token);

@@ -2,6 +2,7 @@
 
 Type *read_type(Token **rest, Token *token) {
   Type *type;
+  
   if(equal(token, "long")) {
     type = new_type_long();
     token = token->next;
@@ -16,6 +17,14 @@ Type *read_type(Token **rest, Token *token) {
     token = token->next;
   } else if(equal(token, "struct")) {
     type = read_new_type_struct(&token, token->next);
+  } else if (is_identifer_token(token)) {
+    Var *tdf = find_var(token->location, token->length, lvars, NULL);
+    if (!tdf)
+      tdf = find_var(token->location, token->length, gvars, NULL);
+    if (!tdf || !tdf->is_typedef)
+      return NULL;
+    token = token->next;
+    type = tdf->type;
   } else {
     return NULL;
   }

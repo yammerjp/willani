@@ -4,9 +4,9 @@ Var *gvars;
 Var *lvars;
 Var *outer_scope_lvars;
 
-Var *find_typedef(char *name, int length, Var *head, Var *ignore) {
+static Var *find_struct_var(char *name, int length, Var *head, Var *ignore, bool skip_typedef) {
   for (Var *var = head; var && var != ignore; var = var->next) {
-    if (!var->referable || !var->is_typedef)
+    if (!var->referable || skip_typedef && var->is_typedef)
       continue;
     if (length == var->length && !strncmp(name, var->name, length))
       return var;
@@ -14,44 +14,35 @@ Var *find_typedef(char *name, int length, Var *head, Var *ignore) {
   return NULL;
 }
 
-Var *find_var(char *name, int length, Var *head, Var *ignore) {
-  for (Var *var = head; var && var != ignore; var = var->next) {
-    if (!var->referable || var->is_typedef)
-      continue;
-    if (length == var->length && !strncmp(name, var->name, length))
-      return var;
-  }
-  return NULL;
+Var *find_var_without_typedef(char *name, int namelen, Var *head, Var *ignore) {
+  return find_struct_var(name, namelen, head, ignore, true);
 }
 
-void *new_typedef(Type *type, char *name, int namelen, Var **varsp) {
-  Var *vars = *varsp;
-  int already_reserved_offset = (vars ? (vars->offset ) : 0);
-
-  Var *var = calloc(1, sizeof(Var));
-  var->type = type;
-  var->next = vars;
-  var->name = name;
-  var->length = namelen;
-  var->offset = already_reserved_offset;
-  var->is_typedef = true;
-  var->referable = true;
-
-  *varsp = var;
+Var *find_var(char *name, int namelen, Var *head, Var *ignore) {
+  return find_struct_var(name, namelen, head, ignore, false);
 }
 
-void *new_var(Type *type, char *name, int length, Var **varsp) {
+static void *new_struct_var(Type *type, char *name, int length, Var **varsp, bool is_typedef) {
   Var *vars = *varsp;
   int already_reserved_offset = (vars ? (vars->offset ) : 0);
+  int size = is_typedef ? 0 : type->size;
 
   Var *var = calloc(1, sizeof(Var));
   var->type = type;
   var->next = vars;
   var->name = name;
   var->length = length;
-  var->offset = type->size + already_reserved_offset;
-  var->is_typedef = false;
+  var->offset = size + already_reserved_offset;
+  var->is_typedef = is_typedef;
   var->referable = true;
 
   *varsp = var;
+}
+
+void *new_typedef(Type *type, char *name, int namelen, Var **varsp) {
+  return new_struct_var(type, name, namelen, varsp, true);
+}
+
+void *new_var(Type *type, char *name, int namelen, Var **varsp) {
+  return new_struct_var(type, name, namelen, varsp, false);
 }
