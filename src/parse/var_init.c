@@ -18,7 +18,7 @@ static int var_array_length(ArrayIndexes *indexes) {
 
 static Node *new_node_array_cell(ArrayIndexes *indexes, Token *token) {
   if (!indexes)
-    return new_node_var(lvars->name, lvars->length, token);
+    return new_node_var(lvars->name, lvars->namelen, token);
 
   return new_node_deref(new_node_add(
     new_node_array_cell(indexes->parent, token),

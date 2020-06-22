@@ -105,7 +105,7 @@ struct Var {
   Type *type;
   Var *next;
   char *name;
-  int length;
+  int namelen;
   int offset;
   bool is_typedef;
   bool referable;

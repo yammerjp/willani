@@ -44,8 +44,8 @@ void print_node(FILE *file, Node *node) {
     case ND_LT:           fprintf(file, "<"); break;
     case ND_LE:           fprintf(file, "<="); break;
     case ND_ASSIGN:       fprintf(file, "="); break;
-    case ND_GVAR:         fprintf(file, "%.*s",node->var->length, node->var->name); break;
-    case ND_LVAR:         fprintf(file, "%.*s",node->var->length, node->var->name); break;
+    case ND_GVAR:         fprintf(file, "%.*s",node->var->namelen, node->var->name); break;
+    case ND_LVAR:         fprintf(file, "%.*s",node->var->namelen, node->var->name); break;
     case ND_NUM:          fprintf(file, "%ld",node->value); break;
     case ND_STRING:       fprintf(file, "%.*s",node->token->length, node->token->location); break;
     case ND_ADDR:         fprintf(file, "&"); break;
@@ -110,15 +110,15 @@ static void parse_members(Member *members, int depth) {
 }
 
 static void parse_vars(Var *vars, Var *args) {
-  for (Var *cur = vars; cur; cur = cur->next) {
-    if (cur->is_typedef)
+  for (Var *var = vars; var; var = var->next) {
+    if (var->is_typedef)
       continue;
-    parse_var_line(0, cur->type->size, cur->offset, cur->length, cur->name, cur==args);
+    parse_var_line(0, var->type->size, var->offset, var->namelen, var->name, var==args);
 
-    if (cur==args)
-      args = cur->next;
+    if (var==args)
+      args = var->next;
 
-    parse_members(cur->type->members, 0);
+    parse_members(var->type->members, 0);
   }
 }
 

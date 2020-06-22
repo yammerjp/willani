@@ -70,7 +70,7 @@ static void gen_addr(Node *node) {
   switch (node->kind) {
   case ND_GVAR:
     // load the address of the actual value of (rbp - offset) 
-    printf("  mov $%.*s, %%rax\n", node->var->length, node->var->name);
+    printf("  mov $%.*s, %%rax\n", node->var->namelen, node->var->name);
     printf("  pushq %%rax\n");         // pushq rbp - offset
     return;
   case ND_LVAR:
@@ -381,7 +381,7 @@ void code_generate() {
   for (Var *var = gvars; var; var = var->next) {
     if (var->is_typedef)
       continue;
-    printf("%.*s:\n", var->length, var->name);
+    printf("%.*s:\n", var->namelen, var->name);
     printf("  .zero %d\n", var->type->size);
   }
 
