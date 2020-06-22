@@ -59,7 +59,7 @@ void *program(Token *token) {
 
 static void read_new_gvar(Token **rest, Token *token, Type *type_without_suffix, char *name, int namelen) {
   Type *type = type_suffix(&token, token, type_without_suffix);
-  if (find_var(name, namelen, gvars, NULL))
+  if (find_var(name, namelen, gvars, NULL, INCLUDE_TYPEDEF))
     error_at(token->location, "duplicate declarations");
   new_var(type, name, namelen, &gvars);
 

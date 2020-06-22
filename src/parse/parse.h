@@ -12,12 +12,14 @@ String *new_string(char *p, int length);
 
 //======================================
 // var.c
-Var *find_var(char *name, int length, Var *head, Var *ignore);
-Var *find_var_without_typedef(char *name, int length, Var *head, Var *ignore);
-void *new_var(Type *type, char *name, int length, Var **varsp);
-void *new_gvar(Type *type, char *name, int length);
+typedef enum {
+  INCLUDE_TYPEDEF,
+  EXCLUDE_TYPEDEF,
+} IncludeTypedef;
+Var *find_var(char *name, int namelen, Var *vars, Var *outer_scope_vars, IncludeTypedef include_typedef);
+void *new_var(Type *type, char *name, int namelen, Var **varsp);
 
-Var *find_typedef(char *name, int length, Var *head, Var *ignore);
+Var *find_typedef(char *name, int namelen, Var *head, Var *ignore);
 void *new_typedef(Type *type, char *name, int namelen, Var **varsp);
 
 

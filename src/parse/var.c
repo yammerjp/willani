@@ -4,22 +4,14 @@ Var *gvars;
 Var *lvars;
 Var *outer_scope_lvars;
 
-static Var *find_struct_var(char *name, int namelen, Var *head, Var *ignore, bool skip_typedef) {
-  for (Var *var = head; var && var != ignore; var = var->next) {
-    if (!var->referable || skip_typedef && var->is_typedef)
+Var *find_var(char *name, int namelen, Var *vars, Var *outer_scope_vars, IncludeTypedef include_typedef) {
+  for (Var *var = vars; var && var != outer_scope_vars; var = var->next) {
+    if (!var->referable || include_typedef ==  EXCLUDE_TYPEDEF && var->is_typedef)
       continue;
     if (namelen == var->namelen && !strncmp(name, var->name, namelen))
       return var;
   }
   return NULL;
-}
-
-Var *find_var_without_typedef(char *name, int namelen, Var *head, Var *ignore) {
-  return find_struct_var(name, namelen, head, ignore, true);
-}
-
-Var *find_var(char *name, int namelen, Var *head, Var *ignore) {
-  return find_struct_var(name, namelen, head, ignore, false);
 }
 
 static void *new_struct_var(Type *type, char *name, int namelen, Var **varsp, bool is_typedef) {

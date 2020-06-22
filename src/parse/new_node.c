@@ -83,7 +83,7 @@ Node *new_node_string(Token *token) {
 Node *new_node_var(char *name, int length, Token *token) {
   Node *node = calloc(1, sizeof(Node));
 
-  Var *lvar = find_var(name, length, lvars, NULL);
+  Var *lvar = find_var(name, length, lvars, NULL, INCLUDE_TYPEDEF);
   if (lvar) {
     if (lvar->is_typedef)
       error_at(token->location, "expected a variable but typedef");
@@ -94,7 +94,7 @@ Node *new_node_var(char *name, int length, Token *token) {
     return node;
   }
 
-  Var *gvar = find_var(name, length, gvars, NULL);
+  Var *gvar = find_var(name, length, gvars, NULL, INCLUDE_TYPEDEF);
   if (gvar) {
     if (gvar->is_typedef)
       error_at(token->location, "expected a variable but typedef");

@@ -255,7 +255,7 @@ Node *declare_lvar_stmt(Token **rest, Token *token, Type *ancestor) {
   // ("[" num "]")*
   Type *type = type_suffix(&token, token, ancestor);
 
-  if (find_var_without_typedef(name, namelen, lvars, outer_scope_lvars))
+  if (find_var(name, namelen, lvars, outer_scope_lvars, EXCLUDE_TYPEDEF))
     error("duplicate declarations '%.*s'", namelen, name);
   new_var(type, name, namelen, &lvars);
 
