@@ -78,8 +78,6 @@ static void parse_log_nodes(Node *node, int depth) {
   fprintf(parse_logfile, "%*s",depth*2, "");
   print_node(parse_logfile, node);
 
-  parse_log_nodes(node->next, depth);
-
   parse_log_nodes(node->left, depth+1);
   parse_log_nodes(node->right, depth+1);
   parse_log_nodes(node->init, depth+1);
@@ -89,6 +87,8 @@ static void parse_log_nodes(Node *node, int depth) {
   parse_log_nodes(node->els, depth+1);
   parse_log_nodes(node->body, depth+1);
   parse_log_nodes(node->func_args, depth+1);
+
+  parse_log_nodes(node->next, depth);
 }
 
 static void parse_var_line(int depth, int size, int offset, int namelen, char *name, bool is_arg) {
