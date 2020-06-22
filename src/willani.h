@@ -100,6 +100,7 @@ extern const int type_size_pointer;
 
 //======================================
 // parse/main.c
+// identifer of variable and typedef
 typedef struct Var Var;
 struct Var {
   Type *type;
