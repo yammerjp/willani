@@ -107,6 +107,7 @@ struct Var {
   char *name;
   int length;
   int offset;
+  bool is_typedef;
   bool referable;
 };
 

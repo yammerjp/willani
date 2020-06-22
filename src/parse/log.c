@@ -111,6 +111,8 @@ static void parse_members(Member *members, int depth) {
 
 static void parse_vars(Var *vars, Var *args) {
   for (Var *cur = vars; cur; cur = cur->next) {
+    if (cur->is_typedef)
+      continue;
     parse_var_line(0, cur->type->size, cur->offset, cur->length, cur->name, cur==args);
 
     if (cur==args)

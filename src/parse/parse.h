@@ -16,6 +16,9 @@ Var *find_var(char *name, int length, Var *head, Var *ignore);
 void *new_var(Type *type, char *name, int length, Var **varsp);
 void *new_gvar(Type *type, char *name, int length);
 
+Var *find_typedef(char *name, int length, Var *head, Var *ignore);
+void *new_typedef(Type *type, char *name, int namelen, Var **varsp);
+
 
 //======================================
 // new_node.c
