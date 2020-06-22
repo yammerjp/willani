@@ -362,14 +362,6 @@ static void gen_function(Function *func) {
   epilogue();
 }
 
-static void gen_func_names(Function *head) {
-  for (Function *func = head; func; func = func->next) {
-    if (head != func)
-      printf(", ");
-    printf("%.*s", func->namelen, func->name);
-  }
-}
-
 void code_generate() {
   // data sectioon
   printf(".data\n");
@@ -387,7 +379,9 @@ void code_generate() {
 
   // text section
   printf(".text\n");
-  printf(".globl "); gen_func_names(functions); printf("\n");
+  printf(".globl ");
+  for (Function *func = functions; func; func = func->next)
+    printf("%.*s%s", func->namelen, func->name, func->next ? ", " : "\n");
 
   for (Function *func = functions; func; func = func->next) {
     if (func->definition)
