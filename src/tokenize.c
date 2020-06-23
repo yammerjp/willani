@@ -94,7 +94,7 @@ static bool is_all_alnum(char *c) {
 }
 
 static int identifer_token_length(char *p) {
-  if (!isalpha(*p))
+  if (!isalpha(*p) && *p != '_')
     return 0;
 
   int i = 1;

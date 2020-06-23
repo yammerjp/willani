@@ -212,6 +212,9 @@ int main() {
   assert("({ _Bool _Boolean = 1; _Boolean;})", ({ _Bool boolean = 1; boolean; }), 1==1);
   assert("({ _Bool _Boolean = 0; _Boolean;})", ({ _Bool boolean = 0; boolean; }), 1==0);
 
+  // allow variable that start '_'
+  assert("({ _Bool _Boolean = 0; _Boolean; })", ({ _Bool _Boolean = 0; _Boolean; }), 0);
+
   assert("'c'", 'c', 'c');
   assert("'&'", '&', '&');
   assert("'\\''", '\'', '\'');
