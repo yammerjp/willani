@@ -379,9 +379,11 @@ void code_generate() {
 
   // text section
   printf(".text\n");
-  printf(".globl ");
-  for (Function *func = functions; func; func = func->next)
-    printf("%.*s%s", func->namelen, func->name, func->next ? ", " : "\n");
+  for (Function *func = functions; func; func = func->next) {
+    if (func->definition)
+      continue;
+    printf(".globl %.*s\n", func->namelen, func->name);
+  }
 
   for (Function *func = functions; func; func = func->next) {
     if (func->definition)
