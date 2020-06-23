@@ -138,6 +138,7 @@ typedef enum {
   ND_RETURN,        // return
   ND_EXPR_STMT,     // ... ;
   ND_CONTINUE_STMT, // continue;
+  ND_BREAK_STMT,    // break;
   ND_STMT_EXPR,     // ({ ...; ... }) GNU statement expression extention
 } NodeKind;
 

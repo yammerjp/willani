@@ -226,3 +226,10 @@ Node *new_node_continue(Token *token) {
   node->token = token;
   return node;
 }
+
+Node *new_node_break(Token *token) {
+  Node *node = calloc(1, sizeof(Node));
+  node->kind = ND_BREAK_STMT;
+  node->token = token;
+  return node;
+}

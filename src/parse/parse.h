@@ -49,6 +49,7 @@ Node *new_node_addr(Node *unary_node, Token *token);
 Node *new_node_deref(Node *unary_node, Token *token);
 Node *new_node_assign(Node *left, Node *right, Token *token);
 Node *new_node_continue(Token *token);
+Node *new_node_break(Token *token);
 
 //======================================
 // log.c

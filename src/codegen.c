@@ -16,6 +16,7 @@ char arg_regs8[][4] = { "rdi", "rsi", "rdx", "rcx", "r8", "r9" };
 
 int label_count = 1;
 int continue_label_count = 0;
+int break_label_count = 0;
 char *funcname = NULL;
 int funcnamelen = 0;
 
@@ -120,7 +121,9 @@ static void gen_while(Node *node) {
   int labct = label_count ++;
 
   int outer_continue_label_count = continue_label_count;
+  int outer_break_label_count = break_label_count;
   continue_label_count = labct;
+  break_label_count = labct;
 
   if (node->kind != ND_WHILE)
     error_at(node->token->location, "expected node->kind is ND_WHILE");
@@ -138,13 +141,16 @@ static void gen_while(Node *node) {
   printf(".L.end.%d:\n", labct);
 
   continue_label_count = outer_continue_label_count;
+  break_label_count = outer_break_label_count;
 }
 
 static void gen_for(Node *node) {
   int labct = label_count ++;
 
   int outer_continue_label_count = continue_label_count;
+  int outer_break_label_count = break_label_count;
   continue_label_count = labct;
+  break_label_count = labct;
 
   if (node->kind != ND_FOR)
     error_at(node->token->location, "expected node->kind is ND_FOR");
@@ -165,7 +171,9 @@ static void gen_for(Node *node) {
   printf("  jmp .L.begin.%d\n", labct); // jump cond
 
   printf(".L.end.%d:\n", labct);
+
   continue_label_count = outer_continue_label_count;
+  break_label_count = outer_break_label_count;
 }
 
 static void gen_func_call(Node *node) {
@@ -237,7 +245,12 @@ static void gen(Node *node) {
   case ND_CONTINUE_STMT:
     if (!continue_label_count)
       error_at(node->token->location, "cannot jump the begin of loop (continue statement)");
-    printf("  jmp .L.begin.%d\n", continue_label_count); // jump cond
+    printf("  jmp .L.begin.%d\n", continue_label_count);
+    break;
+  case ND_BREAK_STMT:
+    if (!break_label_count)
+      error_at(node->token->location, "cannot jump the end of loop (break statement)");
+    printf("  jmp .L.end.%d\n", break_label_count);
     break;
 
   // expression

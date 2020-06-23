@@ -59,6 +59,7 @@ void print_node(FILE *file, Node *node) {
     case ND_FUNC_CALL:      fprintf(file, "%.*s()",node->func_namelen, node->func_name); break;
     case ND_EXPR_STMT:      fprintf(file, ";"); break;
     case ND_CONTINUE_STMT:  fprintf(file, "continue"); break;
+    case ND_BREAK_STMT:  fprintf(file, "break"); break;
     case ND_STMT_EXPR:      fprintf(file, "({})"); break;
     default : error_at(node->token->location, "unexpected node->kind");
   }

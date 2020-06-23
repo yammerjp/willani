@@ -47,6 +47,7 @@ Node *block_stmt(Token **rest, Token *token) {
 //            | return_stmt
 //            | expr_stmt
 //            | "continue" ";"
+//            | "break" ";"
 
 //            | declare_lvar_stmt
 
@@ -88,6 +89,11 @@ Node *stmt_without_declaration(Token **rest, Token *token) {
     if (!equal(token->next, ";"))
       error_at(token->next, "expected ';' of continue statement");
     node = new_node_continue(token);
+    token = token->next->next;
+  } else if (equal(token, "break")) {
+    if (!equal(token->next, ";"))
+      error_at(token->next, "expected ';' of break statement");
+    node = new_node_break(token);
     token = token->next->next;
   } else
     node = expr_stmt(&token, token);

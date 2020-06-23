@@ -111,6 +111,7 @@ static int reserved_token_length(char *p) {
     "return",
     "sizeof",
     "static",
+    "break",
     "_Bool",
     "while",
     "else",
