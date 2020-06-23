@@ -87,12 +87,12 @@ Node *stmt_without_declaration(Token **rest, Token *token) {
     node = return_stmt(&token, token);
   else if (equal(token, "continue")) {
     if (!equal(token->next, ";"))
-      error_at(token->next, "expected ';' of continue statement");
+      error_at(token->next->location, "expected ';' of continue statement");
     node = new_node_continue(token);
     token = token->next->next;
   } else if (equal(token, "break")) {
     if (!equal(token->next, ";"))
-      error_at(token->next, "expected ';' of break statement");
+      error_at(token->next->location, "expected ';' of break statement");
     node = new_node_break(token);
     token = token->next->next;
   } else
