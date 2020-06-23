@@ -58,7 +58,7 @@ Node *stmt(Token **rest, Token *token) {
     return NULL;
   }
 
-  Type *type = read_type(&token, token); // Proceed token if only token means type
+  Type *type = read_type(&token, token, ALLOW_STATIC); // Proceed token if only token means type
   if (type)
     node = declare_lvar_stmt(&token, token, type);
   else
@@ -68,7 +68,7 @@ Node *stmt(Token **rest, Token *token) {
 }
 
 Node *stmt_without_declaration(Token **rest, Token *token) {
-  if (read_type(&token, token))
+  if (read_type(&token, token, DENY_STATIC))
     error_at(token->location, "declaration statement is invalid here");
 
   Node *node;
@@ -161,7 +161,7 @@ Node *for_stmt(Token **rest, Token *token) {
   // expr? ";"
   Node *init = NULL;
   if (!equal(token, ";")) {
-    Type *type = read_type(&token, token);
+    Type *type = read_type(&token, token, ALLOW_STATIC);
     if (type) {
       init = declare_lvar_stmt(&token, token, type);
     } else {
@@ -301,7 +301,7 @@ void typedef_stmt(Token **rest, Token *token, Var **varsp) {
      error_at(token->location, "expected 'typedef'");
   token = token->next;
 
-  Type *type = read_type(&token, token);
+  Type *type = read_type(&token, token, ALLOW_STATIC);
 
   if (!is_identifer_token(token))
     error_at(token->location, "expected identifer of typedef");

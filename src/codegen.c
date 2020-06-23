@@ -380,7 +380,7 @@ void code_generate() {
   // text section
   printf(".text\n");
   for (Function *func = functions; func; func = func->next) {
-    if (func->definition)
+    if (func->definition || func->type->is_static)
       continue;
     printf(".globl %.*s\n", func->namelen, func->name);
   }

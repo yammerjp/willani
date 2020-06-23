@@ -1,7 +1,13 @@
 #include "parse.h"
 
-Type *read_type(Token **rest, Token *token) {
+Type *read_type(Token **rest, Token *token, AllowStaticOrNot allow_static_or_not) {
   Type *type;
+
+  bool is_static = false;
+  if (allow_static_or_not == ALLOW_STATIC && equal(token, "static")) {
+    token = token->next;
+    is_static = true;
+  }
   
   if(equal(token, "long")) {
     type = new_type_long();
@@ -34,6 +40,7 @@ Type *read_type(Token **rest, Token *token) {
     token = token->next;
   }
 
+  type->is_static = is_static;
   *rest = token;
   return type;
 }
@@ -78,7 +85,7 @@ Type *read_new_type_struct(Token **rest, Token *token) {
 }
 
 Member *read_member(Token **rest, Token *token, int offset) {
-  Type *type = read_type(&token, token);
+  Type *type = read_type(&token, token, DENY_STATIC);
 
   if (!is_identifer_token(token))
     error_at(token->location, "expected member identifer");

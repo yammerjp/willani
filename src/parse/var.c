@@ -15,6 +15,8 @@ Var *find_var(char *name, int namelen, Var *vars, Var *outer_scope_vars, Include
 }
 
 static void *new_struct_var(Type *type, char *name, int namelen, Var **varsp, bool is_typedef) {
+  if (type->is_static)
+    error_at(name, "not support static variables");
   Var *vars = *varsp;
   int already_reserved_offset = (vars ? (vars->offset ) : 0);
   int size = is_typedef ? 0 : type->size;

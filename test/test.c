@@ -34,6 +34,8 @@ int summing();
 
 int ret10(){ int i = 0; for (;;) { if (i<10) i = i + 1; else return i; } }
 
+static int static_fn() { return 3; }
+
 int main() {
   printf("\nRun test\n\n");
 
@@ -260,6 +262,7 @@ int main() {
   assert("typedef int t; t t=1; t;", ({ typedef int t; t t=1; t; }), 1);
   assert("typedef struct {int a;} t; { typedef int t; } t x; x.a=2; x.a;", ({ typedef struct {int a;} t; { typedef int t; } t x; x.a=2; x.a; }), 2);
 
+  assert("static_fn()", static_fn(), 3);
 
   printf("\nOK\n");
   return 0;

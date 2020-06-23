@@ -109,6 +109,7 @@ static int reserved_token_length(char *p) {
     "struct",
     "return",
     "sizeof",
+    "static",
     "_Bool",
     "while",
     "else",

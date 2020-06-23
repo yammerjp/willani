@@ -90,7 +90,7 @@ bool same_type(Type *t1, Type *t2) {
   if (!t1 || !t2)
     error("comparing type is NULL");
 
-  if ( t1->kind != t2->kind || t1->array_length != t2->array_length)
+  if ( t1->kind != t2->kind || t1->array_length != t2->array_length || t1->is_static != t2->is_static)
     return false;
 
   if (t1->kind == TYPE_ARRAY || t1->kind == TYPE_PTR)

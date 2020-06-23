@@ -9,8 +9,9 @@ $(OBJS): src/willani.h src/parse/parse.h
 
 test: willani
 	rm -f test.s test.out
+	echo 'int static_fn() { return 5; }' | gcc -xc -c -o tmp2.o -
 	./willani test/test.c > test.s
-	gcc -static test.s -o test.out
+	gcc -static test.s tmp2.o -o test.out
 	./test.out
 
 sample: willani

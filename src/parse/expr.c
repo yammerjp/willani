@@ -152,7 +152,7 @@ Node *sizeofunary(Token **rest, Token *token) {
     pars++;
   }
 
-  Type *type = read_type(&token, token);
+  Type *type = read_type(&token, token, DENY_STATIC);
 
   if (type) {
     for (int i=0; i<pars; i++) {

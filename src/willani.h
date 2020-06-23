@@ -82,6 +82,7 @@ struct Type {
   Type *base;       // Used if kind is TYPE_PTR
   int array_length; // Used if kind is TYPE_ARRAY
   Member *members;   // Used if kind is TYPE_STRUCT
+  bool is_static;
 };
 
 Type *new_type_long();

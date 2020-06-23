@@ -56,7 +56,7 @@ Function *function_definition(Token **rest, Token *token, Type *return_type, cha
   int argc = 0;
 
   while (!equal(token, ")")) {
-    Type *arg_type = read_type(&token, token);
+    Type *arg_type = read_type(&token, token, DENY_STATIC);
 
     argc++;
 

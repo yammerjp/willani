@@ -14,7 +14,7 @@ void *program(Token *token) {
     }
 
     // type
-    Type *type = read_type(&token, token);
+    Type *type = read_type(&token, token, ALLOW_STATIC);
     if (!type)
       error_at(token->location, "unexpected type");
 

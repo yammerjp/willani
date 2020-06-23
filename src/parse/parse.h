@@ -108,7 +108,11 @@ Function *function_definition(Token **rest, Token *token, Type *return_type, cha
 //======================================
 // read_type.c
 Type *read_new_type_struct(Token **rest, Token *token);
-Type *read_type(Token **rest, Token *token);
+typedef enum {
+  ALLOW_STATIC,
+  DENY_STATIC,
+} AllowStaticOrNot;
+Type *read_type(Token **rest, Token *token, AllowStaticOrNot allow_static_or_not);
 Member *read_member(Token **rest, Token *token, int offset);
 
 
