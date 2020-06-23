@@ -35,30 +35,31 @@ static void print_type(FILE *file, Type *type) {
 
 void print_node(FILE *file, Node *node) {
   switch (node->kind) {
-    case ND_ADD:          fprintf(file, "+"); break;
-    case ND_SUB:          fprintf(file, "-"); break;
-    case ND_MUL:          fprintf(file, "*"); break;
-    case ND_DIV:          fprintf(file, "/"); break;
-    case ND_EQ:           fprintf(file, "=="); break;
-    case ND_NE:           fprintf(file, "!="); break;
-    case ND_LT:           fprintf(file, "<"); break;
-    case ND_LE:           fprintf(file, "<="); break;
-    case ND_ASSIGN:       fprintf(file, "="); break;
-    case ND_GVAR:         fprintf(file, "%.*s",node->var->namelen, node->var->name); break;
-    case ND_LVAR:         fprintf(file, "%.*s",node->var->namelen, node->var->name); break;
-    case ND_NUM:          fprintf(file, "%ld",node->value); break;
-    case ND_STRING:       fprintf(file, "%.*s",node->token->length, node->token->location); break;
-    case ND_ADDR:         fprintf(file, "&"); break;
-    case ND_DEREF:        fprintf(file, "*"); break;
-    case ND_MEMBER:       fprintf(file, ".%.*s", node->member->namelen, node->member->name); break;
-    case ND_RETURN:       fprintf(file, "return"); break;
-    case ND_IF:           fprintf(file, "if"); break;
-    case ND_WHILE:        fprintf(file, "while"); break;
-    case ND_FOR:          fprintf(file, "for"); break;
-    case ND_BLOCK:        fprintf(file, "{}"); break;
-    case ND_FUNC_CALL:    fprintf(file, "%.*s()",node->func_namelen, node->func_name); break;
-    case ND_EXPR_STMT:    fprintf(file, ";"); break;
-    case ND_STMT_EXPR:    fprintf(file, "({})"); break;
+    case ND_ADD:            fprintf(file, "+"); break;
+    case ND_SUB:            fprintf(file, "-"); break;
+    case ND_MUL:            fprintf(file, "*"); break;
+    case ND_DIV:            fprintf(file, "/"); break;
+    case ND_EQ:             fprintf(file, "=="); break;
+    case ND_NE:             fprintf(file, "!="); break;
+    case ND_LT:             fprintf(file, "<"); break;
+    case ND_LE:             fprintf(file, "<="); break;
+    case ND_ASSIGN:         fprintf(file, "="); break;
+    case ND_GVAR:           fprintf(file, "%.*s",node->var->namelen, node->var->name); break;
+    case ND_LVAR:           fprintf(file, "%.*s",node->var->namelen, node->var->name); break;
+    case ND_NUM:            fprintf(file, "%ld",node->value); break;
+    case ND_STRING:         fprintf(file, "%.*s",node->token->length, node->token->location); break;
+    case ND_ADDR:           fprintf(file, "&"); break;
+    case ND_DEREF:          fprintf(file, "*"); break;
+    case ND_MEMBER:         fprintf(file, ".%.*s", node->member->namelen, node->member->name); break;
+    case ND_RETURN:         fprintf(file, "return"); break;
+    case ND_IF:             fprintf(file, "if"); break;
+    case ND_WHILE:          fprintf(file, "while"); break;
+    case ND_FOR:            fprintf(file, "for"); break;
+    case ND_BLOCK:          fprintf(file, "{}"); break;
+    case ND_FUNC_CALL:      fprintf(file, "%.*s()",node->func_namelen, node->func_name); break;
+    case ND_EXPR_STMT:      fprintf(file, ";"); break;
+    case ND_CONTINUE_STMT:  fprintf(file, "continue"); break;
+    case ND_STMT_EXPR:      fprintf(file, "({})"); break;
     default : error_at(node->token->location, "unexpected node->kind");
   }
 

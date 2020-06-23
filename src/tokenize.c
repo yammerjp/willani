@@ -105,6 +105,7 @@ static int identifer_token_length(char *p) {
 
 static int reserved_token_length(char *p) {
   char reserved_words[][7] = {
+    "continue",
     "typedef",
     "struct",
     "return",

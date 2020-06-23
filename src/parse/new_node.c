@@ -219,3 +219,10 @@ Node *new_node_assign(Node *left, Node *right, Token *token) {
   node->token = token;
   return node;
 }
+
+Node *new_node_continue(Token *token) {
+  Node *node = calloc(1, sizeof(Node));
+  node->kind = ND_CONTINUE_STMT;
+  node->token = token;
+  return node;
+}

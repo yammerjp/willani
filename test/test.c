@@ -262,7 +262,21 @@ int main() {
   assert("typedef int t; t t=1; t;", ({ typedef int t; t t=1; t; }), 1);
   assert("typedef struct {int a;} t; { typedef int t; } t x; x.a=2; x.a;", ({ typedef struct {int a;} t; { typedef int t; } t x; x.a=2; x.a; }), 2);
 
+  // static function (file private function)
   assert("static_fn()", static_fn(), 3);
+
+  // continue statement
+  assert( 
+    "({ int ct = 0; for( int i = 0; i <10; i=i+1) { if(i<5) continue; ct = ct + 1; } ct; })",
+    ({ int ct = 0; for( int i = 0; i <10; i=i+1) { if(i<5) continue; ct = ct + 1; } ct; }),
+    5
+  );
+  assert( 
+    "({ int ct=0; for(int i=0;i<10;i=i+1)for(int j=0;j<10;j=j+1){ if(j<5)continue; ct=ct+1; } ct; })",
+    ({ int ct=0; for(int i=0;i<10;i=i+1)for(int j=0;j<10;j=j+1){ if(j<5)continue; ct=ct+1; } ct; }),
+    50
+  );
+
 
   printf("\nOK\n");
   return 0;

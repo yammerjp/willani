@@ -114,30 +114,31 @@ struct Var {
 };
 
 typedef enum {
-  ND_ADD,         // +
-  ND_SUB,         // -
-  ND_MUL,         // *
-  ND_DIV,         // /
-  ND_EQ,          // ==
-  ND_NE,          // !=
-  ND_LT,          // <
-  ND_LE,          // <=
-  ND_ASSIGN,      // =
-  ND_GVAR,         // Global Variable
-  ND_LVAR,         // Variable
-  ND_NUM,         // Integer
-  ND_STRING,      // " ... "
-  ND_FUNC_CALL,   // Function call
-  ND_ADDR,        // & ...
-  ND_DEREF,       // * ...
-  ND_MEMBER,      // struct member access
-  ND_BLOCK,       // { ... }
-  ND_IF,          // if
-  ND_WHILE,       // while
-  ND_FOR,         // for
-  ND_RETURN,      // return
-  ND_EXPR_STMT,   // ... ;
-  ND_STMT_EXPR,   // ({ ...; ... }) GNU statement expression extention
+  ND_ADD,           // +
+  ND_SUB,           // -
+  ND_MUL,           // *
+  ND_DIV,           // /
+  ND_EQ,            // ==
+  ND_NE,            // !=
+  ND_LT,            // <
+  ND_LE,            // <=
+  ND_ASSIGN,        // =
+  ND_GVAR,          // Global Variable
+  ND_LVAR,          // Variable
+  ND_NUM,           // Integer
+  ND_STRING,        // " ... "
+  ND_FUNC_CALL,     // Function call
+  ND_ADDR,          // & ...
+  ND_DEREF,         // * ...
+  ND_MEMBER,        // struct member access
+  ND_BLOCK,         // { ... }
+  ND_IF,            // if
+  ND_WHILE,         // while
+  ND_FOR,           // for
+  ND_RETURN,        // return
+  ND_EXPR_STMT,     // ... ;
+  ND_CONTINUE_STMT, // continue;
+  ND_STMT_EXPR,     // ({ ...; ... }) GNU statement expression extention
 } NodeKind;
 
 typedef struct Node Node;

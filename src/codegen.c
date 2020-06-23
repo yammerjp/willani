@@ -15,6 +15,7 @@ char arg_regs4[][4] = { "edi", "esi", "edx", "ecx", "r8d", "r9d" };
 char arg_regs8[][4] = { "rdi", "rsi", "rdx", "rcx", "r8", "r9" };
 
 int label_count = 1;
+int continue_label_count = 0;
 char *funcname = NULL;
 int funcnamelen = 0;
 
@@ -117,6 +118,10 @@ static void gen_if(Node *node) {
 
 static void gen_while(Node *node) {
   int labct = label_count ++;
+
+  int outer_continue_label_count = continue_label_count;
+  continue_label_count = labct;
+
   if (node->kind != ND_WHILE)
     error_at(node->token->location, "expected node->kind is ND_WHILE");
 
@@ -131,16 +136,25 @@ static void gen_while(Node *node) {
   printf("  jmp .L.begin.%d\n", labct); // jump cond
 
   printf(".L.end.%d:\n", labct);
+
+  continue_label_count = outer_continue_label_count;
 }
 
 static void gen_for(Node *node) {
   int labct = label_count ++;
+
+  int outer_continue_label_count = continue_label_count;
+  continue_label_count = labct;
+
   if (node->kind != ND_FOR)
     error_at(node->token->location, "expected node->kind is ND_FOR");
 
   gen(node->init);
 
+  printf("  jmp .L.first.%d\n", labct); // jump initialize
   printf(".L.begin.%d:\n", labct);
+  gen(node->increment);
+  printf(".L.first.%d:\n", labct);
   gen(node->cond);               // calculate condition
   printf("  popq %%rax\n");         // load result to the stach top
   printf("  cmp $0, %%rax\n");       // evaluate result
@@ -148,10 +162,10 @@ static void gen_for(Node *node) {
   printf("  je  .L.end.%d\n", labct); // jump if result is false
 
   gen(node->then);
-  gen(node->increment);
   printf("  jmp .L.begin.%d\n", labct); // jump cond
 
   printf(".L.end.%d:\n", labct);
+  continue_label_count = outer_continue_label_count;
 }
 
 static void gen_func_call(Node *node) {
@@ -219,6 +233,11 @@ static void gen(Node *node) {
   case ND_EXPR_STMT:
     gen(node->left);
     printf("  add $8, %%rsp\n"); // stmt is not leave any values in the stack
+    break;
+  case ND_CONTINUE_STMT:
+    if (!continue_label_count)
+      error_at(node->token->location, "cannot jump the begin of loop (continue statement)");
+    printf("  jmp .L.begin.%d\n", continue_label_count); // jump cond
     break;
 
   // expression
