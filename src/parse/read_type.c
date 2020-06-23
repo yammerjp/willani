@@ -12,7 +12,7 @@ Type *read_type(Token **rest, Token *token) {
   } else if(equal(token, "char")) {
     type = new_type_char();
     token = token->next;
-  } else if(equal(token, "bool")) {
+  } else if(equal(token, "_Bool")) {
     type = new_type_bool();
     token = token->next;
   } else if(equal(token, "struct")) {
