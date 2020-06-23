@@ -35,7 +35,7 @@ void *program(Token *token) {
     // function
     Function *func_samename = find_function(name, namelen);
     Function *func = function_definition(&token, token, type, name, namelen);
-    if (func_samename && !cmp_function(func, func_samename))
+    if (func_samename && !same_function(func, func_samename))
       error_at(token->location, "type is conflict with the same name function definition");
 
     add_function(func);

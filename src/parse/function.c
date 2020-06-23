@@ -8,11 +8,12 @@ Function *find_function(char *name, int namelen) {
   return NULL;
 }
 
-bool cmp_function(Function *f1, Function *f2) {
+// f1 is same name and type as f2
+bool same_function(Function *f1, Function *f2) {
   // Check name, namelen, type, argc, args's types
   if ( f1->namelen != f2->namelen
     || strncmp(f1->name, f2->name, f1->namelen) != 0
-    || !cmp_type(f1->type, f2->type)
+    || !same_type(f1->type, f2->type)
     || f1->argc != f2->argc
   ) {
     return false;
@@ -21,7 +22,7 @@ bool cmp_function(Function *f1, Function *f2) {
   Var *arg_f1 = f1->args;
   Var *arg_f2 = f2->args;
   for (int i=0; i < f1->argc; i++) {
-    if (!arg_f1 || !arg_f2 || !cmp_type(arg_f1->type, arg_f2->type))
+    if (!arg_f1 || !arg_f2 || !same_type(arg_f1->type, arg_f2->type))
       return false;
     arg_f1 = arg_f1->next;
     arg_f2 = arg_f2->next;

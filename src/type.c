@@ -86,7 +86,7 @@ Type *type_conversion(Type *left, Type *right) {
   return right;
 }
 
-bool cmp_type(Type *t1, Type *t2) {
+bool same_type(Type *t1, Type *t2) {
   if (!t1 || !t2)
     error("comparing type is NULL");
 
@@ -94,7 +94,7 @@ bool cmp_type(Type *t1, Type *t2) {
     return false;
 
   if (t1->kind == TYPE_ARRAY || t1->kind == TYPE_PTR)
-    return cmp_type(t1->base, t2->base);
+    return same_type(t1->base, t2->base);
 
   return true;
 }

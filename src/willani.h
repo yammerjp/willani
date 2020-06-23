@@ -94,7 +94,7 @@ Type *new_type_struct(int size, Member *members);
 Member *new_member(char *name, int namelen, Type *type, int offset);
 Member *find_member(Type *type, char *name, int namelen);
 Type *type_conversion(Type *left, Type *right);
-bool cmp_type(Type *t1, Type *t2);
+bool same_type(Type *t1, Type *t2);
 extern const int type_size_pointer;
 
 
