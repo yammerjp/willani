@@ -49,6 +49,8 @@ Node *block_stmt(Token **rest, Token *token) {
 //            | "continue" ";"
 //            | "break" ";"
 //            | switch_stmt
+//            | "case" expr ":"
+//            | "default" ":"
 
 //            | declare_lvar_stmt
 
@@ -245,6 +247,7 @@ Node *switch_stmt(Token **rest, Token *token) {
   Node case_head = {};
   Node *case_tail = &case_head;
   int case_num = 1;
+  bool have_default = false;
   while (!equal(token, "}")) {
     if (equal(token, "case")) {
       Token *case_token = token;
@@ -257,12 +260,26 @@ Node *switch_stmt(Token **rest, Token *token) {
       stmt_tail = stmt_tail->next = new_node_case(case_token, case_num++);
       continue;
     }
+    if (equal(token, "default")) {
+      if (!equal(token->next, ":"))
+        error_at(token->next->location, "expected : of default label in switch statement");
+      if (have_default)
+        error_at(token->location, "duplicated default label in switch statement");
+      have_default = true;
+      stmt_tail = stmt_tail->next = new_node_default(token);
+      token = token->next->next;
+      continue;
+    }
+
     stmt_tail->next = stmt_without_declaration(&token, token);
     while (stmt_tail->next)
       stmt_tail = stmt_tail->next;
   }
+  Node *node = new_node_switch(cond, case_head.next, stmt_head.next, switch_token);
+  node->have_default = have_default;
+
   *rest = token->next;
-  return new_node_switch(cond, case_head.next, stmt_head.next, switch_token);
+  return node;
 }
 
 // return_stmt = return expr ";"

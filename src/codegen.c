@@ -136,7 +136,10 @@ static void gen_switch(Node *node) {
     printf("  je  .L.case.%d.%d\n", labct, case_num++);
   }
   // TODO: Support default : case
-  printf("  jmp .L.end.%d\n", labct);  // end then stmt
+  if (node->have_default)
+    printf("  jmp .L.default.%d\n", labct);  // end then stmt
+  else
+    printf("  jmp .L.end.%d\n", labct);  // end then stmt
   
   for (Node *stmt_node = node->body; stmt_node; stmt_node = stmt_node->next)
     gen(stmt_node);
@@ -328,6 +331,11 @@ static void gen(Node *node) {
     if (!switch_label_count)
       error_at(node->token->location, "case label must be in switch statement");
     printf(".L.case.%d.%d:\n", switch_label_count , node->case_num);
+    break;
+  case ND_DEFAULT_LABEL:
+    if (!switch_label_count)
+      error_at(node->token->location, "default label must be in switch statement");
+    printf(".L.default.%d:\n", switch_label_count);
     break;
   default:
     // expect binary operator node

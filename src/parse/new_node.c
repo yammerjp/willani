@@ -250,3 +250,10 @@ Node *new_node_case(Token *token, int case_num) {
   node->case_num = case_num;
   return node;
 }
+
+Node *new_node_default(Token *token) {
+  Node *node = calloc(1, sizeof(Node));
+  node->kind = ND_DEFAULT_LABEL;
+  node->token = token;
+  return node;
+}

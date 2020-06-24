@@ -52,6 +52,7 @@ Node *new_node_continue(Token *token);
 Node *new_node_break(Token *token);
 Node *new_node_switch(Node *cond, Node *cases, Node *body, Token *token);
 Node *new_node_case(Token *token, int case_num);
+Node *new_node_default(Token *token);
 
 //======================================
 // log.c

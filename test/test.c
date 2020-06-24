@@ -290,6 +290,11 @@ int main() {
     ({ int a=1; switch(a) { case 0: break; case 1: a=10; switch (a) { case 10: a=100; break; case 1: a=200; break; } } a; }),
     100
   );
+  assert(
+    "({int a=1;switch(a){case 0:break;case 1:a=2;switch(a){case 0:a=100;break;case 1:a=200;break;default:a=300;}break;default:a=400;}a;})",
+    ({int a=1;switch(a){case 0:break;case 1:a=2;switch(a){case 0:a=100;break;case 1:a=200;break;default:a=300;}break;default:a=400;}a;}),
+    300
+  );
 
   printf("\nOK\n");
   return 0;
