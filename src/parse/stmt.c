@@ -48,6 +48,7 @@ Node *block_stmt(Token **rest, Token *token) {
 //            | expr_stmt
 //            | "continue" ";"
 //            | "break" ";"
+//            | switch_stmt
 
 //            | declare_lvar_stmt
 
@@ -81,6 +82,8 @@ Node *stmt_without_declaration(Token **rest, Token *token) {
     node = while_stmt(&token, token);
   else if (equal(token, "for"))
     node = create_scope(&token, token, for_stmt);
+  else if (equal(token, "switch"))
+    node = switch_stmt(&token, token);
   else if (equal(token, "{"))
     node = block_stmt(&token, token);
   else if (equal(token, "return"))
@@ -215,6 +218,51 @@ Node *for_stmt(Token **rest, Token *token) {
 
   *rest = token;
   return node;
+}
+
+Node *switch_stmt(Token **rest, Token *token) {
+  Token *switch_token = token;
+  if (!equal(token, "switch"))
+    error_at(token->location, "expected switch");
+  token = token->next;
+
+  if (!equal(token, "("))
+    error_at(token->location, "expected ( of switch statement");
+  token = token->next;
+
+  Node *cond = expr(&token, token);
+
+  if (!equal(token, ")"))
+    error_at(token->location, "expected ) of switch statement");
+  token = token->next;
+
+  if (!equal(token, "{"))
+    error_at(token->location, "expected { of switch statement");
+  token = token->next;
+
+  Node stmt_head = {};
+  Node *stmt_tail = &stmt_head;
+  Node case_head = {};
+  Node *case_tail = &case_head;
+  int case_num = 1;
+  while (!equal(token, "}")) {
+    if (equal(token, "case")) {
+      Token *case_token = token;
+      case_tail = case_tail->next = expr(&token, token->next);
+
+      if (!equal(token, ":"))
+        error_at(token->location, "expected : of case label in switch statement");
+      token = token->next;
+
+      stmt_tail = stmt_tail->next = new_node_case(case_token, case_num++);
+      continue;
+    }
+    stmt_tail->next = stmt_without_declaration(&token, token);
+    while (stmt_tail->next)
+      stmt_tail = stmt_tail->next;
+  }
+  *rest = token->next;
+  return new_node_switch(cond, case_head.next, stmt_head.next, switch_token);
 }
 
 // return_stmt = return expr ";"

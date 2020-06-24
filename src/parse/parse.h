@@ -50,6 +50,8 @@ Node *new_node_deref(Node *unary_node, Token *token);
 Node *new_node_assign(Node *left, Node *right, Token *token);
 Node *new_node_continue(Token *token);
 Node *new_node_break(Token *token);
+Node *new_node_switch(Node *cond, Node *cases, Node *body, Token *token);
+Node *new_node_case(Token *token, int case_num);
 
 //======================================
 // log.c
@@ -64,6 +66,7 @@ Node *stmt(Token **rest, Token *token);
 Node *stmt_without_declaration(Token **rest, Token *token);
 Node *if_stmt(Token **rest, Token *token);
 Node *while_stmt(Token **rest, Token *token);
+Node *switch_stmt(Token **rest, Token *token);
 Node *for_stmt(Token **rest, Token *token);
 Node *block_stmt(Token **rest, Token *token);
 Node *expr_stmt(Token **rest, Token *token);

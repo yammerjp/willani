@@ -59,7 +59,9 @@ void print_node(FILE *file, Node *node) {
     case ND_FUNC_CALL:      fprintf(file, "%.*s()",node->func_namelen, node->func_name); break;
     case ND_EXPR_STMT:      fprintf(file, ";"); break;
     case ND_CONTINUE_STMT:  fprintf(file, "continue"); break;
-    case ND_BREAK_STMT:  fprintf(file, "break"); break;
+    case ND_BREAK_STMT:     fprintf(file, "break"); break;
+    case ND_SWITCH_STMT:    fprintf(file, "switch"); break;
+    case ND_CASE_LABEL:     fprintf(file, "case %dth", node->case_num); break;
     case ND_STMT_EXPR:      fprintf(file, "({})"); break;
     default : error_at(node->token->location, "unexpected node->kind");
   }
@@ -84,6 +86,7 @@ static void parse_log_nodes(Node *node, int depth) {
   parse_log_nodes(node->right, depth+1);
   parse_log_nodes(node->init, depth+1);
   parse_log_nodes(node->cond, depth+1);
+  parse_log_nodes(node->cases, depth+1);
   parse_log_nodes(node->increment, depth+1);
   parse_log_nodes(node->then, depth+1);
   parse_log_nodes(node->els, depth+1);

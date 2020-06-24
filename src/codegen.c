@@ -17,6 +17,7 @@ char arg_regs8[][4] = { "rdi", "rsi", "rdx", "rcx", "r8", "r9" };
 int label_count = 1;
 int continue_label_count = 0;
 int break_label_count = 0;
+int switch_label_count = 0;
 char *funcname = NULL;
 int funcnamelen = 0;
 
@@ -115,6 +116,35 @@ static void gen_if(Node *node) {
   }
 
   printf(".L.end.%d:\n", labct);
+}
+
+static void gen_switch(Node *node) {
+  if (node->kind != ND_SWITCH_STMT)
+    error_at(node->token->location, "expected node->kind is ND_SWITCH_STMT");
+  int labct = label_count ++;
+  int outer_switch_label_count = switch_label_count;
+  int outer_break_label_count = break_label_count;
+  switch_label_count = labct;
+  break_label_count = labct;
+
+  gen(node->cond);
+  int case_num = 1;
+  for (Node *case_expr = node->cases; case_expr; case_expr = case_expr->next) {
+    gen(case_expr);
+    printf("  popq %%rax\n"); // load result of case_expr
+    printf("  cmp  (%%rsp), %%rax\n");
+    printf("  je  .L.case.%d.%d\n", labct, case_num++);
+  }
+  // TODO: Support default : case
+  printf("  jmp .L.end.%d\n", labct);  // end then stmt
+  
+  for (Node *stmt_node = node->body; stmt_node; stmt_node = stmt_node->next)
+    gen(stmt_node);
+
+  printf(".L.end.%d:\n", labct);
+  printf("  add $8, %%rsp\n"); // drop cond
+  switch_label_count = outer_switch_label_count;
+  break_label_count = outer_break_label_count;
 }
 
 static void gen_while(Node *node) {
@@ -252,6 +282,9 @@ static void gen(Node *node) {
       error_at(node->token->location, "cannot jump the end of loop (break statement)");
     printf("  jmp .L.end.%d\n", break_label_count);
     break;
+  case ND_SWITCH_STMT:
+    gen_switch(node);
+    break;
 
   // expression
   case ND_NUM:
@@ -291,7 +324,11 @@ static void gen(Node *node) {
       // TODO: Add void type
       printf("  push $0\n");
     break;
-
+  case ND_CASE_LABEL:
+    if (!switch_label_count)
+      error_at(node->token->location, "case label must be in switch statement");
+    printf(".L.case.%d.%d:\n", switch_label_count , node->case_num);
+    break;
   default:
     // expect binary operator node
     gen_binary_operator(node);

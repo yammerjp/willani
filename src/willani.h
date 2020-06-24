@@ -139,6 +139,8 @@ typedef enum {
   ND_EXPR_STMT,     // ... ;
   ND_CONTINUE_STMT, // continue;
   ND_BREAK_STMT,    // break;
+  ND_SWITCH_STMT,   // switch { ... }
+  ND_CASE_LABEL,    // case expr: in switch statement
   ND_STMT_EXPR,     // ({ ...; ... }) GNU statement expression extention
 } NodeKind;
 
@@ -167,6 +169,8 @@ struct Node {
   Node *init;       // Used if kind == ND_FOR  // stmt
   Node *increment;  // Used id kind == ND_FOR  // expression statement
   Node *body;       // Used if kind is ND_BLOCK or ND_STMT_EXPR
+  Node *cases;      // Used if kind is ND_SWITCH
+  int case_num;    // Used if kind is ND_CASE
 };
 
 typedef struct Function Function;

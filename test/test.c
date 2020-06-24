@@ -284,6 +284,13 @@ int main() {
     50
   );
 
+  // switch statement
+  assert(
+    "({ int a=1; switch(a) { case 0: break; case 1: a=10; switch (a) { case 10: a=100; break; case 1: a=200; break; } } a; })",
+    ({ int a=1; switch(a) { case 0: break; case 1: a=10; switch (a) { case 10: a=100; break; case 1: a=200; break; } } a; }),
+    100
+  );
+
   printf("\nOK\n");
   return 0;
 }

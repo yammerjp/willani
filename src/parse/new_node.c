@@ -233,3 +233,20 @@ Node *new_node_break(Token *token) {
   node->token = token;
   return node;
 }
+
+Node *new_node_switch(Node *cond, Node *cases, Node *body, Token *token) {
+  Node *node = calloc(1, sizeof(Node));
+  node->kind = ND_SWITCH_STMT;
+  node->cond = cond;
+  node->cases = cases;
+  node->body = body;
+  node->token = token;
+}
+
+Node *new_node_case(Token *token, int case_num) {
+  Node *node = calloc(1, sizeof(Node));
+  node->kind = ND_CASE_LABEL;
+  node->token = token;
+  node->case_num = case_num;
+  return node;
+}
