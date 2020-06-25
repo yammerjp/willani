@@ -346,7 +346,7 @@ Node *declare_lvar_stmt(Token **rest, Token *token, Type *ancestor) {
     error_at(token->location, "expected ; or =");
   token = token->next;
 
-  Node *node = init_lvar_stmts(&token, token, NULL);
+  Node *node = init_lvar_stmts(&token, token, lvars, NULL);
 
   if (!equal(token, ";"))
     error_at(token->location, "expected ;");

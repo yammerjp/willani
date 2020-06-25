@@ -103,7 +103,7 @@ struct ArrayIndexes {
   ArrayIndexes *parent;
 };
 
-Node *init_lvar_stmts(Token **rest, Token *token, ArrayIndexes *descendant);
+Node *init_lvar_stmts(Token **rest, Token *token, Var *lvar, ArrayIndexes *descendant);
 
 
 //======================================
