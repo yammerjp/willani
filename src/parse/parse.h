@@ -134,11 +134,9 @@ struct Tag {
   bool referable;
 };
 
-extern Tag *tags;
-extern Tag *outer_scope_tags;
-
 void new_tag(char *name, int namelen, Type *type);
-Tag *find_tag(char *name, int namelen);
+Tag *find_tag(char *name, int namelen, Tag *tags);
+
 
 
 //======================================
@@ -146,6 +144,7 @@ Tag *find_tag(char *name, int namelen);
 typedef struct Scope Scope;
 struct Scope {
   Var *vars;
+  Tag *tags;
   Scope *parent;
 };
 
@@ -153,6 +152,7 @@ extern Scope *now_scope;
 void scope_in();
 void scope_out();
 Var *find_var_now_scope(char *name, int namelen, IncludeTypedef include_typedef);
+Tag *find_tag_now_scope(char *name, int namelen);
 
 
 #endif

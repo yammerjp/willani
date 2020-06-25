@@ -1,10 +1,7 @@
 #include "parse.h"
 
-Tag *tags = NULL;
-Tag *outer_scope_tags = NULL;
-
 void new_tag(char *name, int namelen, Type *type) {
-  for (Tag *tag = tags; tag && tag != outer_scope_tags; tag = tag->next) {
+  for (Tag *tag = now_scope->tags; tag; tag = tag->next) {
     if (namelen == tag->namelen && strncmp(name, tag->name, namelen))
       error_at(name, "define a tag of struct is conflicted");
   }
@@ -14,11 +11,11 @@ void new_tag(char *name, int namelen, Type *type) {
   tag->namelen = namelen;
   tag->type = type;
   tag->referable = true;
-  tag->next = tags;
-  tags = tag;
+  tag->next = now_scope->tags;
+  now_scope->tags = tag;
 }
 
-Tag *find_tag(char *name, int namelen) {
+Tag *find_tag(char *name, int namelen, Tag *tags) {
   for (Tag *tag = tags; tag; tag = tag->next) {
     if (namelen == tag->namelen && strncmp(name, tag->name, namelen) == 0 && tag->referable) {
       return tag;

@@ -54,7 +54,7 @@ Type *read_new_type_struct(Token **rest, Token *token) {
   }
 
   if (!equal(token, "{")) {
-    Tag *tag = find_tag(name, namelen);
+    Tag *tag = find_tag_now_scope(name, namelen);
     if (!tag)
       error_at(token->location, "called a undefined tag of struct");
     *rest = token;

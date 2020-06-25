@@ -20,3 +20,12 @@ Var *find_var_now_scope(char *name, int namelen, IncludeTypedef include_typedef)
   }
   return NULL;
 }
+
+Tag *find_tag_now_scope(char *name, int namelen) {
+  for (Scope *sc = now_scope; sc; sc = sc->parent) {
+    Tag *tag = find_tag(name, namelen, sc->tags);
+    if (tag)
+      return tag;
+  }
+  return NULL;
+}
