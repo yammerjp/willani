@@ -11,7 +11,7 @@ void *program(Token *token) {
     lvar_byte = 0;
     // "typedef" type identifer ";"
     if (equal(token, "typedef")) {
-      typedef_stmt(&token, token, true);
+      typedef_stmt(&token, token);
       continue;
     }
 
@@ -69,7 +69,7 @@ static void read_new_gvar(Token **rest, Token *token, Type *type_without_suffix,
   Type *type = type_suffix(&token, token, type_without_suffix);
   if (find_var(name, namelen, now_scope->vars, NULL, INCLUDE_TYPEDEF))
     error_at(token->location, "duplicate declarations");
-  new_var(type, name, namelen, &(now_scope->vars), true);
+  new_var(type, name, namelen);
 
   if (!equal(token, ";"))
     error_at(token->location, "expected ;");

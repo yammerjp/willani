@@ -45,7 +45,6 @@ void add_function(Function *func) {
 
 // function = type ident "(" ( ( type ident ( "," type ident ) * ) ?  ")" block_stmt
 Function *function_definition(Token **rest, Token *token, Type *return_type, char *name, int namelen) {
-  Var *args = NULL;
   bool definition = false;
 
   // arguments
@@ -63,19 +62,19 @@ Function *function_definition(Token **rest, Token *token, Type *return_type, cha
     if (equal(token, ",")) {
       token = token->next;
       definition = true;
-      new_var(arg_type, 0, 0, &args, false);
+      new_var(arg_type, NULL, 0);
       continue;
     }
     if (equal(token, ")")) {
       definition = true;
-      new_var(arg_type, 0, 0, &args, false);
+      new_var(arg_type, NULL, 0);
       break;
     }
 
     if(!is_identifer_token(token))
       error_at(token->location, "expected identifer of argument");
 
-    new_var(arg_type, token->location, token->length, &args, false);
+    new_var(arg_type, token->location, token->length);
     token = token->next;
 
     if (!equal(token, ","))
@@ -91,7 +90,7 @@ Function *function_definition(Token **rest, Token *token, Type *return_type, cha
   // create Function struct
   Function *func = calloc(1, sizeof(Function));
   func->name = name;
-  func->args = args;
+  func->args = now_scope->vars;
   func->argc = argc;
   func->namelen = namelen;
   func->type = return_type;
