@@ -1,8 +1,15 @@
 #include "parse.h"
 
-// expr       = assign
+// expr       = assign ("," assign)*
 Node *expr(Token **rest, Token *token) {
   Node *node = assign(&token, token);
+
+  while (equal(token, ",")) {
+    Token *comma_token = token;
+    node = new_node_expr_stmt(node, node->token);
+    node = new_node_comma(node, assign(&token, token->next), comma_token);
+  }
+
   *rest = token;
   return node;
 }
@@ -296,7 +303,7 @@ Node *primary_identifer(Token **rest, Token *token) {
   Node *args_tail = &args_head;
 
   while(!equal(token, ")")) {
-    args_tail->next = expr(&token, token);
+    args_tail->next = assign(&token, token);
     args_tail = args_tail->next;
 
     if (!equal(token, ","))

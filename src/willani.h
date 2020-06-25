@@ -143,6 +143,7 @@ typedef enum {
   ND_CASE_LABEL,    // case expr: in switch statement
   ND_DEFAULT_LABEL, // default: in switch statement
   ND_STMT_EXPR,     // ({ ...; ... }) GNU statement expression extention
+  ND_COMMA,         // ... , ...
 } NodeKind;
 
 typedef struct Node Node;

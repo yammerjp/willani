@@ -327,6 +327,10 @@ static void gen(Node *node) {
       // TODO: Add void type
       printf("  push $0\n");
     break;
+  case ND_COMMA:
+    gen(node->left);
+    gen(node->right);
+    break;
   case ND_CASE_LABEL:
     if (!switch_label_count)
       error_at(node->token->location, "case label must be in switch statement");

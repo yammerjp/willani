@@ -63,6 +63,7 @@ void print_node(FILE *file, Node *node) {
     case ND_DEFAULT_LABEL:  fprintf(file, "case %dth", node->case_num); break;
     case ND_CASE_LABEL:     fprintf(file, "default"); break;
     case ND_STMT_EXPR:      fprintf(file, "({})"); break;
+    case ND_COMMA:          fprintf(file, ","); break;
     default : error_at(node->token->location, "unexpected node->kind");
   }
 

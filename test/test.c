@@ -297,6 +297,7 @@ int main() {
 
   assert("222%4", 222%4, 2);
   assert("10%3", 10%3, 1);
+  assert("({int a; a=4,10,101,a=a+3, a-7;})", ({int a; a=4,10,101,a=a+3, a-7;}), 0);
 
   printf("\nOK\n");
   return 0;

@@ -213,6 +213,16 @@ Node *new_node_assign(Node *left, Node *right, Token *token) {
   return node;
 }
 
+Node *new_node_comma(Node *left, Node *right, Token *token) {
+  Node *node = calloc(1, sizeof(Node));
+  node->kind = ND_COMMA;
+  node->left = left;
+  node->right = right;
+  node->type = right->type;
+  node->token = token;
+  return node;
+}
+
 Node *new_node_continue(Token *token) {
   Node *node = calloc(1, sizeof(Node));
   node->kind = ND_CONTINUE_STMT;
