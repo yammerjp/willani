@@ -40,8 +40,11 @@ static Node *new_node_zero_padding_array(ArrayIndexes *descendant, Token *token,
       error("too deep initializer of array");
   }
 
-  if (type->kind != TYPE_ARRAY)
-    return new_node_expr_stmt(new_node_assign(new_node_array_cell(descendant, token, var), new_node_num(0, token), token), token);
+  if (type->kind != TYPE_ARRAY) {
+    Node *cell = new_node_array_cell(descendant, token, var);
+    Node *zero = new_node_num(0, token);
+    return new_node_expr_stmt(new_node_assign(cell, zero, token), token);
+  }
 
   for (int i = 0; i < type->array_length; i++) {
     tail->next = new_node_zero_padding_array(add_descendant(descendant, i), token, var);
@@ -56,7 +59,8 @@ Node *init_lvar_stmts(Token **rest, Token *token, Var *var, ArrayIndexes *descen
 
   if (!equal(token, "{")) {
     Node *right = assign(&token, token);
-    node = new_node_expr_stmt(new_node_assign(new_node_array_cell(descendant, token, var), right, token), token);
+    Node *cell = new_node_array_cell(descendant, token, var);
+    node = new_node_expr_stmt(new_node_assign(cell, right, token), token);
     *rest = token;
     return node;
   }
