@@ -34,8 +34,8 @@ static void *new_struct_var(Type *type, char *name, int namelen, Var **varsp, bo
   *varsp = var;
 }
 
-void *new_typedef(Type *type, char *name, int namelen, Var **varsp, bool is_global) {
-  return new_struct_var(type, name, namelen, varsp, true, is_global);
+void *new_typedef(Type *type, char *name, int namelen, bool is_global) {
+  return new_struct_var(type, name, namelen, &(now_scope->vars), true, is_global);
 }
 
 void *new_var(Type *type, char *name, int namelen, Var **varsp, bool is_global) {

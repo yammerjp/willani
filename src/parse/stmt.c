@@ -55,7 +55,7 @@ Node *stmt(Token **rest, Token *token) {
   Node *node;
 
   if (equal(token, "typedef")) {
-    typedef_stmt(&token, token, &(now_scope->vars), false);
+    typedef_stmt(&token, token, false);
     *rest = token;
     return NULL;
   }
@@ -370,7 +370,7 @@ Type *type_suffix(Token **rest, Token *token, Type *ancestor) {
   return new_type_array(parent, length);
 }
 
-void typedef_stmt(Token **rest, Token *token, Var **varsp, bool is_global) {
+void typedef_stmt(Token **rest, Token *token, bool is_global) {
   if (!equal(token, "typedef"))
      error_at(token->location, "expected 'typedef'");
   token = token->next;
@@ -379,7 +379,7 @@ void typedef_stmt(Token **rest, Token *token, Var **varsp, bool is_global) {
 
   if (!is_identifer_token(token))
     error_at(token->location, "expected identifer of typedef");
-  new_typedef(type, token->location, token->length, varsp, is_global);
+  new_typedef(type, token->location, token->length, is_global);
   token = token->next;
 
   if (!equal(token, ";"))

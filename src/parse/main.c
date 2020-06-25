@@ -11,7 +11,7 @@ void *program(Token *token) {
     lvar_byte = 0;
     // "typedef" type identifer ";"
     if (equal(token, "typedef")) {
-      typedef_stmt(&token, token, &(now_scope->vars), true);
+      typedef_stmt(&token, token, true);
       continue;
     }
 

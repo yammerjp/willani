@@ -20,7 +20,7 @@ Var *find_var(char *name, int namelen, Var *vars, Var *outer_scope_vars, Include
 void *new_var(Type *type, char *name, int namelen, Var **varsp, bool is_global);
 
 Var *find_typedef(char *name, int namelen, Var *head, Var *ignore);
-void *new_typedef(Type *type, char *name, int namelen, Var **varsp, bool is_global);
+void *new_typedef(Type *type, char *name, int namelen, bool is_global);
 
 
 //======================================
@@ -74,7 +74,7 @@ Node *expr_stmt(Token **rest, Token *token);
 Node *return_stmt(Token **rest, Token *token);
 Node *declare_lvar_stmt(Token **rest, Token *token, Type *type);
 Type *type_suffix(Token **rest, Token *token, Type *ancestor);
-void typedef_stmt(Token **rest, Token *token, Var **varsp, bool is_global);
+void typedef_stmt(Token **rest, Token *token, bool is_global);
 
 
 //======================================
