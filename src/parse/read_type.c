@@ -24,7 +24,7 @@ Type *read_type(Token **rest, Token *token, AllowStaticOrNot allow_static_or_not
   } else if(equal(token, "struct")) {
     type = read_new_type_struct(&token, token->next);
   } else if (is_identifer_token(token)) {
-    Var *tdf = find_var_now_scope(token->location, token->length, INCLUDE_TYPEDEF);
+    Var *tdf = find_var(token->location, token->length);
     if (!tdf || !tdf->is_typedef)
       return NULL;
     token = token->next;
@@ -54,7 +54,7 @@ Type *read_new_type_struct(Token **rest, Token *token) {
   }
 
   if (!equal(token, "{")) {
-    Tag *tag = find_tag_now_scope(name, namelen);
+    Tag *tag = find_tag(name, namelen);
     if (!tag)
       error_at(token->location, "called a undefined tag of struct");
     *rest = token;

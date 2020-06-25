@@ -12,14 +12,9 @@ String *new_string(char *p, int length);
 //======================================
 // var.c
 extern int lvar_byte;
-typedef enum {
-  INCLUDE_TYPEDEF,
-  EXCLUDE_TYPEDEF,
-} IncludeTypedef;
-Var *find_var(char *name, int namelen, Var *vars, Var *outer_scope_vars, IncludeTypedef include_typedef);
+Var *find_var_in_vars(char *name, int namelen, Var *vars);
 void *new_var(Type *type, char *name, int namelen);
 
-Var *find_typedef(char *name, int namelen, Var *head, Var *ignore);
 void *new_typedef(Type *type, char *name, int namelen);
 
 
@@ -133,7 +128,7 @@ struct Tag {
 };
 
 void new_tag(char *name, int namelen, Type *type);
-Tag *find_tag(char *name, int namelen, Tag *tags);
+Tag *find_tag_in_tags(char *name, int namelen, Tag *tags);
 
 
 
@@ -149,8 +144,8 @@ struct Scope {
 extern Scope *now_scope;
 void scope_in();
 void scope_out();
-Var *find_var_now_scope(char *name, int namelen, IncludeTypedef include_typedef);
-Tag *find_tag_now_scope(char *name, int namelen);
+Var *find_var(char *name, int namelen);
+Tag *find_tag(char *name, int namelen);
 
 
 #endif

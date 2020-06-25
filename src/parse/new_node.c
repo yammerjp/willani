@@ -83,7 +83,7 @@ Node *new_node_string(Token *token) {
 Node *new_node_var(char *name, int length, Token *token) {
   Node *node = calloc(1, sizeof(Node));
 
-  Var *var = find_var_now_scope(name, length, INCLUDE_TYPEDEF);
+  Var *var = find_var(name, length);
   if (var) {
     if (var->is_typedef)
       error_at(token->location, "expected a variable but typedef");

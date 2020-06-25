@@ -67,7 +67,7 @@ void *program(Token *token) {
 
 static void read_new_gvar(Token **rest, Token *token, Type *type_without_suffix, char *name, int namelen) {
   Type *type = type_suffix(&token, token, type_without_suffix);
-  if (find_var(name, namelen, now_scope->vars, NULL, INCLUDE_TYPEDEF))
+  if (find_var_in_vars(name, namelen, now_scope->vars))
     error_at(token->location, "duplicate declarations");
   new_var(type, name, namelen);
 

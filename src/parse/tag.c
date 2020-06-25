@@ -14,7 +14,7 @@ void new_tag(char *name, int namelen, Type *type) {
   now_scope->tags = tag;
 }
 
-Tag *find_tag(char *name, int namelen, Tag *tags) {
+Tag *find_tag_in_tags(char *name, int namelen, Tag *tags) {
   for (Tag *tag = tags; tag; tag = tag->next) {
     if (namelen == tag->namelen && strncmp(name, tag->name, namelen) == 0) {
       return tag;

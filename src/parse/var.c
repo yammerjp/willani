@@ -4,10 +4,8 @@ Var *gvars;
 
 int lvar_byte;
 
-Var *find_var(char *name, int namelen, Var *vars, Var *outer_scope_vars, IncludeTypedef include_typedef) {
-  for (Var *var = vars; var && var != outer_scope_vars; var = var->next) {
-    if (include_typedef ==  EXCLUDE_TYPEDEF && var->is_typedef)
-      continue;
+Var *find_var_in_vars(char *name, int namelen, Var *vars) {
+  for (Var *var = vars; var; var = var->next) {
     if (namelen == var->namelen && !strncmp(name, var->name, namelen))
       return var;
   }
