@@ -3,17 +3,11 @@
 Node *create_scope(Token **rest, Token *token, Node *(* stmt_func_p)(Token **, Token*)) {
   scope_in();
   Tag *outer_own_scope_tags = outer_scope_tags = tags;
-  Var *outer_own_scope_lvars = outer_scope_lvars = lvars;
 
   Node *node = stmt_func_p(&token, token);
   *rest = token;
 
   scope_out();
-
-  // variables declared in the block, is not be able to refered from outer the block.
-  outer_scope_lvars = outer_own_scope_lvars;
-  for (Var *var = lvars; var && var != outer_scope_lvars; var = var->next)
-    var->referable = false;
 
   // tags of struct declared in the block, is not be able to refered from outer the block.
   outer_scope_tags = outer_own_scope_tags;
@@ -335,7 +329,7 @@ Node *declare_lvar_stmt(Token **rest, Token *token, Type *ancestor) {
   // ("[" num "]")*
   Type *type = type_suffix(&token, token, ancestor);
 
-  if (find_var(name, namelen, *(now_scope_varsp()), outer_scope_lvars, EXCLUDE_TYPEDEF))
+  if (find_var(name, namelen, *(now_scope_varsp()), NULL, EXCLUDE_TYPEDEF))
     error("duplicate declarations '%.*s'", namelen, name);
   new_var(type, name, namelen, now_scope_varsp(), false);
 

@@ -1,7 +1,7 @@
 #include "parse.h"
 
 Var **now_scope_varsp() {
-  return is_in_global ? &gvars : &lvars;
+  return &(now_scope->vars);
 }
 
 bool is_in_global;
@@ -69,6 +69,7 @@ void *program(Token *token) {
     scope_out();
   }
   // Todo memolize gvars (now_scope->vars)
+  gvars = now_scope->vars;
   scope_out();
   parse_log();
 }

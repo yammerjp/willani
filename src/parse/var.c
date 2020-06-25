@@ -1,8 +1,6 @@
 #include "parse.h"
 
 Var *gvars;
-Var *lvars;
-Var *outer_scope_lvars;
 
 int lvar_byte;
 
