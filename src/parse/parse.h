@@ -130,7 +130,6 @@ struct Tag {
   int namelen;
   Type *type;
   Tag *next;
-  bool referable;
 };
 
 void new_tag(char *name, int namelen, Type *type);

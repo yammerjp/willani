@@ -110,7 +110,6 @@ struct Var {
   int namelen;
   int offset;
   bool is_typedef;
-  bool referable;
   bool is_global;
 };
 

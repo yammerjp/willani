@@ -6,7 +6,7 @@ int lvar_byte;
 
 Var *find_var(char *name, int namelen, Var *vars, Var *outer_scope_vars, IncludeTypedef include_typedef) {
   for (Var *var = vars; var && var != outer_scope_vars; var = var->next) {
-    if (!var->referable || include_typedef ==  EXCLUDE_TYPEDEF && var->is_typedef)
+    if (include_typedef ==  EXCLUDE_TYPEDEF && var->is_typedef)
       continue;
     if (namelen == var->namelen && !strncmp(name, var->name, namelen))
       return var;
@@ -27,7 +27,6 @@ static void *new_struct_var(Type *type, char *name, int namelen, bool is_typedef
   var->namelen = namelen;
   var->offset = lvar_byte;
   var->is_typedef = is_typedef;
-  var->referable = true;
   var->is_global = !(now_scope->parent);
 
   now_scope->vars = var;

@@ -10,14 +10,13 @@ void new_tag(char *name, int namelen, Type *type) {
   tag->name = name;
   tag->namelen = namelen;
   tag->type = type;
-  tag->referable = true;
   tag->next = now_scope->tags;
   now_scope->tags = tag;
 }
 
 Tag *find_tag(char *name, int namelen, Tag *tags) {
   for (Tag *tag = tags; tag; tag = tag->next) {
-    if (namelen == tag->namelen && strncmp(name, tag->name, namelen) == 0 && tag->referable) {
+    if (namelen == tag->namelen && strncmp(name, tag->name, namelen) == 0) {
       return tag;
     }
   }
