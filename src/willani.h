@@ -179,6 +179,7 @@ typedef struct Function Function;
 struct Function {
   Node *node;
   Var *var;
+  int var_byte;
   Function *next;
   char *name;
   int namelen;

@@ -396,11 +396,10 @@ static void gen_binary_operator(Node *node) {
 }
 
 static void prologue(Function *func) {
-  int offset = func->var ? (func->var->offset) : 0;
 
   printf("  pushq %%rbp\n");         // record caller's rbp
   printf("  movq %%rsp, %%rbp\n");     // set current stack top to rbp
-  printf("  sub $%d, %%rsp\n", offset);     // allocate memory for a-z variables
+  printf("  sub $%d, %%rsp\n", func->var_byte);     // allocate memory for local variables
 
   int i = func->argc;
   for (Var *arg = func->args; arg; arg = arg->next) {
