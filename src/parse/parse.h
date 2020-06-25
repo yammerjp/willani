@@ -144,4 +144,17 @@ void new_tag(char *name, int namelen, Type *type);
 Tag *find_tag(char *name, int namelen);
 
 
+//======================================
+// scope.c
+typedef struct Scope Scope;
+struct Scope {
+  Var *vars;
+  Scope *parent;
+};
+
+extern Scope *now_scope;
+void scope_in();
+void scope_out();
+
+
 #endif
