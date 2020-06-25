@@ -43,8 +43,7 @@ void print_node(FILE *file, Node *node) {
     case ND_LT:             fprintf(file, "<"); break;
     case ND_LE:             fprintf(file, "<="); break;
     case ND_ASSIGN:         fprintf(file, "="); break;
-    case ND_GVAR:           fprintf(file, "%.*s",node->var->namelen, node->var->name); break;
-    case ND_LVAR:           fprintf(file, "%.*s",node->var->namelen, node->var->name); break;
+    case ND_VAR:            fprintf(file, "%.*s",node->var->namelen, node->var->name); break;
     case ND_NUM:            fprintf(file, "%ld",node->value); break;
     case ND_STRING:         fprintf(file, "%.*s",node->token->length, node->token->location); break;
     case ND_ADDR:           fprintf(file, "&"); break;

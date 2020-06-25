@@ -71,12 +71,13 @@ static void store(Type *type) {
 // load the address of node's variable to the stack top
 static void gen_addr(Node *node) {
   switch (node->kind) {
-  case ND_GVAR:
-    // load the address of the actual value of (rbp - offset) 
-    printf("  mov $%.*s, %%rax\n", node->var->namelen, node->var->name);
-    printf("  pushq %%rax\n");         // pushq rbp - offset
-    return;
-  case ND_LVAR:
+  case ND_VAR:
+    if (node->var->is_global) {
+      // load the address of the actual value of (rbp - offset)
+      printf("  mov $%.*s, %%rax\n", node->var->namelen, node->var->name);
+      printf("  pushq %%rax\n");         // pushq rbp - offset
+      return;
+    }
     // load the address of the actual value of (rbp - offset)
     printf("  lea -%d(%%rbp), %%rax\n", node->var->offset);
     printf("  pushq %%rax\n");         // pushq rbp - offset
@@ -296,8 +297,7 @@ static void gen(Node *node) {
   case ND_STRING:
     printf("  pushq $.LC%d\n", node->string->id);
     break;
-  case ND_GVAR:
-  case ND_LVAR:
+  case ND_VAR:
   case ND_MEMBER:
     gen_addr(node);
     load(node->type);

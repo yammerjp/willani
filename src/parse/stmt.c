@@ -58,7 +58,7 @@ Node *stmt(Token **rest, Token *token) {
   Node *node;
 
   if (equal(token, "typedef")) {
-    typedef_stmt(&token, token, now_scope_varsp());
+    typedef_stmt(&token, token, now_scope_varsp(), false);
     *rest = token;
     return NULL;
   }
@@ -334,7 +334,7 @@ Node *declare_lvar_stmt(Token **rest, Token *token, Type *ancestor) {
 
   if (find_var(name, namelen, *(now_scope_varsp()), outer_scope_lvars, EXCLUDE_TYPEDEF))
     error("duplicate declarations '%.*s'", namelen, name);
-  new_var(type, name, namelen, now_scope_varsp());
+  new_var(type, name, namelen, now_scope_varsp(), false);
 
   if (equal(token, ";")) {
     token = token->next;
@@ -373,7 +373,7 @@ Type *type_suffix(Token **rest, Token *token, Type *ancestor) {
   return new_type_array(parent, length);
 }
 
-void typedef_stmt(Token **rest, Token *token, Var **varsp) {
+void typedef_stmt(Token **rest, Token *token, Var **varsp, bool is_global) {
   if (!equal(token, "typedef"))
      error_at(token->location, "expected 'typedef'");
   token = token->next;
@@ -382,7 +382,7 @@ void typedef_stmt(Token **rest, Token *token, Var **varsp) {
 
   if (!is_identifer_token(token))
     error_at(token->location, "expected identifer of typedef");
-  new_typedef(type, token->location, token->length, varsp);
+  new_typedef(type, token->location, token->length, varsp, is_global);
   token = token->next;
 
   if (!equal(token, ";"))

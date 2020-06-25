@@ -63,19 +63,19 @@ Function *function_definition(Token **rest, Token *token, Type *return_type, cha
     if (equal(token, ",")) {
       token = token->next;
       definition = true;
-      new_var(arg_type, 0, 0, &args);
+      new_var(arg_type, 0, 0, &args, false);
       continue;
     }
     if (equal(token, ")")) {
       definition = true;
-      new_var(arg_type, 0, 0, &args);
+      new_var(arg_type, 0, 0, &args, false);
       break;
     }
 
     if(!is_identifer_token(token))
       error_at(token->location, "expected identifer of argument");
 
-    new_var(arg_type, token->location, token->length, &args);
+    new_var(arg_type, token->location, token->length, &args, false);
     token = token->next;
 
     if (!equal(token, ","))

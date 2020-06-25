@@ -111,6 +111,7 @@ struct Var {
   int offset;
   bool is_typedef;
   bool referable;
+  bool is_global;
 };
 
 typedef enum {
@@ -123,8 +124,7 @@ typedef enum {
   ND_LT,            // <
   ND_LE,            // <=
   ND_ASSIGN,        // =
-  ND_GVAR,          // Global Variable
-  ND_LVAR,          // Variable
+  ND_VAR,           // Variable
   ND_NUM,           // Integer
   ND_STRING,        // " ... "
   ND_FUNC_CALL,     // Function call
@@ -154,7 +154,7 @@ struct Node {
   Type *type;       // Used if node is expression
   long value;       // Used if kind == ND_NUM
   String *string;   // Used if kind == ND_STRING
-  Var *var;         // Used if kind is ND_GVAR or ND_LVAR
+  Var *var;         // Used if kind == ND_VAR
   Member *member;   // Used if kind is ND_MEMBER (struct member access)
 
   char *func_name;  // Used if kind == ND_FUNC_CALL

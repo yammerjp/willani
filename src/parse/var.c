@@ -16,7 +16,7 @@ Var *find_var(char *name, int namelen, Var *vars, Var *outer_scope_vars, Include
   return NULL;
 }
 
-static void *new_struct_var(Type *type, char *name, int namelen, Var **varsp, bool is_typedef) {
+static void *new_struct_var(Type *type, char *name, int namelen, Var **varsp, bool is_typedef, bool is_global) {
   if (type->is_static)
     error_at(name, "not support static variables");
   Var *vars = *varsp;
@@ -31,14 +31,15 @@ static void *new_struct_var(Type *type, char *name, int namelen, Var **varsp, bo
   var->offset = lvar_byte;
   var->is_typedef = is_typedef;
   var->referable = true;
+  var->is_global = is_global;
 
   *varsp = var;
 }
 
-void *new_typedef(Type *type, char *name, int namelen, Var **varsp) {
-  return new_struct_var(type, name, namelen, varsp, true);
+void *new_typedef(Type *type, char *name, int namelen, Var **varsp, bool is_global) {
+  return new_struct_var(type, name, namelen, varsp, true, is_global);
 }
 
-void *new_var(Type *type, char *name, int namelen, Var **varsp) {
-  return new_struct_var(type, name, namelen, varsp, false);
+void *new_var(Type *type, char *name, int namelen, Var **varsp, bool is_global) {
+  return new_struct_var(type, name, namelen, varsp, false, is_global);
 }

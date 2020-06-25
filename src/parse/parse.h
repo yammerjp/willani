@@ -20,10 +20,10 @@ typedef enum {
   EXCLUDE_TYPEDEF,
 } IncludeTypedef;
 Var *find_var(char *name, int namelen, Var *vars, Var *outer_scope_vars, IncludeTypedef include_typedef);
-void *new_var(Type *type, char *name, int namelen, Var **varsp);
+void *new_var(Type *type, char *name, int namelen, Var **varsp, bool is_global);
 
 Var *find_typedef(char *name, int namelen, Var *head, Var *ignore);
-void *new_typedef(Type *type, char *name, int namelen, Var **varsp);
+void *new_typedef(Type *type, char *name, int namelen, Var **varsp, bool is_global);
 
 
 //======================================
@@ -77,7 +77,7 @@ Node *expr_stmt(Token **rest, Token *token);
 Node *return_stmt(Token **rest, Token *token);
 Node *declare_lvar_stmt(Token **rest, Token *token, Type *type);
 Type *type_suffix(Token **rest, Token *token, Type *ancestor);
-void typedef_stmt(Token **rest, Token *token, Var **varsp);
+void typedef_stmt(Token **rest, Token *token, Var **varsp, bool is_global);
 
 
 //======================================
