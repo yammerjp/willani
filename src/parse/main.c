@@ -1,5 +1,11 @@
 #include "parse.h"
 
+Var **now_scope_varsp() {
+  return is_in_global ? &gvars : &lvars;
+}
+
+bool is_in_global;
+
 static void read_new_gvar(Token **rest, Token *token, Type *type_without_suffix, char *name, int namelen);
 
 // program = (function | declare_gvar | typedef_stmt)*
@@ -7,10 +13,11 @@ static void read_new_gvar(Token **rest, Token *token, Type *type_without_suffix,
 
 void *program(Token *token) {
   while (!is_eof_token(token)) {
+  is_in_global = true;
     lvar_byte = 0;
     // "typedef" type identifer ";"
     if (equal(token, "typedef")) {
-      typedef_stmt(&token, token, &gvars);
+      typedef_stmt(&token, token, now_scope_varsp());
       continue;
     }
 
@@ -33,6 +40,7 @@ void *program(Token *token) {
       continue;
     }
 
+    is_in_global = false;
     // function
     Function *func_samename = find_function(name, namelen);
     Function *func = function_definition(&token, token, type, name, namelen);
@@ -60,9 +68,9 @@ void *program(Token *token) {
 
 static void read_new_gvar(Token **rest, Token *token, Type *type_without_suffix, char *name, int namelen) {
   Type *type = type_suffix(&token, token, type_without_suffix);
-  if (find_var(name, namelen, gvars, NULL, INCLUDE_TYPEDEF))
+  if (find_var(name, namelen, *(now_scope_varsp()), NULL, INCLUDE_TYPEDEF))
     error_at(token->location, "duplicate declarations");
-  new_var(type, name, namelen, &gvars);
+  new_var(type, name, namelen, now_scope_varsp());
 
   if (!equal(token, ";"))
     error_at(token->location, "expected ;");
