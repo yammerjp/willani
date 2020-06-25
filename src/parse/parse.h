@@ -3,7 +3,6 @@
 
 #include "../willani.h"
 
-extern bool is_in_global;
 Var **now_scope_varsp();
 
 //======================================

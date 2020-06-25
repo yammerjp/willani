@@ -4,8 +4,6 @@ Var **now_scope_varsp() {
   return &(now_scope->vars);
 }
 
-bool is_in_global;
-
 static void read_new_gvar(Token **rest, Token *token, Type *type_without_suffix, char *name, int namelen);
 
 // program = (function | declare_gvar | typedef_stmt)*
@@ -14,7 +12,6 @@ static void read_new_gvar(Token **rest, Token *token, Type *type_without_suffix,
 void *program(Token *token) {
   scope_in();
   while (!is_eof_token(token)) {
-  is_in_global = true;
     lvar_byte = 0;
     // "typedef" type identifer ";"
     if (equal(token, "typedef")) {
@@ -42,7 +39,6 @@ void *program(Token *token) {
     }
 
     scope_in();
-    is_in_global = false;
     // function
     Function *func_samename = find_function(name, namelen);
     Function *func = function_definition(&token, token, type, name, namelen);
