@@ -1,9 +1,5 @@
 #include "parse.h"
 
-Var **now_scope_varsp() {
-  return &(now_scope->vars);
-}
-
 static void read_new_gvar(Token **rest, Token *token, Type *type_without_suffix, char *name, int namelen);
 
 // program = (function | declare_gvar | typedef_stmt)*
@@ -15,7 +11,7 @@ void *program(Token *token) {
     lvar_byte = 0;
     // "typedef" type identifer ";"
     if (equal(token, "typedef")) {
-      typedef_stmt(&token, token, now_scope_varsp(), true);
+      typedef_stmt(&token, token, &(now_scope->vars), true);
       continue;
     }
 
@@ -57,8 +53,7 @@ void *program(Token *token) {
 
     if (func_samename && !func_samename->definition)
       error_at(token->location, "a entitiy of the same name function is exist");
-
-    *(now_scope_varsp()) = func->args;
+    now_scope->vars = func->args;
     func->node = block_stmt(&token, token);
     func->var_byte = lvar_byte;
 
@@ -72,9 +67,9 @@ void *program(Token *token) {
 
 static void read_new_gvar(Token **rest, Token *token, Type *type_without_suffix, char *name, int namelen) {
   Type *type = type_suffix(&token, token, type_without_suffix);
-  if (find_var(name, namelen, *(now_scope_varsp()), NULL, INCLUDE_TYPEDEF))
+  if (find_var(name, namelen, now_scope->vars, NULL, INCLUDE_TYPEDEF))
     error_at(token->location, "duplicate declarations");
-  new_var(type, name, namelen, now_scope_varsp(), true);
+  new_var(type, name, namelen, &(now_scope->vars), true);
 
   if (!equal(token, ";"))
     error_at(token->location, "expected ;");

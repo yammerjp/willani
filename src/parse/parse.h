@@ -3,8 +3,6 @@
 
 #include "../willani.h"
 
-Var **now_scope_varsp();
-
 //======================================
 // strings.c
 char get_escape_char(char c);
