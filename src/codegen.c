@@ -225,7 +225,7 @@ static void gen_func_call(Node *node) {
   while (argc>0)
     printf("  popq  %%%s\n", arg_regs8[--argc]);
 
-  // align RSP to a 16 bite boundary
+  // align RSP to a 16 byte boundary
   int labct = label_count ++;
   printf("  movq %%rsp, %%rax\n");
   printf("  and $15, %%rax\n");
@@ -396,10 +396,14 @@ static void gen_binary_operator(Node *node) {
 }
 
 static void prologue(Function *func) {
+  int offset = func->var_byte;
+  // align RSP to a 8 byte boundary
+  while (offset%8)
+    offset++;
 
   printf("  pushq %%rbp\n");         // record caller's rbp
   printf("  movq %%rsp, %%rbp\n");     // set current stack top to rbp
-  printf("  sub $%d, %%rsp\n", func->var_byte);     // allocate memory for local variables
+  printf("  sub $%d, %%rsp\n", offset);     // allocate memory for local variables
 
   int i = func->argc;
   for (Var *arg = func->args; arg; arg = arg->next) {
