@@ -289,6 +289,16 @@ static void gen(Node *node) {
   case ND_SWITCH_STMT:
     gen_switch(node);
     break;
+  case ND_CASE_LABEL:
+    if (!switch_label_count)
+      error_at(node->token->location, "case label must be in switch statement");
+    printf(".L.case.%d.%d:\n", switch_label_count , node->case_num);
+    break;
+  case ND_DEFAULT_LABEL:
+    if (!switch_label_count)
+      error_at(node->token->location, "default label must be in switch statement");
+    printf(".L.default.%d:\n", switch_label_count);
+    break;
 
   // expression
   case ND_NUM:
@@ -330,16 +340,6 @@ static void gen(Node *node) {
   case ND_COMMA:
     gen(node->left);
     gen(node->right);
-    break;
-  case ND_CASE_LABEL:
-    if (!switch_label_count)
-      error_at(node->token->location, "case label must be in switch statement");
-    printf(".L.case.%d.%d:\n", switch_label_count , node->case_num);
-    break;
-  case ND_DEFAULT_LABEL:
-    if (!switch_label_count)
-      error_at(node->token->location, "default label must be in switch statement");
-    printf(".L.default.%d:\n", switch_label_count);
     break;
   default:
     // expect binary operator node
