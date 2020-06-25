@@ -350,8 +350,8 @@ static void gen_binary_operator(Node *node) {
   gen(node->left);
   gen(node->right);
 
-  printf("  popq %%rdi\n");          // load the stack top to rdi to calculate
-  printf("  popq %%rax\n");          // load the stack top to rax to calculate
+  printf("  popq %%rdi\n");           // load the stack top to rdi to calculate
+  printf("  popq %%rax\n");           // load the stack top to rax to calculate
 
   switch (node->kind) {
   case ND_ADD:
@@ -364,29 +364,32 @@ static void gen_binary_operator(Node *node) {
     printf("  imul %%rdi, %%rax\n");  // rax *= rdi
     break;
   case ND_DIV:
-    printf("  cqo\n");            // [rdx rax](128bit) = rax (64bit)
-    printf("  idiv %%rdi\n");       // rax = [rdx rax] / rdi
-                                  // rdx = [rdx rax] % rdi
+    printf("  cqo\n");                // [rdx rax](128bit) = rax (64bit)
+    printf("  idiv %%rdi\n");         // rax = [rdx rax] / rdi
+    break;
+  case ND_MOD:
+    printf("  cqo\n");                // [rdx rax](128bit) = rax (64bit)
+    printf("  idiv %%rdi\n");         // rdx = [rdx rax] % rdi
+    printf("  movq %%rdx, %%rax\n");
     break;
   case ND_EQ:
     printf("  cmp %%rdi, %%rax\n");   // set flag register with comparing rax and rdi
-    printf("  sete %%al\n");        // al = ( flag register means rax == rdi ) ? 1 : 0
+    printf("  sete %%al\n");          // al = ( flag register means rax == rdi ) ? 1 : 0
     printf("  movzb %%al, %%rax\n");  // rax(64bit) = al(8bit)
-                                  // al refer to the lower 8 bits of the rax
     break;
   case ND_NE:
     printf("  cmp %%rdi, %%rax\n");
-    printf("  setne %%al\n");       // al = ( flag register means rax != rdi ) ? 1 : 0
+    printf("  setne %%al\n");         // al = ( flag register means rax != rdi ) ? 1 : 0
     printf("  movzb %%al, %%rax\n");
     break;
   case ND_LT:
     printf("  cmp %%rdi, %%rax\n");
-    printf("  setl %%al\n");        // al = ( flag register means rax < rdi ) ? 1 : 0
+    printf("  setl %%al\n");          // al = ( flag register means rax < rdi ) ? 1 : 0
     printf("  movzb %%al, %%rax\n");
     break;
   case ND_LE:
     printf("  cmp %%rdi, %%rax\n");
-    printf("  setle %%al\n");       // al = ( flag register means rax <= rdi ) ? 1 : 0
+    printf("  setle %%al\n");         // al = ( flag register means rax <= rdi ) ? 1 : 0
     printf("  movzb %%al, %%rax\n");
     break;
   defalt:
@@ -402,8 +405,8 @@ static void prologue(Function *func) {
     offset++;
 
   printf("  pushq %%rbp\n");         // record caller's rbp
-  printf("  movq %%rsp, %%rbp\n");     // set current stack top to rbp
-  printf("  sub $%d, %%rsp\n", offset);     // allocate memory for local variables
+  printf("  movq %%rsp, %%rbp\n");   // set current stack top to rbp
+  printf("  sub $%d, %%rsp\n", offset);  // allocate memory for local variables
 
   int i = func->argc;
   for (Var *arg = func->args; arg; arg = arg->next) {

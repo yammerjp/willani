@@ -25,6 +25,7 @@ Node *new_node_add(Node *left, Node *right, Token *token);
 Node *new_node_sub(Node *left, Node *right, Token *token);
 Node *new_node_mul(Node *left, Node *right, Token *token);
 Node *new_node_div(Node *left, Node *right, Token *token);
+Node *new_node_mod(Node *left, Node *right, Token *token);
 Node *new_node_equal(Node *left, Node *right, Token *token);
 Node *new_node_not_equal(Node *left, Node *right, Token *token);
 Node *new_node_less_than(Node *left, Node *right, Token *token);

@@ -38,6 +38,7 @@ void print_node(FILE *file, Node *node) {
     case ND_SUB:            fprintf(file, "-"); break;
     case ND_MUL:            fprintf(file, "*"); break;
     case ND_DIV:            fprintf(file, "/"); break;
+    case ND_MOD:            fprintf(file, "%%"); break;
     case ND_EQ:             fprintf(file, "=="); break;
     case ND_NE:             fprintf(file, "!="); break;
     case ND_LT:             fprintf(file, "<"); break;

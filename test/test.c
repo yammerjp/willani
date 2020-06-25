@@ -295,6 +295,9 @@ int main() {
     300
   );
 
+  assert("222%4", 222%4, 2);
+  assert("10%3", 10%3, 1);
+
   printf("\nOK\n");
   return 0;
 }

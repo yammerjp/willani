@@ -87,7 +87,7 @@ Node *add(Token **rest, Token *token) {
   }
 }
 
-// mul = unary ("*" unary | "/" unary)*
+// mul = unary ("*" unary | "/" unary | "%" unary)*
 Node *mul(Token **rest, Token *token) {
   Node *node = unary(&token, token);
 
@@ -99,6 +99,10 @@ Node *mul(Token **rest, Token *token) {
     }
     if (equal(op_token, "/")) {
       node = new_node_div(node, unary(&token, op_token->next), op_token);
+      continue;
+    }
+    if (equal(op_token, "%")) {
+      node = new_node_mod(node, unary(&token, op_token->next), op_token);
       continue;
     }
 

@@ -38,6 +38,10 @@ Node *new_node_div(Node *left, Node *right, Token *token) {
   return new_node_op2(ND_DIV, left, right, token);
 }
 
+Node *new_node_mod(Node *left, Node *right, Token *token) {
+  return new_node_op2(ND_MOD, left, right, token);
+}
+
 Node *new_node_equal(Node *left, Node *right, Token *token) {
   Node *node = new_node_op2(ND_EQ, left, right, token);
   node->type = new_type_int();
