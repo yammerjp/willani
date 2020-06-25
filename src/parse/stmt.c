@@ -1,15 +1,5 @@
 #include "parse.h"
 
-Node *create_scope(Token **rest, Token *token, Node *(* stmt_func_p)(Token **, Token*)) {
-  scope_in();
-
-  Node *node = stmt_func_p(&token, token);
-  *rest = token;
-
-  scope_out();
-  return node;
-}
-
 // block_stmt = "{" stmt* "}"
 Node *block_stmt(Token **rest, Token *token) {
   Token *bracket_token = token;
@@ -56,8 +46,11 @@ Node *stmt(Token **rest, Token *token) {
   Type *type = read_type(&token, token, ALLOW_STATIC); // Proceed token if only token means type
   if (type)
     node = declare_lvar_stmt(&token, token, type);
-  else
-    node = create_scope(&token, token, stmt_without_declaration);
+  else {
+    scope_in();
+    node = stmt_without_declaration(&token, token);
+    scope_out();
+  }
   *rest = token;
   return node;
 }
@@ -72,8 +65,11 @@ Node *stmt_without_declaration(Token **rest, Token *token) {
     node = if_stmt(&token, token);
   else if (equal(token, "while"))
     node = while_stmt(&token, token);
-  else if (equal(token, "for"))
-    node = create_scope(&token, token, for_stmt);
+  else if (equal(token, "for")) {
+    scope_in();
+    node = for_stmt(&token, token);
+    scope_out();
+  }
   else if (equal(token, "switch"))
     node = switch_stmt(&token, token);
   else if (equal(token, "{"))
@@ -115,12 +111,16 @@ Node *if_stmt(Token **rest, Token *token) {
     error_at(token->location, "expected )");
   token = token->next;
 
-  Node *then = create_scope(&token, token, stmt_without_declaration);
+  scope_in();
+  Node *then = stmt_without_declaration(&token, token);
+  scope_out();
 
   Node *els = NULL;
   if (equal(token, "else")) {
     token = token->next;
-    els = create_scope(&token, token, stmt_without_declaration);
+    scope_in();
+    els = stmt_without_declaration(&token, token);
+    scope_out();
   }
   Node *node = new_node_if(cond, then, els, if_token);
 
@@ -145,7 +145,9 @@ Node *while_stmt(Token **rest, Token *token) {
     error_at(token->location, "expected )");
   token = token->next;
 
-  Node *then = create_scope(&token, token, stmt_without_declaration);
+  scope_in();
+  Node *then = stmt_without_declaration(&token, token);
+  scope_out();
 
   Node *node = new_node_while(cond, then, while_token);
 

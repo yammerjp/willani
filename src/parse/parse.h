@@ -62,7 +62,6 @@ void parse_log();
 
 //======================================
 // stmt.c
-Node *create_scope(Token **rest, Token *token, Node *(* stmt_func_p)(Token **, Token*));
 Node *stmt(Token **rest, Token *token);
 Node *stmt_without_declaration(Token **rest, Token *token);
 Node *if_stmt(Token **rest, Token *token);

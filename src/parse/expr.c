@@ -312,7 +312,9 @@ Node *stmt_expr(Token **rest, Token *token) {
     error_at(token->next->location, "expected statement expression");
   token = token->next;
 
-  Node *node = create_scope(&token, token, block_stmt);
+  scope_in();
+  Node *node = block_stmt(&token, token);
+  scope_out();
   node->kind = ND_STMT_EXPR;
 
   Node *tail = node->body;
