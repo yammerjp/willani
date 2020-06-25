@@ -155,6 +155,7 @@ struct Scope {
 extern Scope *now_scope;
 void scope_in();
 void scope_out();
+Var *find_var_now_scope(char *name, int namelen, IncludeTypedef include_typedef);
 
 
 #endif

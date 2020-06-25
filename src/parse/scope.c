@@ -11,3 +11,12 @@ void scope_in() {
 void scope_out() {
   now_scope = now_scope->parent;
 }
+
+Var *find_var_now_scope(char *name, int namelen, IncludeTypedef include_typedef) {
+  for (Scope *sc = now_scope; sc; sc = sc->parent) {
+    Var *var = find_var(name, namelen, sc->vars, NULL, include_typedef);
+    if (var)
+      return var;
+  }
+  return NULL;
+}

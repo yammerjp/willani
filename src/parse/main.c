@@ -12,6 +12,7 @@ static void read_new_gvar(Token **rest, Token *token, Type *type_without_suffix,
 // declare_gvar = type ident type_suffix ";"
 
 void *program(Token *token) {
+  scope_in();
   while (!is_eof_token(token)) {
   is_in_global = true;
     lvar_byte = 0;
@@ -40,6 +41,7 @@ void *program(Token *token) {
       continue;
     }
 
+    scope_in();
     is_in_global = false;
     // function
     Function *func_samename = find_function(name, namelen);
@@ -51,6 +53,7 @@ void *program(Token *token) {
     if (equal(token, ";")) {
       token = token->next;
       func->definition = true;
+      scope_out();
       continue;
     }
     if (func->definition)
@@ -62,7 +65,11 @@ void *program(Token *token) {
     *(now_scope_varsp()) = func->args;
     func->node = block_stmt(&token, token);
     func->var_byte = lvar_byte;
+
+    scope_out();
   }
+  // Todo memolize gvars (now_scope->vars)
+  scope_out();
   parse_log();
 }
 

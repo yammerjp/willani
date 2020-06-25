@@ -1,11 +1,14 @@
 #include "parse.h"
 
 Node *create_scope(Token **rest, Token *token, Node *(* stmt_func_p)(Token **, Token*)) {
+  scope_in();
   Tag *outer_own_scope_tags = outer_scope_tags = tags;
   Var *outer_own_scope_lvars = outer_scope_lvars = lvars;
 
   Node *node = stmt_func_p(&token, token);
   *rest = token;
+
+  scope_out();
 
   // variables declared in the block, is not be able to refered from outer the block.
   outer_scope_lvars = outer_own_scope_lvars;
