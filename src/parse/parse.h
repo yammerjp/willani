@@ -12,6 +12,7 @@ String *new_string(char *p, int length);
 
 //======================================
 // var.c
+extern int lvar_byte;
 typedef enum {
   INCLUDE_TYPEDEF,
   EXCLUDE_TYPEDEF,

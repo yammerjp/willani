@@ -7,6 +7,7 @@ static void read_new_gvar(Token **rest, Token *token, Type *type_without_suffix,
 
 void *program(Token *token) {
   while (!is_eof_token(token)) {
+    lvar_byte = 0;
     // "typedef" type identifer ";"
     if (equal(token, "typedef")) {
       typedef_stmt(&token, token, &gvars);
@@ -52,7 +53,7 @@ void *program(Token *token) {
 
     lvars = func->args;
     func->node = block_stmt(&token, token);
-    func->var_byte = lvars ? lvars->offset : 0;
+    func->var_byte = lvar_byte;
   }
   parse_log();
 }
