@@ -1,6 +1,5 @@
 #include "parse.h"
 
-FILE *var_logfile;
 FILE *parse_logfile;
 
 static void print_type(FILE *file, Type *type) {
@@ -97,57 +96,15 @@ static void parse_log_nodes(Node *node, int depth) {
   parse_log_nodes(node->next, depth);
 }
 
-static void parse_var_line(int depth, int size, int offset, int namelen, char *name, bool is_arg) {
-  fprintf(var_logfile, "%*s", (depth+1)*2, "");
-  fprintf(var_logfile, "size:%3d", size);
-  fprintf(var_logfile, ", offset:%3d", offset);
-  fprintf(var_logfile, ", name: %.*s ", namelen, name);
-  fprintf(var_logfile, is_arg ? " (argument)" : "" );
-  fprintf(var_logfile, "\n");
-}
-
-static void parse_members(Member *members, int depth) {
-  if (!members)
-    return;
-  for (Member *mem = members; mem; mem = mem->next) {
-    parse_var_line(depth+1, mem->type->size, mem->offset, mem->namelen, mem->name, false);
-    parse_members(mem->type->members, depth+1);
-  }
-}
-
-static void parse_vars(Var *vars, Var *args) {
-  for (Var *var = vars; var; var = var->next) {
-    if (var->is_typedef)
-      continue;
-    parse_var_line(0, var->type->size, var->offset, var->namelen, var->name, var==args);
-
-    if (var==args)
-      args = var->next;
-
-    parse_members(var->type->members, 0);
-  }
-}
-
 void parse_log() {
-  var_logfile = fopen("var.log","w");
-  if (!var_logfile)
-    error("fail to open var.log");
-
   parse_logfile = fopen("parse.log","w");
   if (!parse_logfile)
     error("fail to open parse.log");
 
-  fprintf(var_logfile, ".global:\n");
-  parse_vars(gvars, NULL);
-
   for (Function *func = functions; func; func = func->next) {
-    fprintf(var_logfile, "%.*s:\n", func->namelen, func->name);
-    parse_vars(func->var, func->args);
-
     fprintf(parse_logfile, "%.*s: ", func->namelen, func->name);
     parse_log_nodes(func->node, 0);
   }
  
   fclose(parse_logfile);
-  fclose(var_logfile);
 }

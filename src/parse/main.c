@@ -52,7 +52,6 @@ void *program(Token *token) {
 
     lvars = func->args;
     func->node = block_stmt(&token, token);
-    func->var = lvars;
     func->var_byte = lvars ? lvars->offset : 0;
   }
   parse_log();
