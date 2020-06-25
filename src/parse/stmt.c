@@ -58,7 +58,7 @@ Node *stmt(Token **rest, Token *token) {
   Node *node;
 
   if (equal(token, "typedef")) {
-    typedef_stmt(&token, token, &lvars);
+    typedef_stmt(&token, token, now_scope_varsp());
     *rest = token;
     return NULL;
   }
@@ -332,9 +332,9 @@ Node *declare_lvar_stmt(Token **rest, Token *token, Type *ancestor) {
   // ("[" num "]")*
   Type *type = type_suffix(&token, token, ancestor);
 
-  if (find_var(name, namelen, lvars, outer_scope_lvars, EXCLUDE_TYPEDEF))
+  if (find_var(name, namelen, *(now_scope_varsp()), outer_scope_lvars, EXCLUDE_TYPEDEF))
     error("duplicate declarations '%.*s'", namelen, name);
-  new_var(type, name, namelen, &lvars);
+  new_var(type, name, namelen, now_scope_varsp());
 
   if (equal(token, ";")) {
     token = token->next;
@@ -346,7 +346,7 @@ Node *declare_lvar_stmt(Token **rest, Token *token, Type *ancestor) {
     error_at(token->location, "expected ; or =");
   token = token->next;
 
-  Node *node = init_lvar_stmts(&token, token, lvars, NULL);
+  Node *node = init_lvar_stmts(&token, token, *(now_scope_varsp()), NULL);
 
   if (!equal(token, ";"))
     error_at(token->location, "expected ;");

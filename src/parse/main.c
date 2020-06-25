@@ -59,7 +59,7 @@ void *program(Token *token) {
     if (func_samename && !func_samename->definition)
       error_at(token->location, "a entitiy of the same name function is exist");
 
-    lvars = func->args;
+    *(now_scope_varsp()) = func->args;
     func->node = block_stmt(&token, token);
     func->var_byte = lvar_byte;
   }
