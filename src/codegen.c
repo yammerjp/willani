@@ -341,6 +341,14 @@ static void gen(Node *node) {
     gen(node->left);
     gen(node->right);
     break;
+  case ND_NOT:
+    gen(node->left);
+    printf("  pop %%rax\n");
+    printf("  cmp $0, %%rax\n");
+    printf("  sete %%al\n");
+    printf("  movzbl %%al, %%rax\n");
+    printf("  pushq %%rax\n");
+    break;
   default:
     // expect binary operator node
     gen_binary_operator(node);

@@ -305,6 +305,9 @@ int main() {
   assert( "({int a;a=10;a/=3;a;})", ({int a;a=10;a/=3;a;}), 3);
   assert( "({int a;a=10;a%=3;a;})", ({int a;a=10;a%=3;a;}), 1);
 
+  assert("!0", !0, 1);
+  assert("!1", !1, 0);
+  assert("!1231", !1231, 0);
 
   printf("\nOK\n");
   return 0;

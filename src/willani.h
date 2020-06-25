@@ -144,6 +144,7 @@ typedef enum {
   ND_DEFAULT_LABEL, // default: in switch statement
   ND_STMT_EXPR,     // ({ ...; ... }) GNU statement expression extention
   ND_COMMA,         // ... , ...
+  ND_NOT,           // ! ...
 } NodeKind;
 
 typedef struct Node Node;

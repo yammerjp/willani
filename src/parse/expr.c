@@ -137,6 +137,7 @@ Node *mul(Token **rest, Token *token) {
 static Node *postfix(Token **rest, Token *token, Node *primary_node);
 // unary = "+" primary
 //       | "-" primary
+//       | "!" primary
 //       | "sizeof" unary
 //       | "*" unary
 //       | "&" unary
@@ -149,6 +150,8 @@ Node *unary(Token **rest, Token *token) {
     node = primary(&token, op_token->next);
   } else if (equal(op_token,"-")) {
     node = new_node_sub(new_node_num(0, op_token), primary(&token, op_token->next), op_token);
+  } else if (equal(op_token,"!")) {
+    node = new_node_not(primary(&token, op_token->next), op_token);
   } else if (equal(op_token, "*")) {
     node = new_node_deref(unary(&token, op_token->next), op_token);
   } else if (equal(op_token, "&")) {

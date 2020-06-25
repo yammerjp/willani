@@ -223,6 +223,15 @@ Node *new_node_comma(Node *left, Node *right, Token *token) {
   return node;
 }
 
+Node *new_node_not(Node *left, Token *token) {
+  Node *node = calloc(1, sizeof(Node));
+  node->kind = ND_NOT;
+  node->left = left;
+  node->type = new_type_int();
+  node->token = token;
+  return node;
+}
+
 Node *new_node_continue(Token *token) {
   Node *node = calloc(1, sizeof(Node));
   node->kind = ND_CONTINUE_STMT;
