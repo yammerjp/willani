@@ -225,6 +225,7 @@ Node *new_node_switch(Node *cond, Node *cases, Node *body, Token *token) {
   node->cond = cond;
   node->cases = cases;
   node->body = body;
+  return node;
 }
 
 //  ND_STMT_WHILE,        // while
