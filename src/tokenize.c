@@ -73,7 +73,19 @@ bool equal(Token *token, char *str) {
 // ==========  read input and check token ==========
 static int digit_token_length(char *p) {
   int i = 0;
-  while (isdigit(p[i]))
+  bool base_is_16 = false;
+  if (p[0] == '0') {
+    i++;
+    switch (p[1]) {
+      case 'x':
+      case 'X':
+        base_is_16 = true;
+      case 'b':
+      case 'B':
+        i++;
+    }
+  }
+  while ('0'<=p[i]&&p[i]<='9' || base_is_16 && ('a'<=p[i]&&p[i]<='f' || 'A'<=p[i]&&p[i]<='F'))
     i++;
   return i;
 }

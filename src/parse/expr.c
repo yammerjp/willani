@@ -239,6 +239,22 @@ static Node *postfix(Token **rest, Token *token, Node *primary_node) {
   }
 }
 
+// "0x02" => 2, "2" => 2, "0b10" => 2, "010" => 8
+static long str_to_l(char *p, int length) {
+  int num;
+  char *p_end;
+  if (p[1] == 'b' || p[1] == 'B') {
+    if (length == 2)
+      error_at(p, "failed to read number token");
+    num = strtol(p+2, &p_end, 2);
+  } else {
+    num = strtol(p, &p_end, 0);
+  }
+  if (p+length != p_end)
+    error_at(p, "failed to read number token");
+  return num;
+}
+
 // primary    = num
 //            | ' ... '
 //            | primary_identifer
@@ -250,7 +266,8 @@ Node *primary(Token **rest, Token *token) {
 
   // num
   if (is_number_token(token)) {
-    node = new_node_num(strtol(token->location, NULL, 10), token);
+    int num = str_to_l(token->location, token->length);
+    node = new_node_num(num, token);
     *rest = token->next;
     return node;
   }

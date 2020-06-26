@@ -309,6 +309,14 @@ int main() {
   assert("!1", !1, 0);
   assert("!1231", !1231, 0);
 
+  assert("0x00", 0x00, 0);
+  assert("0b00", 0b00, 0);
+  assert("0b111", 0b111, 7);
+  assert("0B111", 0b111, 7);
+  assert("0x111", 0x111, 273);
+  assert("0X111", 0X111, 273);
+  assert("0xffff", 0xffff, 65535);
+
   printf("\nOK\n");
   return 0;
 }
