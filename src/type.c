@@ -2,55 +2,44 @@
 
 const int type_size_pointer = 8;
 
-Type *new_type_long() {
+static Type *new_type(TypeKind kind, int size) {
   Type *type = calloc(1, sizeof(Type));
-  type->kind = TYPE_LONG;
-  type->size = 8;
+  type->kind = kind;
+  type->size = size;
   return type;
+}
+
+Type *new_type_long() {
+  return new_type(TYPE_LONG, 8);
 }
 
 Type *new_type_int() {
-  Type *type = calloc(1, sizeof(Type));
-  type->kind = TYPE_INT;
-  type->size = 4;
-  return type;
+  return new_type(TYPE_INT, 4);
 }
 
 Type *new_type_char() {
-  Type *type = calloc(1, sizeof(Type));
-  type->kind = TYPE_CHAR;
-  type->size = 1;
-  return type;
+  return new_type(TYPE_CHAR, 1);
 }
 
 Type *new_type_bool() {
-  Type *type = calloc(1, sizeof(Type));
-  type->kind = TYPE_BOOL;
-  type->size = 1;
-  return type;
+  return new_type(TYPE_BOOL, 1);
 }
 
 Type *new_type_pointer(Type *parent) {
-  Type *type = calloc(1, sizeof(Type));
-  type->kind = TYPE_PTR;
-  type->size = type_size_pointer;
+  Type *type = new_type(TYPE_PTR, type_size_pointer);
   type->base = parent;
   return type;
 }
 
 Type *new_type_array(Type *parent, int length) {
-  Type *type = calloc(1, sizeof(Type));
-  type->kind = TYPE_ARRAY;
-  type->size = length * parent->size;
+  Type *type = new_type(TYPE_ARRAY, length * parent->size);
   type->base = parent;
   type->array_length  = length;
   return type;
 }
 
 Type *new_type_struct(int size, Member *members) {
-  Type *type = calloc(1, sizeof(Type));
-  type->kind = TYPE_STRUCT;
-  type->size = size;
+  Type *type = new_type(TYPE_STRUCT, size);
   type->members = members;
   return type;
 }
