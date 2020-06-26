@@ -124,9 +124,6 @@ static void gen_addr(Node *node) {
 }
 
 static void gen_if(Node *node) {
-  if (node->kind != ND_STMT_IF)
-    error_at(node->token->location, "expected node->kind is ND_STMT_IF");
-
   int labct = label_count ++;
 
   gen(node->cond);               // calculate condition
@@ -148,9 +145,6 @@ static void gen_if(Node *node) {
 }
 
 static void gen_switch(Node *node) {
-  if (node->kind != ND_STMT_SWITCH)
-    error_at(node->token->location, "expected node->kind is ND_STMT_SWITCH");
-
   int labct = label_count ++;
   push(&switch_stack, labct);
   push(&break_stack, labct);
@@ -180,9 +174,6 @@ static void gen_switch(Node *node) {
 }
 
 static void gen_while(Node *node) {
-  if (node->kind != ND_STMT_WHILE)
-    error_at(node->token->location, "expected node->kind is ND_STMT_WHILE");
-
   int labct = label_count ++;
   push(&continue_stack, labct);
   push(&break_stack, labct);
@@ -205,9 +196,6 @@ static void gen_while(Node *node) {
 }
 
 static void gen_for(Node *node) {
-  if (node->kind != ND_STMT_FOR)
-    error_at(node->token->location, "expected node->kind is ND_STMT_FOR");
-
   int labct = label_count ++;
   push(&continue_stack, labct);
   push(&break_stack, labct);
@@ -235,9 +223,6 @@ static void gen_for(Node *node) {
 }
 
 static void gen_func_call(Node *node) {
-  if (node->kind != ND_EXPR_FUNC_CALL)
-    error_at(node->token->location, "expected function call");
-
   int argc = 0;
   for (Node *arg_node = node->func_args; arg_node; arg_node = arg_node->next) {
     gen(arg_node);
