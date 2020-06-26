@@ -267,8 +267,7 @@ Node *switch_stmt(Token **rest, Token *token) {
     while (stmt_tail->next)
       stmt_tail = stmt_tail->next;
   }
-  Node *node = new_node_switch(cond, case_head.next, stmt_head.next, switch_token);
-  node->have_default = have_default;
+  Node *node = new_node_switch(cond, case_head.next, stmt_head.next, have_default, switch_token);
 
   *rest = token->next;
   return node;

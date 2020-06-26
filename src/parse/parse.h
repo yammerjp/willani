@@ -41,7 +41,7 @@ Node *new_node_member(Node *parent, char *name, int namelen,  Token *token);
 Node *new_node_comma(Node *left, Node *right, Token *token);
 Node *new_node_block(Node *body, Token *token);
 Node *new_node_if(Node *cond, Node *then, Node *els, Token *token);
-Node *new_node_switch(Node *cond, Node *cases, Node *body, Token *token);
+Node *new_node_switch(Node *cond, Node *cases, Node *body, bool have_default, Token *token);
 Node *new_node_while(Node *cond, Node *then, Token *token);
 Node *new_node_for(Node *init, Node *cond, Node* increment, Node *then, Token *token);
 Node *new_node_return(Node *left, Token *token);

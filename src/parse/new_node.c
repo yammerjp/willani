@@ -220,11 +220,12 @@ Node *new_node_if(Node *cond, Node *then, Node *els, Token *token) {
 }
 
 //  ND_STMT_SWITCH,       // switch { ... }
-Node *new_node_switch(Node *cond, Node *cases, Node *body, Token *token) {
+Node *new_node_switch(Node *cond, Node *cases, Node *body, bool have_default, Token *token) {
   Node *node = new_node_stmt(ND_STMT_SWITCH, token);
   node->cond = cond;
   node->cases = cases;
   node->body = body;
+  node->have_default = have_default;
   return node;
 }
 
