@@ -1,5 +1,7 @@
-int printf(char *, int);
-
 int main() {
-  return ({ int p[10]; int *a=p+9; int *b=p; a-b; });
+  int x;
+  int y;
+  x=3;
+  y=5;
+  return *(&y+1);
 }

@@ -35,7 +35,10 @@ static void print_type(FILE *file, Type *type) {
 void print_node(FILE *file, Node *node) {
   switch (node->kind) {
     case ND_EXPR_ADD:            fprintf(file, "+"); break;
+    case ND_EXPR_PTR_ADD:        fprintf(file, "+ (pointer)"); break;
     case ND_EXPR_SUB:            fprintf(file, "-"); break;
+    case ND_EXPR_PTR_SUB:        fprintf(file, "- (pointer)"); break;
+    case ND_EXPR_PTR_DIFF:       fprintf(file, "- (pointers diff)"); break;
     case ND_EXPR_MUL:            fprintf(file, "*"); break;
     case ND_EXPR_DIV:            fprintf(file, "/"); break;
     case ND_EXPR_MOD:            fprintf(file, "%%"); break;

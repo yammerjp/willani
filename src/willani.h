@@ -131,7 +131,10 @@ typedef enum {
   // dual operator
   ND_EXPR_ASSIGN,       // =
   ND_EXPR_ADD,          // +
+  ND_EXPR_PTR_ADD,      // (pointer) + (int)
   ND_EXPR_SUB,          // -
+  ND_EXPR_PTR_SUB,      // (pointer) - (int)
+  ND_EXPR_PTR_DIFF,     // (pointer) - (pointer)
   ND_EXPR_MUL,          // *
   ND_EXPR_DIV,          // /
   ND_EXPR_MOD,          // %

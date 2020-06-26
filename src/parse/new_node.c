@@ -105,34 +105,29 @@ Node *new_node_assign(Node *left, Node *right, Token *token) {
 }
 
 //  ND_EXPR_ADD,          // +
+//  ND_EXPR_PTR_ADD,      // (pointer) + (int)
 Node *new_node_add(Node *left, Node *right, Token *token) {
-  Node *num;
-  if (is_ptr_or_arr(left->type)) {
-    num = new_node_num(left->type->base->size, left->token);
-    right = new_node_mul(right, num, right->token);
-  } else if (is_ptr_or_arr(right->type)) {
-    num = new_node_num(right->type->base->size, right->token);
-    left = new_node_mul(left, num, left->token);
-  }
+  if (is_ptr_or_arr(left->type))
+    return new_node_op2(ND_EXPR_PTR_ADD, left, right, token);
+  if (is_ptr_or_arr(right->type))
+    return new_node_op2(ND_EXPR_PTR_ADD, right, left, token);
   return new_node_op2(ND_EXPR_ADD, left, right, token);
 }
 
 //  ND_EXPR_SUB,          // -
+//  ND_EXPR_PTR_SUB,      // (pointer) - (int)
+//  ND_EXPR_PTR_DIFF,     // (pointer) - (pointer)
 Node *new_node_sub(Node *left, Node *right, Token *token) {
-  Node *sub;
-  Node *num;
   if (is_ptr_or_arr(left->type) && is_ptr_or_arr(right->type)) {
-    sub =  new_node_op2(ND_EXPR_SUB, left, right, token);
-    num = new_node_num(left->type->base->size, token);
-    return new_node_div(sub, num, token);
+    Node *node = new_node_op2(ND_EXPR_PTR_DIFF, left, right, token);
+    node->type = new_type_int();
+    return node;
   }
-  if (is_ptr_or_arr(left->type)) {
-    num = new_node_num( left->type->base->size, left->token );
-    right = new_node_mul(right, num, right->token);
-  } else if (is_ptr_or_arr(right->type)) {
-    num = new_node_num( right->type->base->size, right->token );
-    left = new_node_mul(left, num, left->token);
-  }
+  if (is_ptr_or_arr(left->type))
+    return new_node_op2(ND_EXPR_PTR_SUB, left, right, token);
+  if (is_ptr_or_arr(right->type))
+    return new_node_op2(ND_EXPR_PTR_SUB, right, left, token);
+
   return new_node_op2(ND_EXPR_SUB, left, right, token);
 }
 

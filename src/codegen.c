@@ -381,15 +381,23 @@ static void gen_binary_operator(Node *node) {
   printf("  popq %%rax\n");           // load the stack top to rax to calculate
 
   switch (node->kind) {
+  case ND_EXPR_PTR_ADD:
+    printf("  imul $%d, %%rdi\n", node->type->base->size);
   case ND_EXPR_ADD:
     printf("  add %%rdi, %%rax\n");   // rax += rdi
     break;
+  case ND_EXPR_PTR_SUB:
+    printf("  imul $%d, %%rdi\n", node->type->base->size);
   case ND_EXPR_SUB:
     printf("  sub %%rdi, %%rax\n");   // rax -= rdi
     break;
   case ND_EXPR_MUL:
     printf("  imul %%rdi, %%rax\n");  // rax *= rdi
     break;
+  case ND_EXPR_PTR_DIFF:
+    printf("  sub %%rdi, %%rax\n");                 // rax -= rdi
+    printf("  cqo\n");                              // [rdx rax](128bit) = rax (64bit)
+    printf("  mov $%d, %%rdi\n", node->left->type->base->size); // rax = [rdx rax] / size
   case ND_EXPR_DIV:
     printf("  cqo\n");                // [rdx rax](128bit) = rax (64bit)
     printf("  idiv %%rdi\n");         // rax = [rdx rax] / rdi
