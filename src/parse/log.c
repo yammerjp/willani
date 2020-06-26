@@ -44,8 +44,8 @@ void print_node(FILE *file, Node *node) {
     case ND_EXPR_MOD:            fprintf(file, "%%"); break;
     case ND_EXPR_EQ:             fprintf(file, "=="); break;
     case ND_EXPR_NE:             fprintf(file, "!="); break;
-    case ND_EXPR_LESS_THAN:             fprintf(file, "<"); break;
-    case ND_EXPR_LESS_EQ:             fprintf(file, "<="); break;
+    case ND_EXPR_LESS_THAN:      fprintf(file, "<"); break;
+    case ND_EXPR_LESS_EQ:        fprintf(file, "<="); break;
     case ND_EXPR_ASSIGN:         fprintf(file, "="); break;
     case ND_EXPR_VAR:            fprintf(file, "%.*s",node->var->namelen, node->var->name); break;
     case ND_EXPR_NUM:            fprintf(file, "%ld",node->value); break;
