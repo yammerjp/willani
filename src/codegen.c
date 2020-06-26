@@ -8,7 +8,7 @@ static void gen_addr(Node *node);
 static void gen(Node *node);
 static void gen_binary_operator(Node *node);
 static void prologue(Function *func);
-static void epilogue(void);
+static void epilogue();
 
 char arg_regs1[][4] = { "dil", "sil", "dl", "cl", "r8b", "r9b" };
 char arg_regs4[][4] = { "edi", "esi", "edx", "ecx", "r8d", "r9d" };
@@ -53,21 +53,21 @@ static void load(Type *type) {
   if (type->kind == TYPE_ARRAY)
     return;
 
-  printf("  popq %%rax\n");          // load the stack top to rax
+  printf("  popq %%rax\n");               // load the stack top to rax
   switch (type->size) {
   case 1:
-    printf("  movzbl (%%rax), %%rax\n");   // load the actual value of rax to rax
+    printf("  movzbl (%%rax), %%rax\n");  // load the actual value of rax to rax
     break;
   case 4:
-    printf("  movl (%%rax), %%eax\n");   // load the actual value of rax to rax
+    printf("  movl (%%rax), %%eax\n");    // load the actual value of rax to rax
     break;
   case 8:
-    printf("  movq (%%rax), %%rax\n");   // load the actual value of rax to rax
+    printf("  movq (%%rax), %%rax\n");    // load the actual value of rax to rax
     break;
   default:
     error("failed to load a variable becase of unknown type size");
   }
-  printf("  pushq %%rax\n");         // store rax to the stack top
+  printf("  pushq %%rax\n");              // store rax to the stack top
 }
 
 // store value to the variable.
@@ -75,24 +75,24 @@ static void store(Type *type) {
   // stack
   // before : (top) value, (variable's address), ...
   // after  : (top) value, ...
-  printf("  popq %%rdi\n");          // load the stack top to rdi
-  printf("  popq %%rax\n");          // load the stack top to rax
+  printf("  popq %%rdi\n");               // load the stack top to rdi
+  printf("  popq %%rax\n");               // load the stack top to rax
 
   int size = type->kind == TYPE_ARRAY ? type_size_pointer : type->size;
   switch (size) {
   case 1:
-    printf("  movb %%dil, (%%rax)\n");   // copy rdi's value to the address pointed by rax
+    printf("  movb %%dil, (%%rax)\n");    // copy rdi's value to the address pointed by rax
     break;
   case 4:
-    printf("  movl %%edi, (%%rax)\n");   // copy rdi's value to the address pointed by rax
+    printf("  movl %%edi, (%%rax)\n");    // copy rdi's value to the address pointed by rax
     break;
   case 8:
-    printf("  movq %%rdi, (%%rax)\n");   // copy rdi's value to the address pointed by rax
+    printf("  movq %%rdi, (%%rax)\n");    // copy rdi's value to the address pointed by rax
     break;
   default:
     error("failed to store a variable becase of unknown type size");
   }
-  printf("  pushq %%rdi\n");         // store rdi to the stack top
+  printf("  pushq %%rdi\n");              // store rdi to the stack top
 }
 
 // load the address of node's variable to the stack top
@@ -102,12 +102,12 @@ static void gen_addr(Node *node) {
     if (node->var->is_global) {
       // load the address of the actual value of (rbp - offset)
       printf("  mov $%.*s, %%rax\n", node->var->namelen, node->var->name);
-      printf("  pushq %%rax\n");         // pushq rbp - offset
+      printf("  pushq %%rax\n");          // pushq rbp - offset
       return;
     }
     // load the address of the actual value of (rbp - offset)
     printf("  lea -%d(%%rbp), %%rax\n", node->var->offset);
-    printf("  pushq %%rax\n");         // pushq rbp - offset
+    printf("  pushq %%rax\n");            // pushq rbp - offset
     return;
   case ND_EXPR_DEREF:
     gen(node->left);
@@ -126,18 +126,18 @@ static void gen_addr(Node *node) {
 static void gen_if(Node *node) {
   int labct = label_count ++;
 
-  gen(node->cond);               // calculate condition
-  printf("  popq %%rax\n");         // load result to the stach top
-  printf("  cmp $0, %%rax\n");      // evaluate result
+  gen(node->cond);                        // calculate condition
+  printf("  popq %%rax\n");               // load result to the stach top
+  printf("  cmp $0, %%rax\n");            // evaluate result
 
   if (node->els) {
-    printf("  je  .L.else.%d\n", labct); // jump if result is false
+    printf("  je  .L.else.%d\n", labct);  // jump if result is false
     gen(node->then);
-    printf("  jmp .L.end.%d\n", labct);  // end then stmt
+    printf("  jmp .L.end.%d\n", labct);   // end then stmt
     printf(".L.else.%d:\n", labct);
     gen(node->els);
   } else {
-    printf("  je  .L.end.%d\n", labct);  // jump if result is false
+    printf("  je  .L.end.%d\n", labct);   // jump if result is false
     gen(node->then);
   }
 
@@ -153,21 +153,21 @@ static void gen_switch(Node *node) {
   int case_num = 1;
   for (Node *case_expr = node->cases; case_expr; case_expr = case_expr->next) {
     gen(case_expr);
-    printf("  popq %%rax\n"); // load result of case_expr
+    printf("  popq %%rax\n");               // load result of case_expr
     printf("  cmp  (%%rsp), %%rax\n");
     printf("  je  .L.case.%d.%d\n", labct, case_num++);
   }
   // TODO: Support default : case
   if (node->have_default)
-    printf("  jmp .L.default.%d\n", labct);  // end then stmt
+    printf("  jmp .L.default.%d\n", labct); // end then stmt
   else
-    printf("  jmp .L.end.%d\n", labct);  // end then stmt
+    printf("  jmp .L.end.%d\n", labct);     // end then stmt
   
   for (Node *stmt_node = node->body; stmt_node; stmt_node = stmt_node->next)
     gen(stmt_node);
 
   printf(".L.end.%d:\n", labct);
-  printf("  add $8, %%rsp\n"); // drop cond
+  printf("  add $8, %%rsp\n");              // drop cond
 
   pop(&switch_stack);
   pop(&break_stack);
@@ -180,11 +180,11 @@ static void gen_while(Node *node) {
 
 
   printf(".L.begin.%d:\n", labct);
-  gen(node->cond);               // calculate condition
-  printf("  popq %%rax\n");         // load result to the stach top
-  printf("  cmp $0, %%rax\n");       // evaluate result
+  gen(node->cond);                      // calculate condition
+  printf("  popq %%rax\n");             // load result to the stach top
+  printf("  cmp $0, %%rax\n");          // evaluate result
 
-  printf("  je  .L.end.%d\n", labct); // jump if result is false
+  printf("  je  .L.end.%d\n", labct);   // jump if result is false
 
   gen(node->then);
   printf("  jmp .L.begin.%d\n", labct); // jump cond
@@ -206,11 +206,11 @@ static void gen_for(Node *node) {
   printf(".L.begin.%d:\n", labct);
   gen(node->increment);
   printf(".L.first.%d:\n", labct);
-  gen(node->cond);               // calculate condition
-  printf("  popq %%rax\n");         // load result to the stach top
-  printf("  cmp $0, %%rax\n");       // evaluate result
+  gen(node->cond);                      // calculate condition
+  printf("  popq %%rax\n");             // load result to the stach top
+  printf("  cmp $0, %%rax\n");          // evaluate result
 
-  printf("  je  .L.end.%d\n", labct); // jump if result is false
+  printf("  je  .L.end.%d\n", labct);   // jump if result is false
 
   gen(node->then);
   printf("  jmp .L.begin.%d\n", labct); // jump cond
@@ -397,6 +397,7 @@ static void gen_binary_operator(Node *node) {
   case ND_EXPR_PTR_ADD:
   case ND_EXPR_ASSIGN_PTR_ADD:
     printf("  imul $%d, %%rdi\n", node->type->base->size);
+    // continue
   case ND_EXPR_ADD:
   case ND_EXPR_ASSIGN_ADD:
     printf("  add %%rdi, %%rax\n");   // rax += rdi
@@ -404,6 +405,7 @@ static void gen_binary_operator(Node *node) {
   case ND_EXPR_PTR_SUB:
   case ND_EXPR_ASSIGN_PTR_SUB:
     printf("  imul $%d, %%rdi\n", node->type->base->size);
+    // continue
   case ND_EXPR_ASSIGN_SUB:
   case ND_EXPR_SUB:
     printf("  sub %%rdi, %%rax\n");   // rax -= rdi
@@ -413,8 +415,9 @@ static void gen_binary_operator(Node *node) {
     printf("  imul %%rdi, %%rax\n");  // rax *= rdi
     break;
   case ND_EXPR_PTR_DIFF:
-    printf("  sub %%rdi, %%rax\n");                 // rax -= rdi
+    printf("  sub %%rdi, %%rax\n");                             // rax -= rdi
     printf("  mov $%d, %%rdi\n", node->left->type->base->size); // rax = [rdx rax] / size
+    // continue
   case ND_EXPR_ASSIGN_DIV:
   case ND_EXPR_DIV:
     printf("  cqo\n");                // [rdx rax](128bit) = rax (64bit)
@@ -449,7 +452,7 @@ static void gen_binary_operator(Node *node) {
   defalt:
     error_at(node->token->location, "unknown binary operator");
   }
-  printf("  pushq %%rax\n");         // store result to stack top
+  printf("  pushq %%rax\n");          // store result to stack top
 }
 
 static void prologue(Function *func) {
@@ -458,9 +461,9 @@ static void prologue(Function *func) {
   while (offset%8)
     offset++;
 
-  printf("  pushq %%rbp\n");         // record caller's rbp
-  printf("  movq %%rsp, %%rbp\n");   // set current stack top to rbp
-  printf("  sub $%d, %%rsp\n", offset);  // allocate memory for local variables
+  printf("  pushq %%rbp\n");              // record caller's rbp
+  printf("  movq %%rsp, %%rbp\n");        // set current stack top to rbp
+  printf("  sub $%d, %%rsp\n", offset);   // allocate memory for local variables
 
   int i = func->argc;
   for (Var *arg = func->args; arg; arg = arg->next) {
@@ -482,8 +485,8 @@ static void prologue(Function *func) {
 
 static void epilogue(void) {
   printf(".L.return.%.*s:\n", funcnamelen, funcname);
-  printf("  movq %%rbp, %%rsp\n");   // ignore the remanig data in the stack
-  printf("  popq %%rbp\n");        // set caller's rbp to rsp
+  printf("  movq %%rbp, %%rsp\n");    // ignore the remanig data in the stack
+  printf("  popq %%rbp\n");           // set caller's rbp to rsp
   printf("  ret\n");
 }
 
