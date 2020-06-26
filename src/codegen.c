@@ -396,7 +396,6 @@ static void gen_binary_operator(Node *node) {
     break;
   case ND_EXPR_PTR_DIFF:
     printf("  sub %%rdi, %%rax\n");                 // rax -= rdi
-    printf("  cqo\n");                              // [rdx rax](128bit) = rax (64bit)
     printf("  mov $%d, %%rdi\n", node->left->type->base->size); // rax = [rdx rax] / size
   case ND_EXPR_DIV:
     printf("  cqo\n");                // [rdx rax](128bit) = rax (64bit)
