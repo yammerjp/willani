@@ -114,6 +114,17 @@ struct Var {
 };
 
 typedef enum {
+  // single operator
+  ND_VAR,           // Variable
+  ND_NUM,           // Integer
+  ND_STRING,        // " ... "
+  ND_FUNC_CALL,     // Function call
+  ND_ADDR,          // & ...
+  ND_DEREF,         // * ...
+  ND_NOT,           // ! ...
+  ND_BIT_NOT,       // ~ ...
+  // dual operator
+  ND_ASSIGN,        // =
   ND_ADD,           // +
   ND_SUB,           // -
   ND_MUL,           // *
@@ -123,14 +134,11 @@ typedef enum {
   ND_NE,            // !=
   ND_LT,            // <
   ND_LE,            // <=
-  ND_ASSIGN,        // =
-  ND_VAR,           // Variable
-  ND_NUM,           // Integer
-  ND_STRING,        // " ... "
-  ND_FUNC_CALL,     // Function call
-  ND_ADDR,          // & ...
-  ND_DEREF,         // * ...
-  ND_MEMBER,        // struct member access
+  ND_MEMBER,        // . struct member access
+  ND_COMMA,         // ... , ...
+  // multiple operator
+  ND_STMT_EXPR,     // ({ ...; ... }) GNU statement expression extention
+  // statement
   ND_BLOCK,         // { ... }
   ND_IF,            // if
   ND_WHILE,         // while
@@ -142,10 +150,6 @@ typedef enum {
   ND_SWITCH_STMT,   // switch { ... }
   ND_CASE_LABEL,    // case expr: in switch statement
   ND_DEFAULT_LABEL, // default: in switch statement
-  ND_STMT_EXPR,     // ({ ...; ... }) GNU statement expression extention
-  ND_COMMA,         // ... , ...
-  ND_NOT,           // ! ...
-  ND_BIT_NOT,       // ~ ...
 } NodeKind;
 
 typedef struct Node Node;
@@ -158,7 +162,7 @@ struct Node {
   long value;       // Used if kind == ND_NUM
   String *string;   // Used if kind == ND_STRING
   Var *var;         // Used if kind == ND_VAR
-  Member *member;   // Used if kind is ND_MEMBER (struct member access)
+  Member *member;   // Used if kind == ND_MEMBER (struct member access)
 
   char *func_name;  // Used if kind == ND_FUNC_CALL
   int func_namelen; // Used if kind == ND_FUNC_CALL
@@ -173,9 +177,9 @@ struct Node {
   Node *init;       // Used if kind == ND_FOR  // stmt
   Node *increment;  // Used id kind == ND_FOR  // expression statement
   Node *body;       // Used if kind is ND_BLOCK or ND_STMT_EXPR
-  Node *cases;      // Used if kind is ND_SWITCH_STMT
-  int case_num;     // Used if kind is ND_CASE
-  bool have_default;// Used if kind is ND_SWITCH_STMT
+  Node *cases;      // Used if kind == ND_SWITCH_STMT
+  int case_num;     // Used if kind == ND_CASE
+  bool have_default;// Used if kind == ND_SWITCH_STMT
 };
 
 typedef struct Function Function;
