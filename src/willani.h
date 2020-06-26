@@ -130,6 +130,8 @@ typedef enum {
   ND_EXPR_BIT_NOT,      // ~ ...
   // dual operator
   ND_EXPR_ASSIGN,       // =
+  ND_EXPR_ASSIGN_ADD,   // +=
+  ND_EXPR_ASSIGN_PTR_ADD, // (pointer) +=
   ND_EXPR_ADD,          // +
   ND_EXPR_PTR_ADD,      // (pointer) + (int)
   ND_EXPR_SUB,          // -

@@ -28,6 +28,7 @@ Node *new_node_deref(Node *unary_node, Token *token);
 Node *new_node_not(Node *left, Token *token);
 Node *new_node_bit_not(Node *left, Token *token);
 Node *new_node_assign(Node *left, Node *right, Token *token);
+Node *new_node_assign_add(Node *left, Node *right, Token *token);
 Node *new_node_add(Node *left, Node *right, Token *token);
 Node *new_node_sub(Node *left, Node *right, Token *token);
 Node *new_node_mul(Node *left, Node *right, Token *token);

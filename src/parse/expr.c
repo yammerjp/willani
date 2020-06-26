@@ -23,8 +23,7 @@ Node *assign(Token **rest, Token *token) {
   if(equal(token, "=")) {
     node = new_node_assign(left, assign(&token, op_token->next), op_token);
   } else if (equal(token, "+=")) {
-    node = new_node_add(left, assign(&token, op_token->next), op_token);
-    node = new_node_assign(left, node, op_token);
+    node = new_node_assign_add(left, assign(&token, op_token->next), op_token);
   } else if (equal(token, "-=")) {
     node = new_node_sub(left, assign(&token, op_token->next), op_token);
     node = new_node_assign(left, node, op_token);

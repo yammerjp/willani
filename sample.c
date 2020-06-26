@@ -1,7 +1,4 @@
 int main() {
-  int x;
-  int y;
-  x=3;
-  y=5;
-  return *(&y+1);
+  return
+  ({ int a[2] = {100, 200}; int *p; p = a; p += 1; *p; });
 }

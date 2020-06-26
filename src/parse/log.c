@@ -47,6 +47,8 @@ void print_node(FILE *file, Node *node) {
     case ND_EXPR_LESS_THAN:      fprintf(file, "<"); break;
     case ND_EXPR_LESS_EQ:        fprintf(file, "<="); break;
     case ND_EXPR_ASSIGN:         fprintf(file, "="); break;
+    case ND_EXPR_ASSIGN_ADD:     fprintf(file, "+="); break;
+    case ND_EXPR_ASSIGN_PTR_ADD: fprintf(file, "(pointer) +="); break;
     case ND_EXPR_VAR:            fprintf(file, "%.*s",node->var->namelen, node->var->name); break;
     case ND_EXPR_NUM:            fprintf(file, "%ld",node->value); break;
     case ND_EXPR_STRING:         fprintf(file, "%.*s",node->token->length, node->token->location); break;

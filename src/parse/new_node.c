@@ -104,6 +104,12 @@ Node *new_node_assign(Node *left, Node *right, Token *token) {
   return node;
 }
 
+Node *new_node_assign_add(Node *left, Node *right, Token *token) {
+  if (is_ptr_or_arr(left->type))
+    return new_node_op2(ND_EXPR_ASSIGN_PTR_ADD, left, right, token);
+  return new_node_op2(ND_EXPR_ASSIGN_ADD, left, right, token);
+}
+
 //  ND_EXPR_ADD,          // +
 //  ND_EXPR_PTR_ADD,      // (pointer) + (int)
 Node *new_node_add(Node *left, Node *right, Token *token) {

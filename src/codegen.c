@@ -326,6 +326,15 @@ static void gen(Node *node) {
     gen(node->right);
     store(node->type);
     break;
+  case ND_EXPR_ASSIGN_ADD:
+  case ND_EXPR_ASSIGN_PTR_ADD:
+    gen_addr(node->left);
+    printf("  pushq (%%rsp)\n");
+    load(node->left->type);
+    gen(node->right);
+    gen_binary_operator(node);
+    store(node->type);
+    break;
   case ND_EXPR_FUNC_CALL:
     gen_func_call(node);
     break;
@@ -366,6 +375,8 @@ static void gen(Node *node) {
     break;
   default:
     // expect binary operator node
+    gen(node->left);
+    gen(node->right);
     gen_binary_operator(node);
   }
 
@@ -374,16 +385,15 @@ static void gen(Node *node) {
 }
 
 static void gen_binary_operator(Node *node) {
-  gen(node->left);
-  gen(node->right);
-
   printf("  popq %%rdi\n");           // load the stack top to rdi to calculate
   printf("  popq %%rax\n");           // load the stack top to rax to calculate
 
   switch (node->kind) {
   case ND_EXPR_PTR_ADD:
+  case ND_EXPR_ASSIGN_PTR_ADD:
     printf("  imul $%d, %%rdi\n", node->type->base->size);
   case ND_EXPR_ADD:
+  case ND_EXPR_ASSIGN_ADD:
     printf("  add %%rdi, %%rax\n");   // rax += rdi
     break;
   case ND_EXPR_PTR_SUB:

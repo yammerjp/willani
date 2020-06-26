@@ -300,6 +300,7 @@ int main() {
   assert("({int a; a=4,10,101,a=a+3, a-7;})", ({int a; a=4,10,101,a=a+3, a-7;}), 0);
 
   assert( "({int a;a=10;a+=3;a;})", ({int a;a=10;a+=3;a;}), 13);
+  assert( "({ int a[2] = {100, 200}; int *p; p = a; p += 1; *p; })", ({ int a[2] = {100, 200}; int *p; p = a; p += 1; *p; }), 200);
   assert( "({int a;a=10;a-=3;a;})", ({int a;a=10;a-=3;a;}), 7);
   assert( "({int a;a=10;a*=3;a;})", ({int a;a=10;a*=3;a;}), 30);
   assert( "({int a;a=10;a/=3;a;})", ({int a;a=10;a/=3;a;}), 3);
