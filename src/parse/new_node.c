@@ -10,27 +10,24 @@ static Node *new_node_op2(NodeKind kind, Node *left, Node *right, Token *token) 
   return node;
 }
 
-static bool type_is_pointer_or_array(Node *node) {
+static bool ptr_or_arr(Node *node) {
   return node->type->kind == TYPE_PTR || node->type->kind == TYPE_ARRAY;
 }
 
   // single operator
 //  ND_EXPR_VAR,          // Variable
 Node *new_node_var(char *name, int length, Token *token) {
-  Node *node = calloc(1, sizeof(Node));
-
   Var *var = find_var(name, length);
-  if (var) {
-    if (var->is_typedef)
-      error_at(token->location, "expected a variable but typedef");
-    node->kind = ND_EXPR_VAR;
-    node->var = var;
-    node->type = var->type;
-    node->token = token;
-    return node;
-  }
-
-  error_at(name, "use undeclared identifer");
+  if (!var)
+    error_at(name, "use undeclared identifer");
+  if (var->is_typedef)
+    error_at(token->location, "expected a variable but typedef");
+  Node *node = calloc(1, sizeof(Node));
+  node->kind = ND_EXPR_VAR;
+  node->var = var;
+  node->type = var->type;
+  node->token = token;
+  return node;
 }
 
 //  ND_EXPR_NUM,          // Integer
@@ -125,22 +122,33 @@ Node *new_node_assign(Node *left, Node *right, Token *token) {
 
 //  ND_EXPR_ADD,          // +
 Node *new_node_add(Node *left, Node *right, Token *token) {
-  if (type_is_pointer_or_array(left))
-    right = new_node_mul(right, new_node_num( left->type->base->size, left->token ), right->token);
-  else if (type_is_pointer_or_array(right))
-    left = new_node_mul(left, new_node_num( right->type->base->size, right->token ), left->token);
+  Node *num;
+  if (ptr_or_arr(left)) {
+    num = new_node_num(left->type->base->size, left->token);
+    right = new_node_mul(right, num, right->token);
+  } else if (ptr_or_arr(right)) {
+    num = new_node_num(right->type->base->size, right->token);
+    left = new_node_mul(left, num, left->token);
+  }
   return new_node_op2(ND_EXPR_ADD, left, right, token);
 }
 
 //  ND_EXPR_SUB,          // -
 Node *new_node_sub(Node *left, Node *right, Token *token) {
-  if (type_is_pointer_or_array(left) && type_is_pointer_or_array(right)) {
-    Node *sub =  new_node_op2(ND_EXPR_SUB, left, right, token);
-    return new_node_op2(ND_EXPR_DIV, sub, new_node_num(left->type->base->size, token), token);
-  } else if (type_is_pointer_or_array(left))
-    right = new_node_mul(right, new_node_num( left->type->base->size, left->token ), right->token);
-  else if (type_is_pointer_or_array(right))
-    left = new_node_mul(left, new_node_num( right->type->base->size, right->token ), left->token);
+  Node *sub;
+  Node *num;
+  if (ptr_or_arr(left) && ptr_or_arr(right)) {
+    sub =  new_node_op2(ND_EXPR_SUB, left, right, token);
+    num = new_node_num(left->type->base->size, token);
+    return new_node_div(sub, num, token);
+  }
+  if (ptr_or_arr(left)) {
+    num = new_node_num( left->type->base->size, left->token );
+    right = new_node_mul(right, num, right->token);
+  } else if (ptr_or_arr(right)) {
+    num = new_node_num( right->type->base->size, right->token );
+    left = new_node_mul(left, num, left->token);
+  }
   return new_node_op2(ND_EXPR_SUB, left, right, token);
 }
 
