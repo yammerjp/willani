@@ -205,13 +205,13 @@ Node *sizeofunary(Token **rest, Token *token) {
 static Node *postfix(Token **rest, Token *token, Node *primary_node) {
   Node *node = primary_node;
 
-  // ( "[" expr "]" | "." identifer | "->" identifer)*
+  // ( "[" expr "]" | "." identifer | "->" identifer | "++" | "--")*
   for (;;) {
+    Token *op_token = token;
     if (equal(token, "[")) {
-      Token *bracket_token = token;
       token = token->next;
 
-      node = new_node_deref(new_node_add(node, expr(&token,token), bracket_token), bracket_token);
+      node = new_node_deref(new_node_add(node, expr(&token,token), op_token), op_token);
 
       if (!equal(token, "]")) {
         error_at(token->location, "expected ]");
@@ -229,11 +229,20 @@ static Node *postfix(Token **rest, Token *token, Node *primary_node) {
       continue;
     }
     if (equal(token, "->")) {
-      Token *deref_token = token;
       token = token->next;
       if (!is_identifer_token(token))
         error_at(token->location, "expected identifer of struct member");
-      node = new_node_member( new_node_deref(node, deref_token), token->location, token->length, token);
+      node = new_node_member( new_node_deref(node, op_token), token->location, token->length, token);
+      token = token->next;
+      continue;
+    }
+    if (equal(token, "++")) {
+      node = new_node_post_increment(node, op_token);
+      token = token->next;
+      continue;
+    }
+    if (equal(token, "--")) {
+      node = new_node_post_decrement(node, op_token);
       token = token->next;
       continue;
     }

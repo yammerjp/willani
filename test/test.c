@@ -335,6 +335,11 @@ int main() {
   assert("({ int i = 1; --i; })", ({ int i = 1; --i; }), 0);
   assert("({ int i = 1; --i; i;})", ({ int i = 1; --i; i;}), 0);
 
+  assert("({ int a = 1; a++; })", ({ int a = 1; a++; }), 1);
+  assert("({ int a = 1; a++,a; })", ({ int a = 1; a++,a; }), 2);
+  assert("({ int a = 1; a--; })", ({ int a = 1; a--; }), 1);
+  assert("({ int a = 1; a--,a; })", ({ int a = 1; a--,a; }), 0);
+
   printf("\nOK\n");
   return 0;
 }

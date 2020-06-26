@@ -29,6 +29,8 @@ Node *new_node_not(Node *left, Token *token);
 Node *new_node_bit_not(Node *left, Token *token);
 Node *new_node_pre_increment(Node *left, Token *token);
 Node *new_node_pre_decrement(Node *left, Token *token);
+Node *new_node_post_increment(Node *left, Token *token);
+Node *new_node_post_decrement(Node *left, Token *token);
 Node *new_node_assign(Node *left, Node *right, Token *token);
 Node *new_node_assign_add(Node *left, Node *right, Token *token);
 Node *new_node_assign_sub(Node *left, Node *right, Token *token);

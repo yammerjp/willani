@@ -109,6 +109,20 @@ Node *new_node_pre_decrement(Node *left, Token *token) {
   return node;
 }
 
+//  ND_EXPR_POST_INC,     // ++ ...
+Node *new_node_post_increment(Node *left, Token *token) {
+  Node *node = new_node_expr(ND_EXPR_POST_INC, left->type, token);
+  node->left = left;
+  return node;
+}
+
+//  ND_EXPR_POST_DEC,     // -- ...
+Node *new_node_post_decrement(Node *left, Token *token) {
+  Node *node = new_node_expr(ND_EXPR_POST_DEC, left->type, token);
+  node->left = left;
+  return node;
+}
+
 
 //  ND_EXPR_ASSIGN,       // =
 Node *new_node_assign(Node *left, Node *right, Token *token) {

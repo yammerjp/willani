@@ -392,6 +392,22 @@ static void gen(Node *node) {
     printf("  sub $%d, (%%rsp)\n", node->type->base ? node->type->base->size : 1);
     store(node->type);
     break;
+  case ND_EXPR_POST_INC:
+    gen_addr(node->left);
+    printf("  push (%%rsp)\n");
+    load(node->type);
+    printf("  add $%d, (%%rsp)\n", node->type->base ? node->type->base->size : 1);
+    store(node->type);
+    printf("  sub $%d, (%%rsp)\n", node->type->base ? node->type->base->size : 1);
+    break;
+  case ND_EXPR_POST_DEC:
+    gen_addr(node->left);
+    printf("  push (%%rsp)\n");
+    load(node->type);
+    printf("  sub $%d, (%%rsp)\n", node->type->base ? node->type->base->size : 1);
+    store(node->type);
+    printf("  add $%d, (%%rsp)\n", node->type->base ? node->type->base->size : 1);
+    break;
   default:
     // expect binary operator node
     gen(node->left);
