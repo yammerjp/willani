@@ -328,6 +328,11 @@ static void gen(Node *node) {
     break;
   case ND_EXPR_ASSIGN_ADD:
   case ND_EXPR_ASSIGN_PTR_ADD:
+  case ND_EXPR_ASSIGN_SUB:
+  case ND_EXPR_ASSIGN_PTR_SUB:
+  case ND_EXPR_ASSIGN_MUL:
+  case ND_EXPR_ASSIGN_DIV:
+  case ND_EXPR_ASSIGN_MOD:
     gen_addr(node->left);
     printf("  pushq (%%rsp)\n");
     load(node->left->type);
@@ -397,20 +402,25 @@ static void gen_binary_operator(Node *node) {
     printf("  add %%rdi, %%rax\n");   // rax += rdi
     break;
   case ND_EXPR_PTR_SUB:
+  case ND_EXPR_ASSIGN_PTR_SUB:
     printf("  imul $%d, %%rdi\n", node->type->base->size);
+  case ND_EXPR_ASSIGN_SUB:
   case ND_EXPR_SUB:
     printf("  sub %%rdi, %%rax\n");   // rax -= rdi
     break;
+  case ND_EXPR_ASSIGN_MUL:
   case ND_EXPR_MUL:
     printf("  imul %%rdi, %%rax\n");  // rax *= rdi
     break;
   case ND_EXPR_PTR_DIFF:
     printf("  sub %%rdi, %%rax\n");                 // rax -= rdi
     printf("  mov $%d, %%rdi\n", node->left->type->base->size); // rax = [rdx rax] / size
+  case ND_EXPR_ASSIGN_DIV:
   case ND_EXPR_DIV:
     printf("  cqo\n");                // [rdx rax](128bit) = rax (64bit)
     printf("  idiv %%rdi\n");         // rax = [rdx rax] / rdi
     break;
+  case ND_EXPR_ASSIGN_MOD:
   case ND_EXPR_MOD:
     printf("  cqo\n");                // [rdx rax](128bit) = rax (64bit)
     printf("  idiv %%rdi\n");         // rdx = [rdx rax] % rdi

@@ -104,10 +104,33 @@ Node *new_node_assign(Node *left, Node *right, Token *token) {
   return node;
 }
 
+//  ND_EXPR_ASSIGN_ADD,   // +=
+//  ND_EXPR_ASSIGN_PTR_ADD, // (pointer) +=
 Node *new_node_assign_add(Node *left, Node *right, Token *token) {
   if (is_ptr_or_arr(left->type))
     return new_node_op2(ND_EXPR_ASSIGN_PTR_ADD, left, right, token);
   return new_node_op2(ND_EXPR_ASSIGN_ADD, left, right, token);
+}
+
+//  ND_EXPR_ASSIGN_SUB,   // -=
+//  ND_EXPR_ASSIGN_PTR_SUB, // (pointer) -=
+Node *new_node_assign_sub(Node *left, Node *right, Token *token) {
+  if (is_ptr_or_arr(left->type))
+    return new_node_op2(ND_EXPR_ASSIGN_PTR_SUB, left, right, token);
+  return new_node_op2(ND_EXPR_ASSIGN_SUB, left, right, token);
+}
+
+//  ND_EXPR_ASSIGN_MUL,   // *=
+Node *new_node_assign_mul(Node *left, Node *right, Token *token) {
+  return new_node_op2(ND_EXPR_ASSIGN_MUL, left, right, token);
+}
+//  ND_EXPR_ASSIGN_DIV,   // /=
+Node *new_node_assign_div(Node *left, Node *right, Token *token) {
+  return new_node_op2(ND_EXPR_ASSIGN_DIV, left, right, token);
+}
+//  ND_EXPR_ASSIGN_MOD,   // %=
+Node *new_node_assign_mod(Node *left, Node *right, Token *token) {
+  return new_node_op2(ND_EXPR_ASSIGN_MOD, left, right, token);
 }
 
 //  ND_EXPR_ADD,          // +

@@ -20,23 +20,18 @@ Node *assign(Token **rest, Token *token) {
   Node *left = node;
   Token *op_token = token;
 
-  if(equal(token, "=")) {
+  if(equal(token, "="))
     node = new_node_assign(left, assign(&token, op_token->next), op_token);
-  } else if (equal(token, "+=")) {
+  else if (equal(token, "+="))
     node = new_node_assign_add(left, assign(&token, op_token->next), op_token);
-  } else if (equal(token, "-=")) {
-    node = new_node_sub(left, assign(&token, op_token->next), op_token);
-    node = new_node_assign(left, node, op_token);
-  } else if (equal(token, "*=")) {
-    node = new_node_mul(left, assign(&token, op_token->next), op_token);
-    node = new_node_assign(left, node, op_token);
-  } else if (equal(token, "/=")) {
-    node = new_node_div(left, assign(&token, op_token->next), op_token);
-    node = new_node_assign(left, node, op_token);
-  } else if (equal(token, "%=")) {
-    node = new_node_mod(left, assign(&token, op_token->next), op_token);
-    node = new_node_assign(left, node, op_token);
-  }
+  else if (equal(token, "-="))
+    node = new_node_assign_sub(left, assign(&token, op_token->next), op_token);
+  else if (equal(token, "*="))
+    node = new_node_assign_mul(left, assign(&token, op_token->next), op_token);
+  else if (equal(token, "/="))
+    node = new_node_assign_div(left, assign(&token, op_token->next), op_token);
+  else if (equal(token, "%="))
+    node = new_node_assign_mod(left, assign(&token, op_token->next), op_token);
 
   *rest = token;
   return node;

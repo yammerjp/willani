@@ -132,6 +132,11 @@ typedef enum {
   ND_EXPR_ASSIGN,       // =
   ND_EXPR_ASSIGN_ADD,   // +=
   ND_EXPR_ASSIGN_PTR_ADD, // (pointer) +=
+  ND_EXPR_ASSIGN_SUB,   // -=
+  ND_EXPR_ASSIGN_PTR_SUB, // (pointer) -=
+  ND_EXPR_ASSIGN_MUL,   // *=
+  ND_EXPR_ASSIGN_DIV,   // /=
+  ND_EXPR_ASSIGN_MOD,   // %=
   ND_EXPR_ADD,          // +
   ND_EXPR_PTR_ADD,      // (pointer) + (int)
   ND_EXPR_SUB,          // -
