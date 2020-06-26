@@ -378,6 +378,20 @@ static void gen(Node *node) {
     printf("  not %%rax\n");
     printf("  push %%rax\n");
     break;
+  case ND_EXPR_PRE_INC:
+    gen_addr(node->left);
+    printf("  push (%%rsp)\n");
+    load(node->type);
+    printf("  add $%d, (%%rsp)\n", node->type->base ? node->type->base->size : 1);
+    store(node->type);
+    break;
+  case ND_EXPR_PRE_DEC:
+    gen_addr(node->left);
+    printf("  push (%%rsp)\n");
+    load(node->type);
+    printf("  sub $%d, (%%rsp)\n", node->type->base ? node->type->base->size : 1);
+    store(node->type);
+    break;
   default:
     // expect binary operator node
     gen(node->left);

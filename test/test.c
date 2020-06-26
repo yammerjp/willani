@@ -328,6 +328,13 @@ int main() {
 
   assert("({ int p[10]; int *a=p+9; int *b=p; a-b; })", ({ int p[10]; int *a=p+9; int *b=p; a-b; }), 9);
 
+  assert("~~93", ~~93, 93);
+
+  assert("({ int i = 0; ++i; })", ({ int i = 0; ++i; }), 1);
+  assert("({ int i = 0; ++i; i;})", ({ int i = 0; ++i; i;}), 1);
+  assert("({ int i = 1; --i; })", ({ int i = 1; --i; }), 0);
+  assert("({ int i = 1; --i; i;})", ({ int i = 1; --i; i;}), 0);
+
   printf("\nOK\n");
   return 0;
 }

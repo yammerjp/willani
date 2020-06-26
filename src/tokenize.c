@@ -145,6 +145,8 @@ static int reserved_token_length(char *p) {
     "*=",
     "/=",
     "%=",
+    "++",
+    "--",
     "+",
     "-",
     "*",

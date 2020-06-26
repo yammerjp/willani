@@ -104,7 +104,7 @@ Node *add(Token **rest, Token *token) {
   }
 }
 
-// mul = unary ("*" unary | "/" unary | "%" unary)*
+// mul = unary (("*" | "/" | "%") unary )*
 Node *mul(Token **rest, Token *token) {
   Node *node = unary(&token, token);
 
@@ -133,6 +133,8 @@ static Node *postfix(Token **rest, Token *token, Node *primary_node);
 //       | "-" unary
 //       | "!" unary
 //       | "~" unary
+//       | "++" unary
+//       | "--" unary
 //       | "sizeof" unary
 //       | "*" unary
 //       | "&" unary
@@ -155,6 +157,10 @@ Node *unary(Token **rest, Token *token) {
     node = new_node_addr(unary(&token, op_token->next), op_token);
   } else if (equal(op_token, "sizeof")) {
     node = sizeofunary(&token, token);
+  } else if (equal(op_token, "++")) {
+    node = new_node_pre_increment(unary(&token, op_token->next), op_token);
+  } else if (equal(op_token, "--")) {
+    node = new_node_pre_decrement(unary(&token, op_token->next), op_token);
   } else {
     node = primary(&token, token);
     node = postfix(&token, token ,node);

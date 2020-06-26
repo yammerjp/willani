@@ -76,6 +76,8 @@ void print_node(FILE *file, Node *node) {
     case ND_EXPR_COMMA:          fprintf(file, ","); break;
     case ND_EXPR_NOT:            fprintf(file, "!"); break;
     case ND_EXPR_BIT_NOT:        fprintf(file, "~"); break;
+    case ND_EXPR_PRE_INC:        fprintf(file, "++ ..."); break;
+    case ND_EXPR_PRE_DEC:        fprintf(file, "-- ..."); break;
     default : error_at(node->token->location, "unexpected node->kind");
   }
 
