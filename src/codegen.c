@@ -14,13 +14,40 @@ char arg_regs1[][4] = { "dil", "sil", "dl", "cl", "r8b", "r9b" };
 char arg_regs4[][4] = { "edi", "esi", "edx", "ecx", "r8d", "r9d" };
 char arg_regs8[][4] = { "rdi", "rsi", "rdx", "rcx", "r8", "r9" };
 
-int label_count = 1;
-int continue_label_count = 0;
-int break_label_count = 0;
-int switch_label_count = 0;
+//======================================
+// labels
+// identify jump label of break, continue and case
+typedef struct Stack Stack;
+struct Stack {
+  int labct;
+  Stack *parent;
+};
+void push(Stack **stack,int labct) {
+  Stack *s = calloc(1, sizeof(Stack));
+  s->labct = labct;
+  s->parent = *stack;
+  *stack = s;
+}
+int pop(Stack **stack) {
+  int labct = (*stack)->labct;
+  *stack = (*stack)->parent;
+  return labct;
+}
+Stack *continue_stack;
+Stack *break_stack;
+Stack *switch_stack;
+
+// identify jump label of return
 char *funcname = NULL;
 int funcnamelen = 0;
 
+int label_count = 1;
+
+
+
+
+//======================================
+// load and store
 // change the stack top from addr to value
 static void load(Type *type) {
   if (type->kind == TYPE_ARRAY)
@@ -97,9 +124,10 @@ static void gen_addr(Node *node) {
 }
 
 static void gen_if(Node *node) {
-  int labct = label_count ++;
   if (node->kind != ND_STMT_IF)
     error_at(node->token->location, "expected node->kind is ND_STMT_IF");
+
+  int labct = label_count ++;
 
   gen(node->cond);               // calculate condition
   printf("  popq %%rax\n");         // load result to the stach top
@@ -122,11 +150,10 @@ static void gen_if(Node *node) {
 static void gen_switch(Node *node) {
   if (node->kind != ND_STMT_SWITCH)
     error_at(node->token->location, "expected node->kind is ND_STMT_SWITCH");
+
   int labct = label_count ++;
-  int outer_switch_label_count = switch_label_count;
-  int outer_break_label_count = break_label_count;
-  switch_label_count = labct;
-  break_label_count = labct;
+  push(&switch_stack, labct);
+  push(&break_stack, labct);
 
   gen(node->cond);
   int case_num = 1;
@@ -147,20 +174,19 @@ static void gen_switch(Node *node) {
 
   printf(".L.end.%d:\n", labct);
   printf("  add $8, %%rsp\n"); // drop cond
-  switch_label_count = outer_switch_label_count;
-  break_label_count = outer_break_label_count;
+
+  pop(&switch_stack);
+  pop(&break_stack);
 }
 
 static void gen_while(Node *node) {
-  int labct = label_count ++;
-
-  int outer_continue_label_count = continue_label_count;
-  int outer_break_label_count = break_label_count;
-  continue_label_count = labct;
-  break_label_count = labct;
-
   if (node->kind != ND_STMT_WHILE)
     error_at(node->token->location, "expected node->kind is ND_STMT_WHILE");
+
+  int labct = label_count ++;
+  push(&continue_stack, labct);
+  push(&break_stack, labct);
+
 
   printf(".L.begin.%d:\n", labct);
   gen(node->cond);               // calculate condition
@@ -174,20 +200,17 @@ static void gen_while(Node *node) {
 
   printf(".L.end.%d:\n", labct);
 
-  continue_label_count = outer_continue_label_count;
-  break_label_count = outer_break_label_count;
+  pop(&continue_stack);
+  pop(&break_stack);
 }
 
 static void gen_for(Node *node) {
-  int labct = label_count ++;
-
-  int outer_continue_label_count = continue_label_count;
-  int outer_break_label_count = break_label_count;
-  continue_label_count = labct;
-  break_label_count = labct;
-
   if (node->kind != ND_STMT_FOR)
     error_at(node->token->location, "expected node->kind is ND_STMT_FOR");
+
+  int labct = label_count ++;
+  push(&continue_stack, labct);
+  push(&break_stack, labct);
 
   gen(node->init);
 
@@ -206,8 +229,9 @@ static void gen_for(Node *node) {
 
   printf(".L.end.%d:\n", labct);
 
-  continue_label_count = outer_continue_label_count;
-  break_label_count = outer_break_label_count;
+
+  pop(&continue_stack);
+  pop(&break_stack);
 }
 
 static void gen_func_call(Node *node) {
@@ -277,27 +301,27 @@ static void gen(Node *node) {
     printf("  add $8, %%rsp\n"); // stmt is not leave any values in the stack
     break;
   case ND_STMT_CONTINUE:
-    if (!continue_label_count)
+    if (!continue_stack)
       error_at(node->token->location, "cannot jump the begin of loop (continue statement)");
-    printf("  jmp .L.begin.%d\n", continue_label_count);
+    printf("  jmp .L.begin.%d\n", continue_stack->labct);
     break;
   case ND_STMT_BREAK:
-    if (!break_label_count)
+    if (!break_stack)
       error_at(node->token->location, "cannot jump the end of loop (break statement)");
-    printf("  jmp .L.end.%d\n", break_label_count);
+    printf("  jmp .L.end.%d\n", break_stack->labct);
     break;
   case ND_STMT_SWITCH:
     gen_switch(node);
     break;
   case ND_LABEL_CASE:
-    if (!switch_label_count)
+    if (!switch_stack)
       error_at(node->token->location, "case label must be in switch statement");
-    printf(".L.case.%d.%d:\n", switch_label_count , node->case_num);
+    printf(".L.case.%d.%d:\n", switch_stack->labct , node->case_num);
     break;
   case ND_LABEL_DEFAULT:
-    if (!switch_label_count)
+    if (!switch_stack)
       error_at(node->token->location, "default label must be in switch statement");
-    printf(".L.default.%d:\n", switch_label_count);
+    printf(".L.default.%d:\n", switch_stack->labct);
     break;
 
   // expression
