@@ -1,3 +1,3 @@
 int main() {
-  return 0xabcdf % 16;
+  return  ~ 0b11111111111111111111111111111111;
 }

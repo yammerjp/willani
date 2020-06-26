@@ -232,6 +232,15 @@ Node *new_node_not(Node *left, Token *token) {
   return node;
 }
 
+Node *new_node_bit_not(Node *left, Token *token) {
+  Node *node = calloc(1, sizeof(Node));
+  node->kind = ND_BIT_NOT;
+  node->left = left;
+  node->type = left->type;
+  node->token = token;
+  return node;
+}
+
 Node *new_node_continue(Token *token) {
   Node *node = calloc(1, sizeof(Node));
   node->kind = ND_CONTINUE_STMT;

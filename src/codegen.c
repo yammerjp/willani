@@ -349,6 +349,12 @@ static void gen(Node *node) {
     printf("  movzbl %%al, %%rax\n");
     printf("  pushq %%rax\n");
     break;
+  case ND_BIT_NOT:
+    gen(node->left);
+    printf("  pop %%rax\n");
+    printf("  not %%rax\n");
+    printf("  push %%rax\n");
+    break;
   default:
     // expect binary operator node
     gen_binary_operator(node);
