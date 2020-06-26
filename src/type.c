@@ -98,3 +98,7 @@ bool same_type(Type *t1, Type *t2) {
 
   return true;
 }
+
+bool is_ptr_or_arr(Type *type) {
+  return type->kind == TYPE_PTR || type->kind == TYPE_ARRAY;
+}

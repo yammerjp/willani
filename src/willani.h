@@ -96,6 +96,7 @@ Member *new_member(char *name, int namelen, Type *type, int offset);
 Member *find_member(Type *type, char *name, int namelen);
 Type *type_conversion(Type *left, Type *right);
 bool same_type(Type *t1, Type *t2);
+bool is_ptr_or_arr(Type *type);
 extern const int type_size_pointer;
 
 
