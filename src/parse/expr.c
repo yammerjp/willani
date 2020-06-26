@@ -365,12 +365,12 @@ Node *stmt_expr(Token **rest, Token *token) {
   scope_in();
   Node *node = block_stmt(&token, token);
   scope_out();
-  node->kind = ND_STMT_EXPR;
+  node->kind = ND_EXPR_WITH_STMTS;
 
   Node *tail = node->body;
   while (tail && tail->next)
     tail = tail->next;
-  node->type = (tail && tail->kind == ND_EXPR_STMT) ?  tail->left->type : NULL;
+  node->type = (tail && tail->kind == ND_STMT_WITH_EXPR) ?  tail->left->type : NULL;
 
   if (!equal(token, ")"))
     error_at(token->location, "expected )");

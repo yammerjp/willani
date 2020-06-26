@@ -115,41 +115,41 @@ struct Var {
 
 typedef enum {
   // single operator
-  ND_VAR,           // Variable
-  ND_NUM,           // Integer
-  ND_STRING,        // " ... "
-  ND_FUNC_CALL,     // Function call
-  ND_ADDR,          // & ...
-  ND_DEREF,         // * ...
-  ND_NOT,           // ! ...
-  ND_BIT_NOT,       // ~ ...
+  ND_EXPR_VAR,          // Variable
+  ND_EXPR_NUM,          // Integer
+  ND_EXPR_STRING,       // " ... "
+  ND_EXPR_FUNC_CALL,    // Function call
+  ND_EXPR_ADDR,         // & ...
+  ND_EXPR_DEREF,        // * ...
+  ND_EXPR_NOT,          // ! ...
+  ND_EXPR_BIT_NOT,      // ~ ...
   // dual operator
-  ND_ASSIGN,        // =
-  ND_ADD,           // +
-  ND_SUB,           // -
-  ND_MUL,           // *
-  ND_DIV,           // /
-  ND_MOD,           // %
-  ND_EQ,            // ==
-  ND_NE,            // !=
-  ND_LT,            // <
-  ND_LE,            // <=
-  ND_MEMBER,        // . struct member access
-  ND_COMMA,         // ... , ...
+  ND_EXPR_ASSIGN,       // =
+  ND_EXPR_ADD,          // +
+  ND_EXPR_SUB,          // -
+  ND_EXPR_MUL,          // *
+  ND_EXPR_DIV,          // /
+  ND_EXPR_MOD,          // %
+  ND_EXPR_EQ,           // ==
+  ND_EXPR_NE,           // !=
+  ND_EXPR_LESS_THAN,    // <
+  ND_EXPR_LESS_EQ,      // <=
+  ND_EXPR_MEMBER,       // . struct member access
+  ND_EXPR_COMMA,        // ... , ...
   // multiple operator
-  ND_STMT_EXPR,     // ({ ...; ... }) GNU statement expression extention
+  ND_EXPR_WITH_STMTS,   // ({ ...; ... }) GNU statement expression extention
   // statement
-  ND_BLOCK,         // { ... }
-  ND_IF,            // if
-  ND_WHILE,         // while
-  ND_FOR,           // for
-  ND_RETURN,        // return
-  ND_EXPR_STMT,     // ... ;
-  ND_CONTINUE_STMT, // continue;
-  ND_BREAK_STMT,    // break;
-  ND_SWITCH_STMT,   // switch { ... }
-  ND_CASE_LABEL,    // case expr: in switch statement
-  ND_DEFAULT_LABEL, // default: in switch statement
+  ND_STMT_BLOCK,        // { ... }
+  ND_STMT_IF,           // if
+  ND_STMT_SWITCH,       // switch { ... }
+  ND_STMT_WHILE,        // while
+  ND_STMT_FOR,          // for
+  ND_STMT_RETURN,       // return
+  ND_STMT_WITH_EXPR,    // ... ;
+  ND_STMT_CONTINUE,     // continue;
+  ND_STMT_BREAK,        // break;
+  ND_LABEL_CASE,        // case expr: in switch statement
+  ND_LABEL_DEFAULT,     // default: in switch statement
 } NodeKind;
 
 typedef struct Node Node;
@@ -158,28 +158,28 @@ struct Node {
   NodeKind kind;
   Token *token;     // Representative token (FOR DEBUG!!!)
 
-  Type *type;       // Used if node is expression
-  long value;       // Used if kind == ND_NUM
-  String *string;   // Used if kind == ND_STRING
-  Var *var;         // Used if kind == ND_VAR
-  Member *member;   // Used if kind == ND_MEMBER (struct member access)
+  Type *type;       // Used if kind is  ND_EXPR_*
+  long value;       // Used if kind is  ND_EXPR_NUM
+  String *string;   // Used if kind is  ND_EXPR_STRING
+  Var *var;         // Used if kind is  ND_EXPR_VAR
+  Member *member;   // Used if kind is  ND_EXPR_MEMBER (struct member access)
 
-  char *func_name;  // Used if kind == ND_FUNC_CALL
-  int func_namelen; // Used if kind == ND_FUNC_CALL
-  Node *func_args;  // Used if kind == ND_FUNC_CALL
+  char *func_name;  // Used if kind is  ND_EXPR_FUNC_CALL
+  int func_namelen; // Used if kind is  ND_EXPR_FUNC_CALL
+  Node *func_args;  // Used if kind is  ND_EXPR_FUNC_CALL
 
   Node *next;
   Node *left;
   Node *right;
-  Node *cond;       // Used if kind is ND_IF or ND_WHILE or ND_FOR // expr
-  Node *then;       // Used if kind is ND_IF or ND_WHILE or ND_FOR
-  Node *els;        // Used if kind == ND_IF
-  Node *init;       // Used if kind == ND_FOR  // stmt
-  Node *increment;  // Used id kind == ND_FOR  // expression statement
-  Node *body;       // Used if kind is ND_BLOCK or ND_STMT_EXPR
-  Node *cases;      // Used if kind == ND_SWITCH_STMT
-  int case_num;     // Used if kind == ND_CASE
-  bool have_default;// Used if kind == ND_SWITCH_STMT
+  Node *cond;       // Used if kind is  ND_STMT_IF, ND_STMT_WHILE, ND_STMT_FOR  // expr
+  Node *then;       // Used if kind is  ND_STMT_IF, ND_STMT_WHILE, ND_STMT_FOR  // stmt
+  Node *els;        // Used if kind is  ND_STMT_IF                              // stmt
+  Node *init;       // Used if kind is  ND_STMT_FOR                             // stmt
+  Node *increment;  // Used id kind is  ND_STMT_FOR                             // expression statement
+  Node *body;       // Used if kind is  ND_STMT_BLOCK, ND_EXPR_WITH_STMTS
+  Node *cases;      // Used if kind is  ND_STMT_SWITCH
+  int case_num;     // Used if kind is  ND_LABEL_CASE
+  bool have_default;// Used if kind is  ND_STMT_SWITCH
 };
 
 typedef struct Function Function;
@@ -206,7 +206,6 @@ extern Var *gvars;
 //======================================
 // parse/log.c
 void print_node(FILE *file, Node *node);
-
 
 
 //======================================
