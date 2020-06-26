@@ -14,13 +14,20 @@ String *new_string(char *p, int length);
 extern int lvar_byte;
 Var *find_var_in_vars(char *name, int namelen, Var *vars);
 void *new_var(Type *type, char *name, int namelen);
-
 void *new_typedef(Type *type, char *name, int namelen);
 
 
 //======================================
 // new_node.c
-
+Node *new_node_var(char *name, int length, Token *token);
+Node *new_node_num(long value, Token *token);
+Node *new_node_string(Token *token);
+Node *new_node_func_call(char *name, int len, Node *args, Token *token);
+Node *new_node_addr(Node *unary_node, Token *token);
+Node *new_node_deref(Node *unary_node, Token *token);
+Node *new_node_not(Node *left, Token *token);
+Node *new_node_bit_not(Node *left, Token *token);
+Node *new_node_assign(Node *left, Node *right, Token *token);
 Node *new_node_add(Node *left, Node *right, Token *token);
 Node *new_node_sub(Node *left, Node *right, Token *token);
 Node *new_node_mul(Node *left, Node *right, Token *token);
@@ -30,28 +37,20 @@ Node *new_node_equal(Node *left, Node *right, Token *token);
 Node *new_node_not_equal(Node *left, Node *right, Token *token);
 Node *new_node_less_than(Node *left, Node *right, Token *token);
 Node *new_node_less_equal(Node *left, Node *right, Token *token);
-Node *new_node_num(long value, Token *token);
-Node *new_node_string(Token *token);
-Node *new_node_var(char *name, int length, Token *token);
 Node *new_node_member(Node *parent, char *name, int namelen,  Token *token);
-Node *new_node_return(Node *left, Token *token);
+Node *new_node_comma(Node *left, Node *right, Token *token);
+Node *new_node_block(Node *body, Token *token);
 Node *new_node_if(Node *cond, Node *then, Node *els, Token *token);
+Node *new_node_switch(Node *cond, Node *cases, Node *body, Token *token);
 Node *new_node_while(Node *cond, Node *then, Token *token);
 Node *new_node_for(Node *init, Node *cond, Node* increment, Node *then, Token *token);
-Node *new_node_block(Node *body, Token *token);
-Node *new_node_func_call(char *name, int len, Node *args, Token *token);
+Node *new_node_return(Node *left, Token *token);
 Node *new_node_expr_stmt(Node *expr_node, Token *token);
-Node *new_node_addr(Node *unary_node, Token *token);
-Node *new_node_deref(Node *unary_node, Token *token);
-Node *new_node_assign(Node *left, Node *right, Token *token);
-Node *new_node_comma(Node *left, Node *right, Token *token);
-Node *new_node_not(Node *left, Token *token);
-Node *new_node_bit_not(Node *left, Token *token);
 Node *new_node_continue(Token *token);
 Node *new_node_break(Token *token);
-Node *new_node_switch(Node *cond, Node *cases, Node *body, Token *token);
 Node *new_node_case(Token *token, int case_num);
 Node *new_node_default(Token *token);
+
 
 //======================================
 // log.c
