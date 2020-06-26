@@ -1,3 +1,5 @@
+int printf(char *, int);
+
 int main() {
-  return  ~ 0b11111111111111111111111111111111;
+  return ({ int p[10]; int *a=p+9; int *b=p; a-b; });
 }

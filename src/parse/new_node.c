@@ -23,7 +23,10 @@ Node *new_node_add(Node *left, Node *right, Token *token) {
 }
 
 Node *new_node_sub(Node *left, Node *right, Token *token) {
-  if (type_is_pointer_or_array(left))
+  if (type_is_pointer_or_array(left) && type_is_pointer_or_array(right)) {
+    Node *sub =  new_node_op2(ND_SUB, left, right, token);
+    return new_node_op2(ND_DIV, sub, new_node_num(left->type->base->size, token), token);
+  } else if (type_is_pointer_or_array(left))
     right = new_node_mul(right, new_node_num( left->type->base->size, left->token ), right->token);
   else if (type_is_pointer_or_array(right))
     left = new_node_mul(left, new_node_num( right->type->base->size, right->token ), left->token);
