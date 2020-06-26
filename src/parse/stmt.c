@@ -257,6 +257,7 @@ Node *switch_stmt(Token **rest, Token *token) {
         error_at(token->next->location, "expected : of default label in switch statement");
       if (have_default)
         error_at(token->location, "duplicated default label in switch statement");
+
       have_default = true;
       stmt_tail = stmt_tail->next = new_node_default(token);
       token = token->next->next;
@@ -267,10 +268,8 @@ Node *switch_stmt(Token **rest, Token *token) {
     while (stmt_tail->next)
       stmt_tail = stmt_tail->next;
   }
-  Node *node = new_node_switch(cond, case_head.next, stmt_head.next, have_default, switch_token);
-
   *rest = token->next;
-  return node;
+  return new_node_switch(cond, case_head.next, stmt_head.next, have_default, switch_token);
 }
 
 // return_stmt = return expr ";"
@@ -352,7 +351,7 @@ Type *type_suffix(Token **rest, Token *token, Type *ancestor) {
     return ancestor;
   token = token->next;
 
-  int length = strtol(token->location, NULL, 10);
+  int length = str_to_l(token->location, token->length);
   token = token->next;
   if (!equal(token,"]"))
     error_at(token->location, "expected ]");

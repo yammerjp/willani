@@ -11,6 +11,10 @@
 typedef struct Type Type;
 
 //======================================
+// str_to_l.c
+long str_to_l(char *p, int length);
+
+//======================================
 // parse/strings.c
 typedef struct String String;
 struct String {
