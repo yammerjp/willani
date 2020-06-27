@@ -16,7 +16,7 @@ Var *find_var(char *name, int namelen) {
   for (Scope *sc = now_scope; sc; sc = sc->parent) {
     if (find_in_typedefs(name, namelen, sc->tdfs))
       return NULL;
-    Var *var = find_var_in_vars(name, namelen, sc->vars);
+    Var *var = find_in_vars(name, namelen, sc->vars);
     if (var)
       return var;
   }
@@ -25,7 +25,7 @@ Var *find_var(char *name, int namelen) {
 
 TypeDef *find_typedef(char *name, int namelen) {
   for (Scope *sc = now_scope; sc; sc = sc->parent) {
-    if (find_var_in_vars(name, namelen, sc->vars))
+    if (find_in_vars(name, namelen, sc->vars))
       return NULL;
     TypeDef *tdf = find_in_typedefs(name, namelen, sc->tdfs);
     if (tdf)

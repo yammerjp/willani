@@ -322,7 +322,7 @@ Node *declare_lvar_stmt(Token **rest, Token *token, Type *ancestor) {
   // ("[" num "]")*
   Type *type = type_suffix(&token, token, ancestor);
 
-  if (find_var_in_vars(name, namelen, now_scope->vars) || find_in_typedefs(name, namelen, now_scope->tdfs))
+  if (find_in_vars(name, namelen, now_scope->vars) || find_in_typedefs(name, namelen, now_scope->tdfs))
     error("duplicate declarations '%.*s'", namelen, name);
   new_var(type, name, namelen);
 
