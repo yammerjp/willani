@@ -65,12 +65,46 @@ Node *log_or(Token **rest, Token *token) {
   return node;
 }
 
-// log_and = equality ("&&" log_and) ?
+// log_and = bit_or ("&&" log_and) ?
 Node *log_and(Token **rest, Token *token) {
-  Node *node = equality(&token, token);
+  Node *node = bit_or(&token, token);
   if (equal(token, "&&")) {
     Token *op_token = token;
-    node = new_node_logical_and(node, equality(&token, token->next), op_token);
+    node = new_node_logical_and(node, log_and(&token, token->next), op_token);
+  }
+  *rest = token;
+  return node;
+}
+
+// bit_or   = bit_xor ("|" bit_or)?
+Node *bit_or(Token **rest, Token *token) {
+  Node *node = bit_xor(&token, token);
+  if (equal(token, "|")) {
+    Token *op_token = token;
+    node = new_node_bit_or(node, bit_or(&token, token->next), op_token);
+  }
+  *rest = token;
+  return node;
+}
+
+
+// bit_xor   = bit_and ("|" bit_xor)?
+Node *bit_xor(Token **rest, Token *token) {
+  Node *node = bit_and(&token, token);
+  if (equal(token, "^")) {
+    Token *op_token = token;
+    node = new_node_bit_xor(node, bit_xor(&token, token->next), op_token);
+  }
+  *rest = token;
+  return node;
+}
+
+// bit_and  = equality ("&" bit_and)?
+Node *bit_and(Token **rest, Token *token) {
+  Node *node = equality(&token, token);
+  if (equal(token, "&")) {
+    Token *op_token = token;
+    node = new_node_bit_and(node, equality(&token, token->next), op_token);
   }
   *rest = token;
   return node;

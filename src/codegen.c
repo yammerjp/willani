@@ -537,6 +537,15 @@ static void gen_binary_operator(Node *node) {
     printf("  setle %%al\n");         // al = ( flag register means rax <= rdi ) ? 1 : 0
     printf("  movzb %%al, %%rax\n");
     break;
+  case ND_EXPR_BIT_OR:
+    printf("  or %%rdi, %%rax\n");
+    break;
+  case ND_EXPR_BIT_XOR:
+    printf("  xor %%rdi, %%rax\n");
+    break;
+  case ND_EXPR_BIT_AND:
+    printf("  and %%rdi, %%rax\n");
+    break;
   defalt:
     error_at(node->token->location, "unknown binary operator");
   }

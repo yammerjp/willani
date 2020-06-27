@@ -250,6 +250,21 @@ Node *new_node_comma(Node *left, Node *right, Token *token) {
   return node;
 }
 
+//  ND_EXPR_BIT_OR,       // ... | ...
+Node *new_node_bit_or(Node *left, Node *right, Token *token) {
+  return new_node_op2(ND_EXPR_BIT_OR, left, right, token);
+}
+
+//  ND_EXPR_BIT_XOR,      // ... ^ ...
+Node *new_node_bit_xor(Node *left, Node *right, Token *token) {
+  return new_node_op2(ND_EXPR_BIT_XOR, left, right, token);
+}
+
+//  ND_EXPR_BIT_AND,      // ... & ...
+Node *new_node_bit_and(Node *left, Node *right, Token *token) {
+  return new_node_op2(ND_EXPR_BIT_AND, left, right, token);
+}
+
 //  ND_EXPR_LOG_OR,       // ... || ...
 Node *new_node_logical_or(Node *left, Node *right, Token *token) {
   Node *node = new_node_expr(ND_EXPR_LOG_OR, new_type_int(), token);

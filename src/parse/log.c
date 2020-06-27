@@ -70,6 +70,9 @@ void print_node(FILE *file, Node *node) {
     case ND_EXPR_LESS_EQ:         fprintf(file, "<="); break;
     case ND_EXPR_MEMBER:          fprintf(file, ".%.*s", node->member->namelen, node->member->name); break;
     case ND_EXPR_COMMA:           fprintf(file, ","); break;
+    case ND_EXPR_BIT_OR:          fprintf(file, "|"); break;
+    case ND_EXPR_BIT_XOR:         fprintf(file, "^"); break;
+    case ND_EXPR_BIT_AND:         fprintf(file, "&"); break;
     case ND_EXPR_LOG_OR:          fprintf(file, "||"); break;
     case ND_EXPR_LOG_AND:         fprintf(file, "&&"); break;
     // multiple operator
