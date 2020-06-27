@@ -1,3 +1,6 @@
 int main() {
-  return ({ int a = 0; 0!=0 || a++==0; });
+  int a = 1;
+  int b = 2;
+  return 1==0 ? a : (b = 100);
+  return a + b;
 }

@@ -73,6 +73,7 @@ void print_node(FILE *file, Node *node) {
     case ND_LABEL_DEFAULT:       fprintf(file, "case %dth", node->case_num); break;
     case ND_LABEL_CASE:          fprintf(file, "default"); break;
     case ND_EXPR_WITH_STMTS:     fprintf(file, "({})"); break;
+    case ND_EXPR_TERNARY:        fprintf(file, "?:"); break;
     case ND_EXPR_COMMA:          fprintf(file, ","); break;
     case ND_EXPR_NOT:            fprintf(file, "!"); break;
     case ND_EXPR_BIT_NOT:        fprintf(file, "~"); break;

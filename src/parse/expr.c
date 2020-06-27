@@ -14,9 +14,9 @@ Node *expr(Token **rest, Token *token) {
   return node;
 }
 
-// assign     = log_or (("=" | "+=" | "-=" | "*=" | "/=" | "%=") assign )?
+// assign     = ternary (("=" | "+=" | "-=" | "*=" | "/=" | "%=") assign )?
 Node *assign(Token **rest, Token *token) {
-  Node *node = log_or(&token, token);
+  Node *node = ternary(&token, token);
   Node *left = node;
   Token *op_token = token;
 
@@ -33,6 +33,22 @@ Node *assign(Token **rest, Token *token) {
   else if (equal(token, "%="))
     node = new_node_assign_mod(left, assign(&token, op_token->next), op_token);
 
+  *rest = token;
+  return node;
+}
+
+// ternary = log_or ("?" expr ":" ternary)?
+Node *ternary(Token **rest, Token *token) {
+  Node *node = log_or(&token, token);
+
+  if (equal(token, "?")) {
+    Token *op_token = token;
+    Node *left = expr(&token, token->next);
+    if (!equal(token, ":"))
+      error_at(token->location, "expected ':' of ternary operator");
+    Node *right = ternary(&token, token->next);
+    node = new_node_ternary(node, left, right, op_token);
+  }
   *rest = token;
   return node;
 }

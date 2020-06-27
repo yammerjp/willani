@@ -5,6 +5,7 @@ static void store(Type *type);
 static void gen_if(Node *node);
 static void gen_while(Node *node);
 static void gen_addr(Node *node);
+static void gen_ternary(Node *node);
 static void gen_log_or(Node *node);
 static void gen_log_and(Node *node);
 static void gen(Node *node);
@@ -256,6 +257,19 @@ static void gen_func_call(Node *node) {
   printf("  pushq %%rax\n");    // push returned value
 }
 
+static void gen_ternary(Node *node) {
+  int labct = label_count++;
+  gen(node->cond);
+  printf("  popq %%rax\n");
+  printf("  cmp $0, %%rax\n");
+  printf("  je  .L.else.%d\n", labct);
+  gen(node->left);
+  printf("  jmp  .L.end.%d\n", labct);
+  printf(".L.else.%d:\n", labct);
+  gen(node->right);
+  printf(".L.end.%d:\n", labct);
+}
+
 static void gen_log_or(Node *node) {
   int labct = label_count++;
   gen(node->left);
@@ -394,6 +408,9 @@ static void gen(Node *node) {
       // return void
       // TODO: Add void type
       printf("  push $0\n");
+    break;
+  case ND_EXPR_TERNARY:
+    gen_ternary(node);
     break;
   case ND_EXPR_COMMA:
     gen(node->left);

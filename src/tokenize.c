@@ -170,6 +170,7 @@ static int reserved_token_length(char *p) {
     "%",
     "!",
     "~",
+    "?",
   };
   int words_length = sizeof(reserved_words)/sizeof(*reserved_words);
   for (int i=0; i < words_length; i++) {

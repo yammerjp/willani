@@ -50,6 +50,7 @@ Node *new_node_member(Node *parent, char *name, int namelen,  Token *token);
 Node *new_node_comma(Node *left, Node *right, Token *token);
 Node *new_node_logical_or(Node *left, Node *right, Token *token);
 Node *new_node_logical_and(Node *left, Node *right, Token *token);
+Node *new_node_ternary(Node *cond, Node *left, Node *right, Token *token);
 Node *new_node_block(Node *body, Token *token);
 Node *new_node_if(Node *cond, Node *then, Node *els, Token *token);
 Node *new_node_switch(Node *cond, Node *cases, Node *body, bool have_default, Token *token);
@@ -89,6 +90,7 @@ void typedef_stmt(Token **rest, Token *token);
 // expr.c
 Node *expr(Token **rest, Token *token);
 Node *assign(Token **rest, Token *token);
+Node *ternary(Token **rest, Token *token);
 Node *equality(Token **rest, Token *token);
 Node *log_or(Token **rest, Token *token);
 Node *log_and(Token **rest, Token *token);

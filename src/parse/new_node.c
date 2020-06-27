@@ -266,6 +266,13 @@ Node *new_node_logical_and(Node *left, Node *right, Token *token) {
   return node;
 }
 
+//  ND_EXPR_TERNARY,      // ... ? ... : ...
+Node *new_node_ternary(Node *cond, Node *left, Node *right, Token *token) {
+  Node *node = new_node_op2(ND_EXPR_TERNARY, left, right, token);
+  node->cond = cond;
+  return node;
+}
+
 //  ND_EXPR_WITH_STMTS,   // ({ ...; ... }) GNU statement expression extention
 //  created in src/parse/expr.c
 
