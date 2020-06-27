@@ -1,3 +1,7 @@
+enum hoge {
+  A, B,
+};
 int main() {
-  return 0b0000^0b1111;
+  int B = A;
+  return B;
 }

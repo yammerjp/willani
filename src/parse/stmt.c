@@ -56,9 +56,6 @@ Node *stmt(Token **rest, Token *token) {
 }
 
 Node *stmt_without_declaration(Token **rest, Token *token) {
-  if (read_type(&token, token, DENY_STATIC))
-    error_at(token->location, "declaration statement is invalid here");
-
   Node *node;
 
   if (equal(token, "if"))
@@ -155,6 +152,26 @@ Node *while_stmt(Token **rest, Token *token) {
   return node;
 }
 
+// declare_lvar_stmt | expr ";"
+static Node *for_init(Token **rest, Token *token) {
+  Node *node;
+  if (equal(token, ";")) {
+    *rest = token->next;
+    return NULL;
+  }
+  Type *type = read_type(&token, token, DENY_STATIC);
+  if (type) {
+    node = declare_lvar_stmt(&token, token, type);
+    *rest = token;
+    return node;
+  }
+  node = new_node_expr_stmt(expr(&token, token), token);
+  if (!equal(token, ";"))
+    error_at(token->location, "expected ; to initialize for statement");
+  *rest = token->next;
+  return node;
+}
+
 Node *for_stmt(Token **rest, Token *token) {
   // "for"
   Token *for_token = token;
@@ -168,41 +185,18 @@ Node *for_stmt(Token **rest, Token *token) {
   token = token->next;
 
   // expr? ";"
-  Node *init = NULL;
-  if (!equal(token, ";")) {
-    Type *type = read_type(&token, token, ALLOW_STATIC);
-    if (type) {
-      init = declare_lvar_stmt(&token, token, type);
-    } else {
-      Token *expr_token = token;
-      init = new_node_expr_stmt(expr(&token, token), expr_token);
+  Node *init = for_init(&token, token);
 
-      if (!equal(token, ";"))
-        error_at(token->location, "expected ;");
-      token = token->next;
-    }
-  } else {
-    token = token->next;
-  }
-
-    // expr? ";"
-  Node *cond = NULL;
-  if (!equal(token, ";"))
-    cond = expr(&token, token);
-  else
-    cond = new_node_num(1, token);
-
+  // expr? ";"
+  Node *cond = equal(token, ";") ? new_node_num(1, token) : expr(&token, token);
   if (!equal(token, ";"))
     error_at(token->location, "expected ;");
   token = token->next;
 
   // expr? ")"
   Node *increment = NULL;
-  if (!equal(token, ")")) {
-    Token *expr_token = token;
-    increment = new_node_expr_stmt(expr(&token, token), expr_token);
-  }
-
+  if (!equal(token, ")"))
+    increment = new_node_expr_stmt(expr(&token, token), token);
   if (!equal(token, ")"))
     error_at(token->location, "expected )");
   token = token->next;
@@ -302,8 +296,9 @@ Node *expr_stmt(Token **rest, Token *token) {
   return node;
 }
 
-// declare_lvar_stmt = type identifer type_suffix ("=" expr)? ";"
-// type_suffix       = "[" num "]" type_suffix | ε
+// declaring local statement = type declare_lvar_stmt
+// declare_lvar_stmt =  identifer type_suffix ("=" expr)? ";"
+// type_suffix       = ("[" num "]" type_suffix)?
 // declare node is skipped by codegen
 
 Node *declare_lvar_stmt(Token **rest, Token *token, Type *ancestor) {
