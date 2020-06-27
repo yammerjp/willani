@@ -83,7 +83,7 @@ Node *for_stmt(Token **rest, Token *token);
 Node *block_stmt(Token **rest, Token *token);
 Node *expr_stmt(Token **rest, Token *token);
 Node *return_stmt(Token **rest, Token *token);
-Node *declare_lvar_stmt(Token **rest, Token *token, Type *type);
+Node *declare_lvar_stmt(Token **rest, Token *token);
 Type *type_suffix(Token **rest, Token *token, Type *ancestor);
 void typedef_stmt(Token **rest, Token *token);
 
@@ -136,6 +136,7 @@ typedef enum {
   DENY_STATIC,
 } AllowStaticOrNot;
 Type *read_type(Token **rest, Token *token, AllowStaticOrNot allow_static_or_not);
+bool is_type_tokens(Token *token, AllowStaticOrNot ason);
 Member *read_member(Token **rest, Token *token, int offset);
 
 

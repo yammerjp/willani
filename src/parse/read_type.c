@@ -1,5 +1,9 @@
 #include "parse.h"
 
+bool is_type_tokens(Token *token, AllowStaticOrNot ason) {
+  return (bool) read_type(&token, token, ason);
+}
+
 Type *read_type(Token **rest, Token *token, AllowStaticOrNot allow_static_or_not) {
   Type *type;
 

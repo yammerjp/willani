@@ -43,9 +43,8 @@ Node *stmt(Token **rest, Token *token) {
     return NULL;
   }
 
-  Type *type = read_type(&token, token, ALLOW_STATIC); // Proceed token if only token means type
-  if (type)
-    node = declare_lvar_stmt(&token, token, type);
+  if (is_type_tokens(token, ALLOW_STATIC))
+    node = declare_lvar_stmt(&token, token);
   else {
     scope_in();
     node = stmt_without_declaration(&token, token);
@@ -159,9 +158,8 @@ static Node *for_init(Token **rest, Token *token) {
     *rest = token->next;
     return NULL;
   }
-  Type *type = read_type(&token, token, DENY_STATIC);
-  if (type) {
-    node = declare_lvar_stmt(&token, token, type);
+  if (is_type_tokens(token, DENY_STATIC)) {
+    node = declare_lvar_stmt(&token, token);
     *rest = token;
     return node;
   }
@@ -301,21 +299,26 @@ Node *expr_stmt(Token **rest, Token *token) {
 // type_suffix       = ("[" num "]" type_suffix)?
 // declare node is skipped by codegen
 
-Node *declare_lvar_stmt(Token **rest, Token *token, Type *ancestor) {
-  // identifer
+Node *declare_lvar_stmt(Token **rest, Token *token) {
+  Type *type = read_type(&token, token, ALLOW_STATIC); // Proceed token if only token means type
+  if (!type)
+    error_at(token->location, "expected type to declare local variable");
+
   if (!is_identifer_token(token)) {
-    if (!equal(token,  ";") || ancestor->kind != TYPE_STRUCT)
+    // struct declaration only
+    if (!equal(token,  ";") || type->kind != TYPE_STRUCT)
       error_at(token->location, "expected identifer of new local variable");
-    *rest = token-> next;
+    *rest = token->next;
     return NULL;
   }
 
+  // identifer
   char *name = token->location;
   int namelen = token->length;
   token = token->next;
 
   // ("[" num "]")*
-  Type *type = type_suffix(&token, token, ancestor);
+  type = type_suffix(&token, token, type);
 
   if (find_in_vars(name, namelen, now_scope->vars) || find_in_typedefs(name, namelen, now_scope->tdfs))
     error("duplicate declarations '%.*s'", namelen, name);
