@@ -241,36 +241,14 @@ Node *unary(Token **rest, Token *token) {
   return node;
 }
 
-// sizeofunary = "sizeof" ( type_with_pars | unary )
-// type_with_pars = "(" type_with_pars ")" | type
+// sizeofunary = "sizeof" unary
 Node *sizeofunary(Token **rest, Token *token) {
   Token *op_token = token;
   if (!equal(op_token, "sizeof"))
     error_at(op_token->location, "expected sizeof");
-
-  token = op_token->next;
-
-  int pars = 0;
-  while (equal(token, "(")) {
-    token = token->next;
-    pars++;
-  }
-
-  Type *type = read_type(&token, token, DENY_STATIC);
-
-  if (type) {
-    for (int i=0; i<pars; i++) {
-      if (!equal(token, ")"))
-        error_at(token->location, "expected )");
-      token = token->next;
-    }
-  } else {
-    Node *measuring_node = unary(&token, op_token->next);
-    type = measuring_node->type;
-  }
-
+  Node *node = unary(&token, op_token->next);
   *rest = token;
-  return new_node_num(type->size, op_token);
+  return new_node_num(node->type->size, op_token);
 }
 
 static Node *postfix(Token **rest, Token *token, Node *primary_node) {
