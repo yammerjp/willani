@@ -258,6 +258,7 @@ int main() {
   assert("struct t {char a;} x; struct t *y = &x; y->a=3; x.a;", ({ struct t {char a;} x; struct t *y = &x; y->a=3; x.a; }), 3);
 
   assert("typedef int t; t x=1; x;", ({ typedef int t; t x=1; x; }), 1);
+  assert("typedef int t; ({t t=1; t;)}", ({ typedef int t; ({t t=1; t; }); }), 1);
   assert("typedef struct {int a;} t; t x; x.a=1; x.a;", ({ typedef struct {int a;} t; t x; x.a=1; x.a; }), 1);
   assert("typedef struct {int a;} t; { typedef int t; } t x; x.a=2; x.a;", ({ typedef struct {int a;} t; { typedef int t; } t x; x.a=2; x.a; }), 2);
 
