@@ -29,8 +29,6 @@ Node *new_node_var(char *name, int length, Token *token) {
   Var *var = find_var(name, length);
   if (!var)
     error_at(name, "use undeclared identifer");
-  if (var->is_typedef)
-    error_at(token->location, "expected a variable but typedef");
 
   Node *node = new_node_expr(ND_EXPR_VAR, var->type, token);
   node->var = var;

@@ -14,7 +14,6 @@ String *new_string(char *p, int length);
 extern int lvar_byte;
 Var *find_var_in_vars(char *name, int namelen, Var *vars);
 void *new_var(Type *type, char *name, int namelen);
-void *new_typedef(Type *type, char *name, int namelen);
 
 
 //======================================
@@ -154,7 +153,17 @@ struct Tag {
 void new_tag(char *name, int namelen, Type *type);
 Tag *find_tag_in_tags(char *name, int namelen, Tag *tags);
 
-
+//=====================================
+// typedef.c
+typedef struct TypeDef TypeDef;
+struct TypeDef {
+  char *name;
+  int namelen;
+  Type *type;
+  TypeDef *next;
+};
+TypeDef *find_in_typedefs(char *name, int namelen, TypeDef *tdfs);
+void new_typedef(Type *type, char *name, int namelen);
 
 //======================================
 // scope.c
@@ -162,6 +171,7 @@ typedef struct Scope Scope;
 struct Scope {
   Var *vars;
   Tag *tags;
+  TypeDef *tdfs;
   Scope *parent;
 };
 
@@ -169,6 +179,7 @@ extern Scope *now_scope;
 void scope_in();
 void scope_out();
 Var *find_var(char *name, int namelen);
+TypeDef *find_typedef(char *name, int namelen);
 Tag *find_tag(char *name, int namelen);
 
 

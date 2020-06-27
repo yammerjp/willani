@@ -24,8 +24,8 @@ Type *read_type(Token **rest, Token *token, AllowStaticOrNot allow_static_or_not
   } else if(equal(token, "struct")) {
     type = read_new_type_struct(&token, token->next);
   } else if (is_identifer_token(token)) {
-    Var *tdf = find_var(token->location, token->length);
-    if (!tdf || !tdf->is_typedef)
+    TypeDef *tdf = find_typedef(token->location, token->length);
+    if (!tdf)
       return NULL;
     token = token->next;
     type = tdf->type;

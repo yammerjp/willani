@@ -608,8 +608,6 @@ void code_generate() {
       printf("  .byte 0x%x\n", (str->p)[i]);
   }
   for (Var *var = gvars; var; var = var->next) {
-    if (var->is_typedef)
-      continue;
     printf("%.*s:\n", var->namelen, var->name);
     printf("  .zero %d\n", var->type->size);
   }

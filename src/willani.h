@@ -114,7 +114,6 @@ struct Var {
   char *name;
   int namelen;
   int offset;
-  bool is_typedef;
   bool is_global;
 };
 
