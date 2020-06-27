@@ -250,6 +250,21 @@ Node *new_node_comma(Node *left, Node *right, Token *token) {
   return node;
 }
 
+//  ND_EXPR_LOG_OR,       // ... || ...
+Node *new_node_logical_or(Node *left, Node *right, Token *token) {
+  Node *node = new_node_expr(ND_EXPR_LOG_OR, new_type_int(), token);
+  node->left = left;
+  node->right = right;
+  return node;
+}
+
+//  ND_EXPR_LOG_AND,      // ... && ...
+Node *new_node_logical_and(Node *left, Node *right, Token *token) {
+  Node *node = new_node_expr(ND_EXPR_LOG_AND, new_type_int(), token);
+  node->left = left;
+  node->right = right;
+  return node;
+}
 
 //  ND_EXPR_WITH_STMTS,   // ({ ...; ... }) GNU statement expression extention
 //  created in src/parse/expr.c

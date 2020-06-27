@@ -14,9 +14,9 @@ Node *expr(Token **rest, Token *token) {
   return node;
 }
 
-// assign     = equality (("=" | "+=" | "-=" | "*=" | "/=" | "%=") assign )?
+// assign     = log_or (("=" | "+=" | "-=" | "*=" | "/=" | "%=") assign )?
 Node *assign(Token **rest, Token *token) {
-  Node *node = equality(&token, token);
+  Node *node = log_or(&token, token);
   Node *left = node;
   Token *op_token = token;
 
@@ -33,6 +33,29 @@ Node *assign(Token **rest, Token *token) {
   else if (equal(token, "%="))
     node = new_node_assign_mod(left, assign(&token, op_token->next), op_token);
 
+  *rest = token;
+  return node;
+}
+
+// log_or  = log_and ("||" log_or)?
+Node *log_or(Token **rest, Token *token) {
+  Node *node = log_and(&token, token);
+
+  if (equal(token, "||")) {
+    Token *op_token = token;
+    node = new_node_logical_or(node, log_or(&token, token->next), op_token);
+  }
+  *rest = token;
+  return node;
+}
+
+// log_and = equality ("&&" log_and) ?
+Node *log_and(Token **rest, Token *token) {
+  Node *node = equality(&token, token);
+  if (equal(token, "&&")) {
+    Token *op_token = token;
+    node = new_node_logical_and(node, equality(&token, token->next), op_token);
+  }
   *rest = token;
   return node;
 }

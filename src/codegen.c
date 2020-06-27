@@ -5,6 +5,8 @@ static void store(Type *type);
 static void gen_if(Node *node);
 static void gen_while(Node *node);
 static void gen_addr(Node *node);
+static void gen_log_or(Node *node);
+static void gen_log_and(Node *node);
 static void gen(Node *node);
 static void gen_binary_operator(Node *node);
 static void prologue(Function *func);
@@ -254,6 +256,39 @@ static void gen_func_call(Node *node) {
   printf("  pushq %%rax\n");    // push returned value
 }
 
+static void gen_log_or(Node *node) {
+  int labct = label_count++;
+  gen(node->left);
+  printf("  popq %%rax\n");
+  printf("  cmp $0, %%rax\n");
+  printf("  jne  .L.true.%d\n", labct);
+  gen(node->right);
+  printf("  popq %%rax\n");
+  printf("  cmp $0, %%rax\n");
+  printf("  jne  .L.true.%d\n", labct);
+  printf("  push $0\n");
+  printf("  jmp  .L.end.%d\n", labct);
+  printf(".L.true.%d:\n", labct);
+  printf("  push $1\n");
+  printf(".L.end.%d:\n", labct);
+}
+static void gen_log_and(Node *node) {
+  int labct = label_count++;
+  gen(node->left);
+  printf("  popq %%rax\n");
+  printf("  cmp $0, %%rax\n");
+  printf("  je  .L.false.%d\n", labct);
+  gen(node->right);
+  printf("  popq %%rax\n");
+  printf("  cmp $0, %%rax\n");
+  printf("  je  .L.false.%d\n", labct);
+  printf("  push $1\n");
+  printf("  jmp  .L.end.%d\n", labct);
+  printf(".L.false.%d:\n", labct);
+  printf("  push $0\n");
+  printf(".L.end.%d:\n", labct);
+}
+
 static void gen(Node *node) {
   if (!node)
     return;
@@ -363,6 +398,12 @@ static void gen(Node *node) {
   case ND_EXPR_COMMA:
     gen(node->left);
     gen(node->right);
+    break;
+  case ND_EXPR_LOG_OR:
+    gen_log_or(node);
+    break;
+  case ND_EXPR_LOG_AND:
+    gen_log_and(node);
     break;
   case ND_EXPR_NOT:
     gen(node->left);

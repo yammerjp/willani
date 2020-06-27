@@ -1,4 +1,3 @@
 int main() {
-  int a = 1;
-  return a --;
+  return ({ int a = 0; 0!=0 || a++==0; });
 }
