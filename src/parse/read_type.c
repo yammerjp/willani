@@ -4,6 +4,12 @@ bool is_type_tokens(Token *token, AllowStaticOrNot ason) {
   return (bool) read_type(&token, token, ason);
 }
 
+// type    = "int"
+//         | "char"
+//         | "_Bool"
+//         | "long"
+//         | "struct" identifer? ("{" members "}")?
+//         | indentifer    (declared with typedef)
 Type *read_type(Token **rest, Token *token, AllowStaticOrNot allow_static_or_not) {
   Type *type;
 
@@ -123,3 +129,23 @@ Type *declarator(Token **rest, Token *token, Type *type, char **namep, int *name
   *rest = token;
   return type;
 }
+
+// type_suffix       = ("[" num "]" type_suffix)?
+Type *type_suffix(Token **rest, Token *token, Type *ancestor) {
+  if (!equal(token, "["))
+    return ancestor;
+  token = token->next;
+
+  int length = str_to_l(token->location, token->length);
+  token = token->next;
+  if (!equal(token,"]"))
+    error_at(token->location, "expected ]");
+  token = token->next;
+
+  Type *parent = type_suffix(&token, token, ancestor);
+
+  *rest = token;
+  return new_type_array(parent, length);
+}
+
+

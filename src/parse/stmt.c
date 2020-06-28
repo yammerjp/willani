@@ -294,9 +294,7 @@ Node *expr_stmt(Token **rest, Token *token) {
   return node;
 }
 
-// declaring local statement = type declare_lvar_stmt
-// declare_lvar_stmt =  identifer type_suffix ("=" expr)? ";"
-// type_suffix       = ("[" num "]" type_suffix)?
+// declare_lvar_stmt =  type identifer type_suffix ("=" expr)? ";"
 // declare node is skipped by codegen
 
 Node *declare_lvar_stmt(Token **rest, Token *token) {
@@ -337,23 +335,6 @@ Node *declare_lvar_stmt(Token **rest, Token *token) {
 
   *rest = token;
   return node;
-}
-
-Type *type_suffix(Token **rest, Token *token, Type *ancestor) {
-  if (!equal(token, "["))
-    return ancestor;
-  token = token->next;
-
-  int length = str_to_l(token->location, token->length);
-  token = token->next;
-  if (!equal(token,"]"))
-    error_at(token->location, "expected ]");
-  token = token->next;
-
-  Type *parent = type_suffix(&token, token, ancestor);
-
-  *rest = token;
-  return new_type_array(parent, length);
 }
 
 void typedef_stmt(Token **rest, Token *token) {
