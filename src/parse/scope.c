@@ -34,9 +34,9 @@ TypeDef *find_typedef(char *name, int namelen) {
   return NULL;
 }
 
-Tag *find_tag(char *name, int namelen) {
+StructTag *find_tag(char *name, int namelen) {
   for (Scope *sc = now_scope; sc; sc = sc->parent) {
-    Tag *tag = find_tag_in_tags(name, namelen, sc->tags);
+    StructTag *tag = find_tag_in_tags(name, namelen, sc->tags);
     if (tag)
       return tag;
   }

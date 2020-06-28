@@ -142,18 +142,18 @@ Member *read_member(Token **rest, Token *token, int offset);
 
 
 //======================================
-// tag.c
-typedef struct Tag Tag;
+// struct_tag.c
+typedef struct StructTag StructTag;
 
-struct Tag {
+struct StructTag {
   char *name;
   int namelen;
   Type *type;
-  Tag *next;
+  StructTag *next;
 };
 
 void new_tag(char *name, int namelen, Type *type);
-Tag *find_tag_in_tags(char *name, int namelen, Tag *tags);
+StructTag *find_tag_in_tags(char *name, int namelen, StructTag *tags);
 
 //=====================================
 // typedef.c
@@ -172,7 +172,7 @@ void new_typedef(Type *type, char *name, int namelen);
 typedef struct Scope Scope;
 struct Scope {
   Var *vars;
-  Tag *tags;
+  StructTag *tags;
   TypeDef *tdfs;
   Scope *parent;
 };
@@ -182,7 +182,7 @@ void scope_in();
 void scope_out();
 Var *find_var(char *name, int namelen);
 TypeDef *find_typedef(char *name, int namelen);
-Tag *find_tag(char *name, int namelen);
+StructTag *find_tag(char *name, int namelen);
 
 
 #endif
