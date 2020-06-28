@@ -1,7 +1,16 @@
 #include "parse.h"
 
 bool is_type_tokens(Token *token, AllowStaticOrNot ason) {
-  return (bool) read_type(&token, token, ason);
+  return (
+       equal(token, "int")
+    || equal(token, "char")
+    || equal(token, "_Bool")
+    || equal(token, "long")
+    || equal(token, "struct")
+    || equal(token, "enum")
+    || find_typedef(token->location, token->length)
+    || ason == ALLOW_STATIC && equal(token, "static")
+  );
 }
 
 // type    = "int"
