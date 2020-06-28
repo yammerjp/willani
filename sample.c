@@ -1,7 +1,4 @@
-enum hoge {
-  A, B,
-};
 int main() {
-  int B = A;
-  return B;
+  int (*x)[3];
+  return sizeof(x);
 }

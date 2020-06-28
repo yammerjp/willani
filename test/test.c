@@ -365,6 +365,11 @@ int main() {
   assert( "0b0101 ^ 0b0011 & 0b0000", 0b0101 ^ 0b0011 & 0b0000, 0b0101);
   assert( "0b0101 | 0b0011 & 0b0000", 0b0101 | 0b0011 & 0b0000, 0b0101);
 
+  assert("({ int *x[3]; sizeof(x); })", ({ int *x[3]; sizeof(x); }), 24);
+  assert("({ int (*x)[3]; sizeof(x); })", ({ int (*x)[3]; sizeof(x); }), 8);
+  assert("({ int *x[3]; int y; x[0]=&y; y=3; x[0][0]; })", ({ int *x[3]; int y; x[0]=&y; y=3; x[0][0]; }), 3);
+  assert("({ int x[3]; int (*y)[3]=x; y[0][0]=4; y[0][0]; })", ({ int x[3]; int (*y)[3]=x; y[0][0]=4; y[0][0]; }), 4);
+
   printf("\nOK\n");
   return 0;
 }

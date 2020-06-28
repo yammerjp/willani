@@ -12,7 +12,7 @@ Type *read_type(Token **rest, Token *token, AllowStaticOrNot allow_static_or_not
     token = token->next;
     is_static = true;
   }
-  
+
   if(equal(token, "long")) {
     type = new_type_long();
     token = token->next;
@@ -41,7 +41,6 @@ Type *read_type(Token **rest, Token *token, AllowStaticOrNot allow_static_or_not
     type = new_type_pointer(type);
     token = token->next;
   }
-
   type->is_static = is_static;
   *rest = token;
   return type;
@@ -87,14 +86,10 @@ Type *read_new_type_struct(Token **rest, Token *token) {
 }
 
 Member *read_member(Token **rest, Token *token, int offset) {
+  char *name;
+  int namelen;
   Type *type = read_type(&token, token, DENY_STATIC);
-
-  if (!is_identifer_token(token))
-    error_at(token->location, "expected member identifer");
-  char *name = token->location;
-  int namelen = token->length;
-  token = token->next;
-
+  type = declarator(&token, token, type, &name, &namelen);
   type = type_suffix(&token, token, type);
 
   if (!equal(token, ";"))
@@ -103,4 +98,28 @@ Member *read_member(Token **rest, Token *token, int offset) {
 
   *rest = token;
   return new_member(name, namelen, type, offset);
+}
+
+// declarator = "*"* ("(" declarator ")" | identifer ) type_suffix
+Type *declarator(Token **rest, Token *token, Type *type, char **namep, int *namelenp) {
+  while (equal(token, "*")) {
+    type = new_type_pointer(type);
+    token = token->next;
+  }
+  if (equal(token, "(")) {
+    Type *placeholder = calloc(1, sizeof(Type));
+    Type *new_type = declarator(&token, token->next, placeholder, namep, namelenp);
+    if (!equal(token, ")"))
+      error_at(token->location, "expected ) of nested type");
+    *placeholder = *type_suffix(rest, token->next, type);
+    return new_type;
+  }
+  if (!is_identifer_token(token))
+    error_at(token->location, "expected identifer of declaration with type");
+  *namep = token->location;
+  *namelenp = token->length;
+  token = token->next;
+  type = type_suffix(&token, token, type);
+  *rest = token;
+  return type;
 }

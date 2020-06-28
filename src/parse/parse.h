@@ -136,6 +136,7 @@ typedef enum {
   DENY_STATIC,
 } AllowStaticOrNot;
 Type *read_type(Token **rest, Token *token, AllowStaticOrNot allow_static_or_not);
+Type *declarator(Token **rest, Token *token, Type *type, char **namep, int *namelenp);
 bool is_type_tokens(Token *token, AllowStaticOrNot ason);
 Member *read_member(Token **rest, Token *token, int offset);
 

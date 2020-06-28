@@ -300,24 +300,19 @@ Node *expr_stmt(Token **rest, Token *token) {
 // declare node is skipped by codegen
 
 Node *declare_lvar_stmt(Token **rest, Token *token) {
-  Type *type = read_type(&token, token, ALLOW_STATIC); // Proceed token if only token means type
-  if (!type)
+  char *name;
+  int namelen;
+  Type *type;
+  if (!is_type_tokens(token, ALLOW_STATIC))
     error_at(token->location, "expected type to declare local variable");
 
-  if (!is_identifer_token(token)) {
+  type = read_type(&token, token, ALLOW_STATIC);
+  if (equal(token,  ";")  && type->kind == TYPE_STRUCT) {
     // struct declaration only
-    if (!equal(token,  ";") || type->kind != TYPE_STRUCT)
-      error_at(token->location, "expected identifer of new local variable");
     *rest = token->next;
     return NULL;
   }
-
-  // identifer
-  char *name = token->location;
-  int namelen = token->length;
-  token = token->next;
-
-  // ("[" num "]")*
+  type = declarator(&token, token, type, &name, &namelen);
   type = type_suffix(&token, token, type);
 
   if (find_in_vars(name, namelen, now_scope->vars) || find_in_typedefs(name, namelen, now_scope->tdfs))
@@ -366,12 +361,13 @@ void typedef_stmt(Token **rest, Token *token) {
      error_at(token->location, "expected 'typedef'");
   token = token->next;
 
+  char *name;
+  int namelen;
   Type *type = read_type(&token, token, ALLOW_STATIC);
+  type = declarator(&token, token, type, &name, &namelen);
+  type = type_suffix(&token, token, type);
 
-  if (!is_identifer_token(token))
-    error_at(token->location, "expected identifer of typedef");
-  new_typedef(type, token->location, token->length);
-  token = token->next;
+  new_typedef(type, name, namelen);
 
   if (!equal(token, ";"))
     error_at(token->location, "expected ; of the end of the typedef statement");
