@@ -248,15 +248,13 @@ Token *tokenize(char *p) {
     }
 
     // Skip comment
-    if (strncmp(p, "//", 2) == 0) {
+    if (!strncmp(p, "//", 2)) {
       p +=2;
       while (*p != '\n')
         p++;
       continue;
     }
-
-    // Skip comment
-    if (strncmp(p, "/*", 2) == 0) {
+    if (!strncmp(p, "/*", 2)) {
       char *q =  strstr(p+2, "*/");
       if (!q)
         error("comment is not closed");
@@ -264,6 +262,7 @@ Token *tokenize(char *p) {
       continue;
     }
 
+    // number
     int dlen = digit_token_length(p);
     if (dlen > 0) {
       current = new_token(TK_NUM, current, p, dlen);
@@ -271,6 +270,7 @@ Token *tokenize(char *p) {
       continue;
     }
 
+    // reserved word
     int rlen = reserved_token_length(p);
     if (rlen > 0) {
       current = new_token(TK_RESERVED, current, p, rlen);
@@ -278,6 +278,7 @@ Token *tokenize(char *p) {
       continue;
     }
 
+    // identifer
     int ilen = identifer_token_length(p);
     if (ilen > 0) {
       current = new_token(TK_IDENT, current, p, ilen);
@@ -285,6 +286,7 @@ Token *tokenize(char *p) {
       continue;
     }
 
+    // ' ... '
     int clen = char_token_length(p);
     if (clen > 0) {
       current = new_token(TK_CHAR, current, p, clen);
@@ -292,6 +294,7 @@ Token *tokenize(char *p) {
       continue;
     }
 
+    // " ... "
     int slen = string_token_length(p);
     if (slen > 0) {
       current = new_token(TK_STRING, current, p, slen);
