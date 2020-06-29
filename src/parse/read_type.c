@@ -112,6 +112,11 @@ static Type *read_new_type_enum(Token **rest, Token *token) {
       num = str_to_l(token->next->location, token->next->length);
       token = token->next->next;
     }
+    if (find_in_vars(name, namelen, now_scope->vars)
+      || find_in_typedefs(name, namelen, now_scope->tdfs)
+      || find_in_enum_tags(name, namelen, now_scope->etags)
+      || !(now_scope->parent) && find_function(name, namelen) )
+      error_at(token->location, "duplicate scope declarations of variable/typedef/function/enum");
     new_enum(name, namelen, num++, etag);
     if (equal(token, "}"))
       break;

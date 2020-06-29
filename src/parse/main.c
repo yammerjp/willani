@@ -38,8 +38,11 @@ void *program(Token *token) {
       continue;
     }
 
-    scope_in();
     // function
+    if (find_in_vars(name, namelen, now_scope->vars) || find_in_typedefs(name, namelen, now_scope->tdfs)
+      || find_in_enum_tags(name, namelen, now_scope->etags))
+      error_at(token->location, "duplicate global declarations of variable/typedef/function/enum");
+    scope_in();
     Function *func_samename = find_function(name, namelen);
     Function *func = function_definition(&token, token, type, name, namelen);
     if (func_samename && !same_function(func, func_samename))
@@ -71,8 +74,9 @@ void *program(Token *token) {
 
 static void read_new_gvar(Token **rest, Token *token, Type *type_without_suffix, char *name, int namelen) {
   Type *type = type_suffix(&token, token, type_without_suffix);
-  if (find_var(name, namelen) || find_typedef(name, namelen))
-    error_at(token->location, "duplicate declarations");
+  if (find_in_vars(name, namelen, now_scope->vars) || find_in_typedefs(name, namelen, now_scope->tdfs) || find_function(name, namelen) || find_in_enum_tags(name, namelen, now_scope->etags)
+  )
+    error_at(token->location, "duplicate global declarations of variable/typedef/function/enum");
   new_var(type, name, namelen);
 
   if (!equal(token, ";"))

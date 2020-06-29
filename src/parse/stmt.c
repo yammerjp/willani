@@ -313,8 +313,9 @@ Node *declare_lvar_stmt(Token **rest, Token *token) {
   type = declarator(&token, token, type, &name, &namelen);
   type = type_suffix(&token, token, type);
 
-  if (find_in_vars(name, namelen, now_scope->vars) || find_in_typedefs(name, namelen, now_scope->tdfs))
-    error("duplicate declarations '%.*s'", namelen, name);
+  if (find_in_vars(name, namelen, now_scope->vars) || find_in_typedefs(name, namelen, now_scope->tdfs)
+    || find_in_enum_tags(name, namelen, now_scope->etags))
+    error_at(token->location, "duplicate scope declarations of variable/typedef/enum");
   new_var(type, name, namelen);
 
   if (equal(token, ";")) {
@@ -347,6 +348,13 @@ void typedef_stmt(Token **rest, Token *token) {
   Type *type = read_type(&token, token, ALLOW_STATIC);
   type = declarator(&token, token, type, &name, &namelen);
   type = type_suffix(&token, token, type);
+
+  if ( find_in_typedefs(name, namelen, now_scope->tdfs)
+    || find_in_vars(name, namelen, now_scope->vars)
+    || find_in_enum_tags(name, namelen, now_scope->etags)
+    || !(now_scope->parent) && find_function(name, namelen)
+  )
+    error_at(token->location, "duplicate scope declarations of variable/typedef/function/enum");
 
   new_typedef(type, name, namelen);
 
