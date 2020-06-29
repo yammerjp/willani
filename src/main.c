@@ -11,6 +11,7 @@ int main(int argc, char **argv) {
   filename = argv[1];
   user_input = read_file(filename);
   Token *token = tokenize(user_input);
+  token = preprocess(token);
 
   // parse
   program(token);

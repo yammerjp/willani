@@ -5,12 +5,14 @@ static FILE *tokenize_log_file;
 
 static char *token_kind_str(Token *token) {
   switch (token->kind) {
-    case TK_RESERVED: return("TK_RESERVED");
-    case TK_IDENT:    return("TK_IDENT   ");
-    case TK_NUM:      return("TK_NUM     ");
-    case TK_STRING:   return("TK_STRING  ");
-    case TK_CHAR:     return("TK_CHAR    ");
-    case TK_EOF:      return("TK_EOF     ");
+    case TK_RESERVED:         return("TK_RESERVED        ");
+    case TK_IDENT:            return("TK_IDENT           ");
+    case TK_NUM:              return("TK_NUM             ");
+    case TK_STRING:           return("TK_STRING          ");
+    case TK_CHAR:             return("TK_CHAR            ");
+    case TK_EOF:              return("TK_EOF             ");
+    case TK_PREPROCESS_BEGIN: return("TK_PREPROCESS_BEGIN");
+    case TK_PREPROCESS_END:   return("TK_PREPROCESS_END  ");
     default : error("unexpected token->kind");
   }
 }
@@ -241,11 +243,32 @@ Token *tokenize(char *p) {
   if (tokenize_log_file == NULL)
     error("fail to open tokenize.log");
 
+  bool is_line_head = true;
+  bool is_preprocess_line = false;
+
   while (*p) {
+    // Begin preprocess
+    if (*p == '#' && is_line_head) {
+      current = new_token(TK_PREPROCESS_BEGIN, current, p, 1);
+      is_preprocess_line = true;
+      p++;
+      continue;
+    }
+    // Finish preprocess
+    if (*p == '\n') {
+      if (is_preprocess_line)
+        current = new_token(TK_PREPROCESS_END, current, p, 1);
+      p++;
+      is_preprocess_line = false;
+      is_line_head = true;
+      continue;
+    }
+    // Skip space
     if (isspace(*p)) {
       p++;
       continue;
     }
+    is_line_head = false;
 
     // Skip comment
     if (!strncmp(p, "//", 2)) {

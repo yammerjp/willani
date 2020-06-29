@@ -1,6 +1,6 @@
 //typedef int A;
+#define hoge huga
 
-//int A;
 extern int C;
 int C;
 

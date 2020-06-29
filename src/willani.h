@@ -38,13 +38,15 @@ struct Member {
 // tokenize.c
 
 typedef enum {
-  TK_RESERVED,  // Keywords or punctuators
-  TK_IDENT,     // Identifers
-  TK_STRING,    // "..."
-  TK_CHAR,      // '.'
-  TK_STRUCT,    // struct
-  TK_NUM,       // Numeric literals
-  TK_EOF,       // End-of-file markers
+  TK_RESERVED,        // Keywords or punctuators
+  TK_IDENT,           // Identifers
+  TK_STRING,          // "..."
+  TK_CHAR,            // '.'
+  TK_STRUCT,          // struct
+  TK_NUM,             // Numeric literals
+  TK_EOF,             // End-of-file markers
+  TK_PREPROCESS_BEGIN,// # (preprocess line start)
+  TK_PREPROCESS_END,  // \n (preprocess line end)
 } TokenKind;
 
 typedef struct Token Token;
@@ -262,5 +264,10 @@ extern Function *functions;
 //======================================
 // read_file.c
 char *read_file(char *path);
+
+
+//======================================
+// preprocess.c
+Token *preprocess(Token *token);
 
 #endif
