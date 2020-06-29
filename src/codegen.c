@@ -13,9 +13,9 @@ static void gen_binary_operator(Node *node);
 static void prologue(Function *func);
 static void epilogue();
 
-char arg_regs1[][4] = { "dil", "sil", "dl", "cl", "r8b", "r9b" };
-char arg_regs4[][4] = { "edi", "esi", "edx", "ecx", "r8d", "r9d" };
-char arg_regs8[][4] = { "rdi", "rsi", "rdx", "rcx", "r8", "r9" };
+static char arg_regs1[][4] = { "dil", "sil", "dl", "cl", "r8b", "r9b" };
+static char arg_regs4[][4] = { "edi", "esi", "edx", "ecx", "r8d", "r9d" };
+static char arg_regs8[][4] = { "rdi", "rsi", "rdx", "rcx", "r8", "r9" };
 
 //======================================
 // labels
@@ -25,26 +25,26 @@ struct Stack {
   int labct;
   Stack *parent;
 };
-void push(Stack **stack,int labct) {
+static void push(Stack **stack,int labct) {
   Stack *s = calloc(1, sizeof(Stack));
   s->labct = labct;
   s->parent = *stack;
   *stack = s;
 }
-int pop(Stack **stack) {
+static int pop(Stack **stack) {
   int labct = (*stack)->labct;
   *stack = (*stack)->parent;
   return labct;
 }
-Stack *continue_stack;
-Stack *break_stack;
-Stack *switch_stack;
+static Stack *continue_stack;
+static Stack *break_stack;
+static Stack *switch_stack;
 
 // identify jump label of return
-char *funcname = NULL;
-int funcnamelen = 0;
+static char *funcname = NULL;
+static int funcnamelen = 0;
 
-int label_count = 1;
+static int label_count = 1;
 
 
 
