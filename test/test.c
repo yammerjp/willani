@@ -370,6 +370,20 @@ int main() {
   assert("({ int *x[3]; int y; x[0]=&y; y=3; x[0][0]; })", ({ int *x[3]; int y; x[0]=&y; y=3; x[0][0]; }), 3);
   assert("({ int x[3]; int (*y)[3]=x; y[0][0]=4; y[0][0]; })", ({ int x[3]; int (*y)[3]=x; y[0][0]=4; y[0][0]; }), 4);
 
+  assert("({enum agreement { hello, goodbye, }; hello;})", ({enum agreement { hello, goodbye, }; hello;}), 0);
+  assert("({ enum { Hello, GoodBye, } a; a = GoodBye; a; })", ({ enum { Hello, GoodBye, } a; a = GoodBye; a; }), 1);
+  assert("enum { zero, one, two }; zero;", ({ enum { zero, one, two }; zero; }), 0);
+  assert("enum { zero, one, two }; one;", ({ enum { zero, one, two }; one; }), 1);
+  assert("enum { zero, one, two }; two;", ({ enum { zero, one, two }; two; }), 2);
+  assert("enum { five=5, six, seven }; five;", ({ enum { five=5, six, seven }; five; }), 5);
+  assert("enum { five=5, six, seven }; six;", ({ enum { five=5, six, seven }; six; }), 6);
+  assert("enum { zero, five=5, three=3, four }; zero;", ({ enum { zero, five=5, three=3, four }; zero; }), 0);
+  assert("enum { zero, five=5, three=3, four }; five;", ({ enum { zero, five=5, three=3, four }; five; }), 5);
+  assert("enum { zero, five=5, three=3, four }; three;", ({ enum { zero, five=5, three=3, four }; three; }), 3);
+  assert("enum { zero, five=5, three=3, four }; four;", ({ enum { zero, five=5, three=3, four }; four; }), 4);
+  assert("enum { zero, one, two } x; sizeof(x);", ({ enum { zero, one, two } x; sizeof(x); }), 4);
+  assert("enum t { zero, one, two }; enum t y; sizeof(y);", ({ enum t { zero, one, two }; enum t y; sizeof(y); }), 4);
+
   printf("\nOK\n");
   return 0;
 }

@@ -374,6 +374,9 @@ Node *primary_identifer(Token **rest, Token *token) {
 
   if (!equal(token, "(")) {
     *rest = token;
+    Enum *enm = find_enum(name, namelen);
+    if (enm)
+      return new_node_num(enm->num, token);
     return new_node_var(name,namelen, ident_token);
   }
 

@@ -78,6 +78,7 @@ typedef enum {
   TYPE_PTR,
   TYPE_ARRAY,
   TYPE_STRUCT,
+  TYPE_ENUM,
 } TypeKind;
 
 struct Type {
@@ -95,6 +96,7 @@ Type *new_type_char();
 Type *new_type_bool();
 Type *new_type_pointer(Type *parent);
 Type *new_type_array(Type *parent, int length);
+Type *new_type_enum();
 Type *new_type_struct(int size, Member *members);
 Member *new_member(char *name, int namelen, Type *type, int offset);
 Member *find_member(Type *type, char *name, int namelen);

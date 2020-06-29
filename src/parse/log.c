@@ -25,6 +25,9 @@ static void print_type(FILE *file, Type *type) {
   case TYPE_STRUCT:
     fprintf(file, "struct");
     return;
+  case TYPE_ENUM:
+    fprintf(file, "enum");
+    return;
   case TYPE_ARRAY:
     fprintf(file, "[%d]", type->size / type->base->size);
     return;

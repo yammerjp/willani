@@ -1,5 +1,7 @@
 #include "parse.h"
 
+static Type *read_new_type_enum(Token **rest, Token *token);
+
 bool is_type_tokens(Token *token, AllowStaticOrNot ason) {
   return (
        equal(token, "int")
@@ -40,6 +42,8 @@ Type *read_type(Token **rest, Token *token, AllowStaticOrNot allow_static_or_not
   } else if(equal(token, "_Bool")) {
     type = new_type_bool();
     token = token->next;
+  } else if(equal(token, "enum")) {
+    type = read_new_type_enum(&token, token->next);
   } else if(equal(token, "struct")) {
     type = read_new_type_struct(&token, token->next);
   } else if (is_identifer_token(token)) {
@@ -59,6 +63,68 @@ Type *read_type(Token **rest, Token *token, AllowStaticOrNot allow_static_or_not
   type->is_static = is_static;
   *rest = token;
   return type;
+}
+
+// reading enum type  = "enum" read_new_type_enum
+// read_new_type_enum = identifer
+//                    | identifer? "{" child ("," child )* ","? "}"
+// child              = identifer ("=" number)?
+static Type *read_new_type_enum(Token **rest, Token *token) {
+  EnumTag *etag;
+  // identifer
+  char *tname;
+  int tnamelen;
+  if (is_identifer_token(token)) {
+    tname = token->location;
+    tnamelen = token->length;
+    token = token->next;
+  } else {
+    tname = token->location;
+    tnamelen = 0;
+  }
+  if (!equal(token, "{")) {
+    if (!tnamelen)
+      error_at(token->location, "expected { of enum tag");
+    if (!find_enum_tag(tname, tnamelen))
+      error_at(token->location, "used undefined identifer of enum tag");
+    *rest = token;
+    return new_type_enum();
+  }
+  if (find_tag_in_enum_tags(tname, tnamelen, now_scope->etags))
+    error_at(token->location, "duplicated identifer of enum tag");
+  new_enum_tag(tname, tnamelen);
+  etag = now_scope->etags;
+
+  // {
+  token = token->next;
+
+  int num = 0;
+  while (!equal(token, "}")) {
+    // identifer ("=" number)? ("," identifer ("="number)?)* ","?
+    if (!is_identifer_token(token))
+      error_at(token->location, "expected identifer of enum");
+    if (find_in_enum_tag(token->location, token->length, etag))
+      error_at(token->location, "duplicated identifer of enum");
+    char *name = token->location;
+    int namelen = token->length;
+    token = token->next;
+    if (equal(token, "=") && is_number_token(token->next)) {
+      num = str_to_l(token->next->location, token->next->length);
+      token = token->next->next;
+    }
+    new_enum(name, namelen, num++, etag);
+    if (equal(token, "}"))
+      break;
+    if (!equal(token, ","))
+      error_at(token->location, "expected ',' of enum");
+    token = token->next;
+  }
+
+  // }
+  token = token->next;
+
+  *rest = token;
+  return new_type_enum();
 }
 
 // ident? ( "{" member "}" )? ;

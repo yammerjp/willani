@@ -155,6 +155,30 @@ struct StructTag {
 void new_tag(char *name, int namelen, Type *type);
 StructTag *find_tag_in_tags(char *name, int namelen, StructTag *tags);
 
+
+//=====================================
+// enum.c
+typedef struct Enum Enum;
+struct Enum {
+  char *name;
+  int namelen;  // noname enum if it is zero
+  int num;
+  Enum *next;
+};
+typedef struct EnumTag EnumTag;
+struct EnumTag {
+  char *name;
+  int namelen;
+  Enum *enms;
+  EnumTag *next;
+};
+void new_enum_tag(char *name, int namelen);
+void new_enum(char *name, int namelen, int num, EnumTag *etag);
+Enum *find_in_enum_tag(char *name, int namelen, EnumTag *etag);
+Enum *find_in_enum_tags(char *name, int namelen, EnumTag *etags);
+EnumTag *find_tag_in_enum_tags(char *name, int namelen, EnumTag *etags);
+
+
 //=====================================
 // typedef.c
 typedef struct TypeDef TypeDef;
@@ -174,6 +198,7 @@ struct Scope {
   Var *vars;
   StructTag *tags;
   TypeDef *tdfs;
+  EnumTag *etags;
   Scope *parent;
 };
 
@@ -183,6 +208,8 @@ void scope_out();
 Var *find_var(char *name, int namelen);
 TypeDef *find_typedef(char *name, int namelen);
 StructTag *find_tag(char *name, int namelen);
+Enum *find_enum(char *name, int namelen);
+EnumTag *find_enum_tag(char *name, int namelen);
 
 
 #endif

@@ -305,8 +305,8 @@ Node *declare_lvar_stmt(Token **rest, Token *token) {
     error_at(token->location, "expected type to declare local variable");
 
   type = read_type(&token, token, ALLOW_STATIC);
-  if (equal(token,  ";")  && type->kind == TYPE_STRUCT) {
-    // struct declaration only
+  if (equal(token,  ";")  && (type->kind == TYPE_STRUCT || type->kind == TYPE_ENUM)) {
+    // struct or enum declaration only
     *rest = token->next;
     return NULL;
   }

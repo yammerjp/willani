@@ -1,4 +1,9 @@
 int main() {
-  int (*x)[3];
-  return sizeof(x);
+  enum {
+    A = 2,
+    B = 1,
+    C,
+    D,
+  };
+  return C;
 }

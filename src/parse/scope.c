@@ -14,7 +14,7 @@ void scope_out() {
 
 Var *find_var(char *name, int namelen) {
   for (Scope *sc = now_scope; sc; sc = sc->parent) {
-    if (find_in_typedefs(name, namelen, sc->tdfs))
+    if (find_in_typedefs(name, namelen, sc->tdfs) || find_in_enum_tags(name, namelen, sc->etags))
       return NULL;
     Var *var = find_in_vars(name, namelen, sc->vars);
     if (var)
@@ -25,7 +25,7 @@ Var *find_var(char *name, int namelen) {
 
 TypeDef *find_typedef(char *name, int namelen) {
   for (Scope *sc = now_scope; sc; sc = sc->parent) {
-    if (find_in_vars(name, namelen, sc->vars))
+    if (find_in_vars(name, namelen, sc->vars) || find_in_enum_tags(name, namelen, sc->etags))
       return NULL;
     TypeDef *tdf = find_in_typedefs(name, namelen, sc->tdfs);
     if (tdf)
@@ -39,6 +39,26 @@ StructTag *find_tag(char *name, int namelen) {
     StructTag *tag = find_tag_in_tags(name, namelen, sc->tags);
     if (tag)
       return tag;
+  }
+  return NULL;
+}
+
+Enum *find_enum(char *name, int namelen) {
+  for (Scope *sc = now_scope; sc; sc = sc->parent) {
+    if (find_in_vars(name, namelen, sc->vars) || find_in_typedefs(name, namelen, sc->tdfs))
+      return NULL;
+    Enum *enm = find_in_enum_tags(name, namelen, sc->etags);
+    if (enm)
+      return enm;
+  }
+  return NULL;
+}
+
+EnumTag *find_enum_tag(char *name, int namelen) {
+  for (Scope *sc = now_scope; sc; sc = sc->parent) {
+    EnumTag *etag = find_tag_in_enum_tags(name, namelen, sc->etags);
+    if (etag)
+      return etag;
   }
   return NULL;
 }

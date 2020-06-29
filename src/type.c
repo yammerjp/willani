@@ -37,12 +37,16 @@ Type *new_type_array(Type *parent, int length) {
   type->array_length  = length;
   return type;
 }
+Type *new_type_enum() {
+  return new_type(TYPE_ENUM, 4);
+}
 
 Type *new_type_struct(int size, Member *members) {
   Type *type = new_type(TYPE_STRUCT, size);
   type->members = members;
   return type;
 }
+
 
 Member *new_member(char *name, int namelen, Type *type, int offset) {
   Member *member = calloc(1, sizeof(Member));
