@@ -1,17 +1,8 @@
 //typedef int A;
 
 //int A;
-int A() {
-  return 0;
-}
-
-enum {
-  A = 2,
-  B = 1,
-  C,
-  D,
-};
-
+extern int C;
+int C;
 
 int main() {
   return C;

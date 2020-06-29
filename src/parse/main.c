@@ -76,9 +76,19 @@ void *program(Token *token) {
 
 static void read_new_gvar(Token **rest, Token *token, Type *type_without_suffix, char *name, int namelen) {
   Type *type = type_suffix(&token, token, type_without_suffix);
-  if (find_in_vars(name, namelen, now_scope->vars) || find_in_typedefs(name, namelen, now_scope->tdfs) || find_function(name, namelen) || find_in_enum_tags(name, namelen, now_scope->etags)
+
+  if (find_in_typedefs(name, namelen, now_scope->tdfs) || find_function(name, namelen) || find_in_enum_tags(name, namelen, now_scope->etags)
   )
-    error_at(token->location, "duplicate global declarations of variable/typedef/function/enum");
+    error_at(token->location, "duplicate global declarations of typedef/function/enum");
+  Var *varex = find_in_vars_of_extern(name, namelen, now_scope->vars);
+  if (varex && !same_type(type, varex->type))
+    error_at(token->location, "conflict the type of extern global variables declaration");
+  Var *varen = find_in_vars_without_extern(name, namelen, now_scope->vars);
+  if (varen && !type->is_extern)
+    error_at(token->location, "duplicated global variables declaration");
+  if (varen && !same_type(type, varen->type))
+    error_at(token->location, "conflict the type of extern and entity global variables declaration");
+
   new_var(type, name, namelen);
 
   if (!equal(token, ";"))

@@ -13,6 +13,8 @@ String *new_string(char *p, int length);
 // var.c
 extern int lvar_byte;
 Var *find_in_vars(char *name, int namelen, Var *vars);
+Var *find_in_vars_of_extern(char *name, int namelen, Var *vars);
+Var *find_in_vars_without_extern(char *name, int namelen, Var *vars);
 void *new_var(Type *type, char *name, int namelen);
 
 
