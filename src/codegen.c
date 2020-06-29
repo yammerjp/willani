@@ -616,8 +616,11 @@ void code_generate() {
 
   // text section
   printf(".text\n");
-  for (Var *var = gvars; var; var = var->next)
+  for (Var *var = gvars; var; var = var->next) {
+    if (var->type->is_static)
+      continue;
     printf(".globl %.*s\n", var->namelen, var->name);
+  }
   for (Function *func = functions; func; func = func->next) {
     if (func->definition || func->type->is_static)
       continue;

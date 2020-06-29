@@ -13,8 +13,10 @@ Var *find_in_vars(char *name, int namelen, Var *vars) {
 }
 
 void *new_var(Type *type, char *name, int namelen) {
-  if (type->is_static)
-    error_at(name, "not support static variables");
+  bool is_global =  !(now_scope->parent);
+  // TODO support local static variables
+  if (!is_global && type->is_static)
+    error_at(name, "not support local static variables");
   lvar_byte += type->size;
 
   Var *var = calloc(1, sizeof(Var));
@@ -23,7 +25,7 @@ void *new_var(Type *type, char *name, int namelen) {
   var->name = name;
   var->namelen = namelen;
   var->offset = lvar_byte;
-  var->is_global = !(now_scope->parent);
+  var->is_global = is_global;
 
   now_scope->vars = var;
 }

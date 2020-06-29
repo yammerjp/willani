@@ -1,9 +1,9 @@
 #!/bin/bash -e
 
-echo 'extern int a; int main() { return a; }' > test10.c
-echo 'int a;' > test11.c
-./willani test10.c > test10.s
-./willani test11.c > test11.s
-gcc -static test10.s test11.s -o test10.out
-./test10.out
+echo 'extern int a; int main() { return a; }' > test-10.c
+echo 'int a;' > test-11.c
+./willani test-10.c > test-10.s
+./willani test-11.c > test-11.s
+gcc -static test-10.s test-11.s -o test-10.out
+./test-10.out
 echo 'test2 ok'

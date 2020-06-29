@@ -3,11 +3,7 @@
 *.out
 tmp*
 test.s
-test10.s
-test10.c
-test11.s
-test11.c
-test.out
+test-*
 a.out
 willani
 *.log

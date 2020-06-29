@@ -8,14 +8,16 @@ willani: $(OBJS)
 $(OBJS): src/willani.h src/parse/parse.h
 
 test: willani
-	rm -f test.s test.out
-	echo 'int static_fn() { return 5; }' | gcc -xc -c -o tmp2.o -
-	./willani test/test.c > test.s
-	gcc -static test.s tmp2.o -o test.out
-	./test.out
+	rm -f test-*
+	echo 'int static_fn() { return 5; }' | gcc -xc -c -o test-01.o -
+	./willani test/test.c > test-00.s
+	gcc -static test-00.s test-01.o -o test-00.out
+	./test-00.out
 	@echo 'test1 is finished!!'
 	./test/test2.sh
 	@echo 'test2 is finished!!'
+	./test/test3.sh
+	@echo 'test3 is finished!!'
 
 sample: willani
 	./willani sample.c > tmp.s
@@ -28,5 +30,5 @@ debug: willani
 	gdb tmp
 
 clean:
-	rm -f willani src/*.o src/parse/*.o *~ tmp* *.log core test.s test.out test10.c test10.s test11.c test11.s test10.out
+	rm -f willani src/*.o src/parse/*.o *~ tmp* *.log core test-*
 .PHONY: test clean sample debug
