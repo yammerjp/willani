@@ -160,7 +160,6 @@ static void gen_switch(Node *node) {
     printf("  cmp  (%%rsp), %%rax\n");
     printf("  je  .L.case.%d.%d\n", labct, case_num++);
   }
-  // TODO: Support default : case
   if (node->have_default)
     printf("  jmp .L.default.%d\n", labct); // end then stmt
   else

@@ -295,6 +295,7 @@ int main() {
     ({int a=1;switch(a){case 0:break;case 1:a=2;switch(a){case 0:a=100;break;case 1:a=200;break;default:a=300;}break;default:a=400;}a;}),
     300
   );
+    assert("({int a;switch(0){case 1:a = 0;default:a=1;}a;})", ({int a;switch(0){case 1:a = 0;default:a=1;}a;}), 1);
 
   assert("222%4", 222%4, 2);
   assert("10%3", 10%3, 1);
