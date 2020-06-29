@@ -19,6 +19,10 @@ void *program(Token *token) {
     Type *type = read_type(&token, token, ALLOW_STATIC);
     if (!type)
       error_at(token->location, "unexpected type");
+    if (equal(token, ";") && (type->kind == TYPE_ENUM || type->kind == TYPE_STRUCT)) {
+      token = token->next;
+      continue;
+    }
 
     // function name
     if (!is_identifer_token(token))
