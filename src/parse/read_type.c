@@ -2,7 +2,7 @@
 
 static Type *read_new_type_enum(Token **rest, Token *token);
 
-bool is_type_tokens(Token *token, AllowStaticOrNot ason) {
+bool is_type_tokens(Token *token, AllowStaticOrNot ason, AllowExternOrNot aeon) {
   return (
        equal(token, "int")
     || equal(token, "char")
@@ -12,6 +12,7 @@ bool is_type_tokens(Token *token, AllowStaticOrNot ason) {
     || equal(token, "enum")
     || find_typedef(token->location, token->length)
     || ason == ALLOW_STATIC && equal(token, "static")
+    || aeon == ALLOW_EXTERN && equal(token, "extern")
   );
 }
 
@@ -21,11 +22,16 @@ bool is_type_tokens(Token *token, AllowStaticOrNot ason) {
 //         | "long"
 //         | "struct" identifer? ("{" members "}")?
 //         | indentifer    (declared with typedef)
-Type *read_type(Token **rest, Token *token, AllowStaticOrNot allow_static_or_not) {
+Type *read_type(Token **rest, Token *token, AllowStaticOrNot ason, AllowExternOrNot aeon) {
   Type *type;
+  bool is_extern = false;
+  if(aeon == ALLOW_EXTERN && equal(token, "extern")) {
+    token = token->next;
+    is_extern = true;
+  }
 
   bool is_static = false;
-  if (allow_static_or_not == ALLOW_STATIC && equal(token, "static")) {
+  if (!is_extern && ason == ALLOW_STATIC && equal(token, "static")) {
     token = token->next;
     is_static = true;
   }
@@ -61,6 +67,7 @@ Type *read_type(Token **rest, Token *token, AllowStaticOrNot allow_static_or_not
     token = token->next;
   }
   type->is_static = is_static;
+  type->is_extern = is_extern;
   *rest = token;
   return type;
 }
@@ -174,7 +181,7 @@ Type *read_new_type_struct(Token **rest, Token *token) {
 Member *read_member(Token **rest, Token *token, int offset) {
   char *name;
   int namelen;
-  Type *type = read_type(&token, token, DENY_STATIC);
+  Type *type = read_type(&token, token, DENY_STATIC, DENY_EXTERN);
   type = declarator(&token, token, type, &name, &namelen);
   type = type_suffix(&token, token, type);
 

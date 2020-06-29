@@ -608,12 +608,16 @@ void code_generate() {
       printf("  .byte 0x%x\n", (str->p)[i]);
   }
   for (Var *var = gvars; var; var = var->next) {
+    if (var->type->is_extern)
+      continue;
     printf("%.*s:\n", var->namelen, var->name);
     printf("  .zero %d\n", var->type->size);
   }
 
   // text section
   printf(".text\n");
+  for (Var *var = gvars; var; var = var->next)
+    printf(".globl %.*s\n", var->namelen, var->name);
   for (Function *func = functions; func; func = func->next) {
     if (func->definition || func->type->is_static)
       continue;

@@ -16,7 +16,7 @@ void *program(Token *token) {
     }
 
     // type
-    Type *type = read_type(&token, token, ALLOW_STATIC);
+    Type *type = read_type(&token, token, ALLOW_STATIC, ALLOW_EXTERN);
     if (!type)
       error_at(token->location, "unexpected type");
     if (equal(token, ";") && (type->kind == TYPE_ENUM || type->kind == TYPE_STRUCT)) {
@@ -37,6 +37,8 @@ void *program(Token *token) {
       read_new_gvar(&token, token, type, name, namelen);
       continue;
     }
+    if (type->is_extern)
+      error_at(token->location, "the word 'extern' is allow only global variables declaration");
 
     // function
     if (find_in_vars(name, namelen, now_scope->vars) || find_in_typedefs(name, namelen, now_scope->tdfs)

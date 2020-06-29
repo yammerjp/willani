@@ -88,6 +88,7 @@ struct Type {
   int array_length; // Used if kind is TYPE_ARRAY
   Member *members;  // Used if kind is TYPE_STRUCT
   bool is_static;
+  bool is_extern;
 };
 
 Type *new_type_long();
@@ -117,6 +118,7 @@ struct Var {
   int namelen;
   int offset;
   bool is_global;
+  bool is_extern;
 };
 
 typedef enum {

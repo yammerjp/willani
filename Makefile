@@ -13,6 +13,9 @@ test: willani
 	./willani test/test.c > test.s
 	gcc -static test.s tmp2.o -o test.out
 	./test.out
+	@echo 'test1 is finished!!'
+	./test/test2.sh
+	@echo 'test2 is finished!!'
 
 sample: willani
 	./willani sample.c > tmp.s
@@ -25,5 +28,5 @@ debug: willani
 	gdb tmp
 
 clean:
-	rm -f willani src/*.o src/parse/*.o *~ tmp* *.log core test.s test.out
+	rm -f willani src/*.o src/parse/*.o *~ tmp* *.log core test.s test.out test10.c test10.s test11.c test11.s test10.out
 .PHONY: test clean sample debug
