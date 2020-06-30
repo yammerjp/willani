@@ -11,6 +11,19 @@ static Token *copy(Token *token) {
   return copied;
 }
 
+static Token *copies(Token *src, Token *uncopies, Token *tail_next) {
+  Token predest_head = {};
+  Token *predest = &predest_head;
+
+  while (src != uncopies) {
+    predest->next = copy(src);
+    src = src->next;
+    predest = predest->next;
+  }
+  predest->next = tail_next;
+  return predest_head.next;
+}
+
 static void define(Token **rest, Token *pre_begin) {
   // Read preprocess line
   Token *token = pre_begin->next; //token->kind is TK_PREPROCESS_BEGIN
@@ -23,11 +36,13 @@ static void define(Token **rest, Token *pre_begin) {
   Token *ident = token;
   token = token->next;
 
-  Token *replacement = token;
+  Token *replacings = token;
   token = token->next;
 
-  if (token->kind != TK_PREPROCESS_END)
-    error_at(token->location, "expected end of preprocess line");
+  while (token->kind != TK_PREPROCESS_END)
+    token = token->next;
+//    error_at(token->location, "expected end of preprocess line");
+  Token *unreplacings = token;
 
   pre_begin->next = token->next;
   *rest = pre_begin;
@@ -40,9 +55,10 @@ static void define(Token **rest, Token *pre_begin) {
      && !strncmp(ident->location, token->next->location, ident->length)
     ) {
       Token *dest = token->next->next;
-      Token *copied = copy(replacement);
-      token->next = copied;
-      copied->next = dest;
+      token->next = copies(replacings, unreplacings, dest);
+      while (token->next !=dest)
+        token = token->next;
+      continue;
     }
     token = token->next;
   }
