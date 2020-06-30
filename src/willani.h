@@ -53,6 +53,7 @@ typedef struct Token Token;
 struct Token {
   TokenKind kind;
   Token *next;
+  char *filename;
   char *location;
   int length;
   bool prev_is_space; // Used for define directive's macro of preprocessor
@@ -64,7 +65,7 @@ bool is_char_token(Token *token);
 bool is_string_token(Token *token);
 bool is_eof_token(Token *token);
 bool equal(Token *token, char *str);
-Token *tokenize(char *p);
+Token *tokenize(char *p, char *filename);
 
 char *get_line_head(char *head);
 char *get_line_end(char *end);

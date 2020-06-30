@@ -1,5 +1,7 @@
 #include "willani.h"
 
+static char* tokenize_filename;
+
 // ========== for debug ==========
 static FILE *tokenize_log_file;
 
@@ -222,6 +224,7 @@ static int string_token_length(char *p) {
 static Token *new_token(TokenKind kind, Token *current, char *location, int length, bool prev_is_space) {
   Token *token = calloc(1, sizeof(Token));
   token->kind = kind;
+  token->filename = tokenize_filename;
   token->location = location;
   token->length = length;
   token->prev_is_space = prev_is_space;
@@ -235,7 +238,9 @@ static Token *new_token(TokenKind kind, Token *current, char *location, int leng
 
 
 // ========== tokenize ==========
-Token *tokenize(char *p) {
+Token *tokenize(char *p, char *filename) {
+  tokenize_filename = filename;
+
   Token head = {};
   Token *current = &head;
 

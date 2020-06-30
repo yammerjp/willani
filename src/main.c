@@ -10,7 +10,7 @@ int main(int argc, char **argv) {
 
   filename = argv[1];
   user_input = read_file(filename);
-  Token *token = tokenize(user_input);
+  Token *token = tokenize(user_input, filename);
   token = preprocess(token);
 
   // parse

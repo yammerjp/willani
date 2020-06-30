@@ -7,7 +7,7 @@ void error_at(Token *token, char *msg) {
   char *end = get_line_end(location);
 
   // print filename and line number
-  int indent = fprintf(stderr, "%s:%d: ",filename, line_num);
+  int indent = fprintf(stderr, "%s:%d: ",token->filename, line_num);
   fprintf(stderr, "%.*s\n", (int)(end - line), line);
 
   // print error position
