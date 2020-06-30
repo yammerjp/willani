@@ -396,7 +396,7 @@ Node *primary_identifer(Token **rest, Token *token) {
   }
 
   if (!equal(token, ")"))
-    error_at(token->location, "expected )");
+    error_at(token->location, "expected ) of calling function");
 
   *rest = token->next;
   return new_node_func_call(name, namelen, args_head.next, ident_token);

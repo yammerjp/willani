@@ -219,11 +219,12 @@ static int string_token_length(char *p) {
 
 // ========== new token ==========
 // Create new (tail) token, Connect to the current token and Return new (tail) token.
-static Token *new_token(TokenKind kind, Token *current, char *location, int length) {
+static Token *new_token(TokenKind kind, Token *current, char *location, int length, bool prev_is_space) {
   Token *token = calloc(1, sizeof(Token));
   token->kind = kind;
   token->location = location;
   token->length = length;
+  token->prev_is_space = prev_is_space;
   current->next = token;
 
   // for debug
@@ -245,11 +246,12 @@ Token *tokenize(char *p) {
 
   bool is_line_head = true;
   bool is_preprocess_line = false;
+  bool prev_is_space = false;
 
   while (*p) {
     // Begin preprocess
     if (*p == '#' && is_line_head) {
-      current = new_token(TK_PREPROCESS_BEGIN, current, p, 1);
+      current = new_token(TK_PREPROCESS_BEGIN, current, p, 1, prev_is_space);
       is_preprocess_line = true;
       p++;
       continue;
@@ -257,15 +259,17 @@ Token *tokenize(char *p) {
     // Finish preprocess
     if (*p == '\n') {
       if (is_preprocess_line)
-        current = new_token(TK_PREPROCESS_END, current, p, 1);
+        current = new_token(TK_PREPROCESS_END, current, p, 1, prev_is_space);
       p++;
       is_preprocess_line = false;
       is_line_head = true;
+      prev_is_space = true;
       continue;
     }
     // Skip space
     if (isspace(*p)) {
       p++;
+      prev_is_space = true;
       continue;
     }
     is_line_head = false;
@@ -275,6 +279,7 @@ Token *tokenize(char *p) {
       p +=2;
       while (*p != '\n')
         p++;
+      prev_is_space = true;
       continue;
     }
     if (!strncmp(p, "/*", 2)) {
@@ -282,53 +287,59 @@ Token *tokenize(char *p) {
       if (!q)
         error("comment is not closed");
       p = q+2;
+      prev_is_space = true;
       continue;
     }
 
     // number
     int dlen = digit_token_length(p);
     if (dlen > 0) {
-      current = new_token(TK_NUM, current, p, dlen);
+      current = new_token(TK_NUM, current, p, dlen, prev_is_space);
       p += dlen;
+      prev_is_space = false;
       continue;
     }
 
     // reserved word
     int rlen = reserved_token_length(p);
     if (rlen > 0) {
-      current = new_token(TK_RESERVED, current, p, rlen);
+      current = new_token(TK_RESERVED, current, p, rlen, prev_is_space);
       p += rlen;
+      prev_is_space = false;
       continue;
     }
 
     // identifer
     int ilen = identifer_token_length(p);
     if (ilen > 0) {
-      current = new_token(TK_IDENT, current, p, ilen);
+      current = new_token(TK_IDENT, current, p, ilen, prev_is_space);
       p += ilen;
+      prev_is_space = false;
       continue;
     }
 
     // ' ... '
     int clen = char_token_length(p);
     if (clen > 0) {
-      current = new_token(TK_CHAR, current, p, clen);
+      current = new_token(TK_CHAR, current, p, clen, prev_is_space);
       p += clen;
+      prev_is_space = false;
       continue;
     }
 
     // " ... "
     int slen = string_token_length(p);
     if (slen > 0) {
-      current = new_token(TK_STRING, current, p, slen);
+      current = new_token(TK_STRING, current, p, slen, prev_is_space);
       p += slen;
+      prev_is_space = false;
       continue;
     }
 
     error_at(current->location, "Invalid token");
   }
 
-  new_token(TK_EOF, current, p, 0);
+  new_token(TK_EOF, current, p, 0, prev_is_space);
 
   // for debug
   fclose(tokenize_log_file);

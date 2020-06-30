@@ -55,6 +55,7 @@ struct Token {
   Token *next;
   char *location;
   int length;
+  bool prev_is_space; // Used for define directive's macro of preprocessor
 };
 
 bool is_number_token(Token *token);

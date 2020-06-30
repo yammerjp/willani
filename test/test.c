@@ -1,3 +1,4 @@
+#define DEFINE_ADD(a,b,c)  a+(b+(c))
 int printf();
 int exit();
 
@@ -384,6 +385,12 @@ int main() {
   assert("enum { zero, five=5, three=3, four }; four;", ({ enum { zero, five=5, three=3, four }; four; }), 4);
   assert("enum { zero, one, two } x; sizeof(x);", ({ enum { zero, one, two } x; sizeof(x); }), 4);
   assert("enum t { zero, one, two }; enum t y; sizeof(y);", ({ enum t { zero, one, two }; enum t y; sizeof(y); }), 4);
+
+  // preprocessor
+  assert("DEFINE_ADD((1+2),(3+(4)),5)", DEFINE_ADD((1+2),(3+(4)),5), 15);
+  #define DEFINE_3 3
+  assert("DEFINE_3", DEFINE_3, 3);
+
 
   printf("\nOK\n");
   return 0;
