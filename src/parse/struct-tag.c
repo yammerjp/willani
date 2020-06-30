@@ -2,7 +2,7 @@
 
 void new_tag(char *name, int namelen, Type *type) {
   for (StructTag *tag = now_scope->tags; tag; tag = tag->next) {
-    if (namelen == tag->namelen && strncmp(name, tag->name, namelen))
+    if (namelen == tag->namelen && !strncmp(name, tag->name, namelen))
       error("define a tag of struct is conflicted: %.*s", namelen, name);
   }
 
