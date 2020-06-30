@@ -1,9 +1,7 @@
-//typedef int A;
-#define hoge huga
+#define STR "hello, world\n"
 
-extern int C;
-int C;
-
+int printf(char *);
 int main() {
-  return C;
+  printf(STR);
+  return 0;
 }
