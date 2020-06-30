@@ -53,6 +53,8 @@ Enum *find_in_enum_tags(char *name, int namelen, EnumTag *etags) {
 }
 
 EnumTag *find_tag_in_enum_tags(char *name, int namelen, EnumTag *etags) {
+  if (!namelen)
+    return NULL;
   for (EnumTag *etag = etags; etag; etag = etag->next) {
     if (namelen == etag->namelen && !strncmp(name, etag->name, namelen))
       return etag;
