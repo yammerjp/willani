@@ -130,14 +130,6 @@ static void define_preprocess_line(Token **rest, Token *pre_begin) {
   *rest = pre_begin;
 
   add_defines(ident, preparams.next, replacings, unreplacings);
-
-  // debug print
-  fprintf(stderr, "defines:\n");
-  fprintf(stderr, " ident: %.*s\n", defines->ident->length, defines->ident->location);
-  for (Token *tk = defines->params; tk; tk = tk->next)
-    fprintf(stderr, " param: %.*s\n", tk->length, tk->location);
-  for (Token *tk = defines->replacings; tk && tk != defines->unreplacings; tk = tk->next)
-    fprintf(stderr, " replace: %.*s\n", tk->length, tk->location);
 }
 
 static void define_replace(Token *pre_begin){
@@ -190,11 +182,6 @@ static void define_replace(Token *pre_begin){
       }
       token = token->next;
     }
-    // debug
-    for(int i = 0; (specified_params[i]).next; i++)
-      for (Token *tk = (specified_params[i]).next; tk; tk = tk->next)
-        fprintf(stderr, " specified param[%d]: %.*s\n", i, tk->length, tk->location);
-
     token = token->next;
 
 
@@ -205,9 +192,6 @@ static void define_replace(Token *pre_begin){
     token = prereplaced->next;
     while (token->next != dest)
       token = token->next;
-
-    // debug
-    fprintf(stderr, "expand macro parameters\n");
 
     // replace parameters of define line from specified parameters array
     // C+B+A => 3+2+1              (e.x.)
@@ -220,8 +204,6 @@ static void define_replace(Token *pre_begin){
         continue;
       }
       // replace param to the value specified on macro
-      // debug
-      fprintf(stderr, "replace token: %.*s (num: %d)\n", tk->next->length, tk->next->location, num);
       Token *tk_dest = tk->next->next;
       tk->next = (specified_params[num-1]).next;
       while (tk->next)
