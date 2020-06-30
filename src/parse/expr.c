@@ -43,7 +43,7 @@ Node *ternary(Token **rest, Token *token) {
     Token *op_token = token;
     Node *left = expr(&token, token->next);
     if (!equal(token, ":"))
-      error_at(token->location, "expected ':' of ternary operator");
+      error_at(token, "expected ':' of ternary operator");
     Node *right = ternary(&token, token->next);
     node = new_node_ternary(node, left, right, op_token);
   }
@@ -245,7 +245,7 @@ Node *unary(Token **rest, Token *token) {
 Node *sizeofunary(Token **rest, Token *token) {
   Token *op_token = token;
   if (!equal(op_token, "sizeof"))
-    error_at(op_token->location, "expected sizeof");
+    error_at(op_token, "expected sizeof");
   Node *node = unary(&token, op_token->next);
   *rest = token;
   return new_node_num(node->type->size, op_token);
@@ -263,7 +263,7 @@ static Node *postfix(Token **rest, Token *token, Node *primary_node) {
       node = new_node_deref(new_node_add(node, expr(&token,token), op_token), op_token);
 
       if (!equal(token, "]")) {
-        error_at(token->location, "expected ]");
+        error_at(token, "expected ]");
       }
       token = token->next;
       continue;
@@ -272,7 +272,7 @@ static Node *postfix(Token **rest, Token *token, Node *primary_node) {
       token = token->next;
 
       if (!is_identifer_token(token))
-        error_at(token->location, "expected identifer of struct member");
+        error_at(token, "expected identifer of struct member");
       node = new_node_member(node, token->location, token->length, token);
       token = token->next;
       continue;
@@ -280,7 +280,7 @@ static Node *postfix(Token **rest, Token *token, Node *primary_node) {
     if (equal(token, "->")) {
       token = token->next;
       if (!is_identifer_token(token))
-        error_at(token->location, "expected identifer of struct member");
+        error_at(token, "expected identifer of struct member");
       node = new_node_member( new_node_deref(node, op_token), token->location, token->length, token);
       token = token->next;
       continue;
@@ -345,7 +345,7 @@ Node *primary(Token **rest, Token *token) {
     node = expr(&token, token->next);
 
     if (!equal(token,")"))
-      error_at(token->location, "expected )");
+      error_at(token, "expected )");
 
     *rest = token->next;
     return node;
@@ -358,7 +358,7 @@ Node *primary(Token **rest, Token *token) {
     return node;
   }
 
-  error_at(token->location, "expected primary");
+  error_at(token, "expected primary");
 }
 
 // primary_identifer = ident ( "(" ")" )?
@@ -366,7 +366,7 @@ Node *primary_identifer(Token **rest, Token *token) {
   // identifer
   Token *ident_token = token;
   if (!is_identifer_token(ident_token))
-    error_at(ident_token->location, "expected identifer of variable or function name");
+    error_at(ident_token, "expected identifer of variable or function name");
 
   char *name = ident_token->location;
   int namelen = ident_token->length;
@@ -396,7 +396,7 @@ Node *primary_identifer(Token **rest, Token *token) {
   }
 
   if (!equal(token, ")"))
-    error_at(token->location, "expected ) of calling function");
+    error_at(token, "expected ) of calling function");
 
   *rest = token->next;
   return new_node_func_call(name, namelen, args_head.next, ident_token);
@@ -404,7 +404,7 @@ Node *primary_identifer(Token **rest, Token *token) {
 
 Node *stmt_expr(Token **rest, Token *token) {
   if (!equal(token, "(") || !equal(token->next, "{"))
-    error_at(token->next->location, "expected statement expression");
+    error_at(token->next, "expected statement expression");
   token = token->next;
 
   scope_in();
@@ -418,7 +418,7 @@ Node *stmt_expr(Token **rest, Token *token) {
   node->type = (tail && tail->kind == ND_STMT_WITH_EXPR) ?  tail->left->type : NULL;
 
   if (!equal(token, ")"))
-    error_at(token->location, "expected )");
+    error_at(token, "expected )");
   token = token->next;
 
   *rest = token;

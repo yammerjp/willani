@@ -122,7 +122,7 @@ static void gen_addr(Node *node) {
     printf("  push %%rax\n");
     return;
   default:
-    error_at(node->token->location, "Left side is expected a variable or *variable.");
+    error_at(node->token, "Left side is expected a variable or *variable.");
   }
 }
 
@@ -231,7 +231,7 @@ static void gen_func_call(Node *node) {
     argc++;
   }
   if (argc > 6)
-    error_at(node->token->location, "unsupport calling function with over 6 argoments");
+    error_at(node->token, "unsupport calling function with over 6 argoments");
 
   while (argc>0)
     printf("  popq  %%%s\n", arg_regs8[--argc]);
@@ -335,12 +335,12 @@ static void gen(Node *node) {
     break;
   case ND_STMT_CONTINUE:
     if (!continue_stack)
-      error_at(node->token->location, "cannot jump the begin of loop (continue statement)");
+      error_at(node->token, "cannot jump the begin of loop (continue statement)");
     printf("  jmp .L.begin.%d\n", continue_stack->labct);
     break;
   case ND_STMT_BREAK:
     if (!break_stack)
-      error_at(node->token->location, "cannot jump the end of loop (break statement)");
+      error_at(node->token, "cannot jump the end of loop (break statement)");
     printf("  jmp .L.end.%d\n", break_stack->labct);
     break;
   case ND_STMT_SWITCH:
@@ -348,12 +348,12 @@ static void gen(Node *node) {
     break;
   case ND_LABEL_CASE:
     if (!switch_stack)
-      error_at(node->token->location, "case label must be in switch statement");
+      error_at(node->token, "case label must be in switch statement");
     printf(".L.case.%d.%d:\n", switch_stack->labct , node->case_num);
     break;
   case ND_LABEL_DEFAULT:
     if (!switch_stack)
-      error_at(node->token->location, "default label must be in switch statement");
+      error_at(node->token, "default label must be in switch statement");
     printf(".L.default.%d:\n", switch_stack->labct);
     break;
 
@@ -546,7 +546,7 @@ static void gen_binary_operator(Node *node) {
     printf("  and %%rdi, %%rax\n");
     break;
   defalt:
-    error_at(node->token->location, "unknown binary operator");
+    error_at(node->token, "unknown binary operator");
   }
   printf("  pushq %%rax\n");          // store result to stack top
 }
@@ -574,7 +574,7 @@ static void prologue(Function *func) {
       printf("  movq %%%s, -%d(%%rbp)\n",  arg_regs8[--i], arg->offset);
       break;
     default:
-      error_at(func->node->token->location, "failed to load a argument becase of unknown type size");
+      error_at(func->node->token, "failed to load a argument becase of unknown type size");
     }
   }
 }

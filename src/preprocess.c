@@ -89,7 +89,7 @@ static void define_preprocess_line(Token **rest, Token *pre_begin) {
 
   // define
   if (!equal(token, "define"))
-    error_at(token->location, "expected define (preprocess directive)");
+    error_at(token, "expected define (preprocess directive)");
   token = token->next;
 
   // ident
@@ -104,13 +104,13 @@ static void define_preprocess_line(Token **rest, Token *pre_begin) {
     token = token->next;
     while (!equal(token, ")")) {
       if (!is_identifer_token(token))
-        error_at(token->location, "expected identifer of define macro's param (preprocess directive)");
+        error_at(token, "expected identifer of define macro's param (preprocess directive)");
       params_tail = params_tail->next = copy_tail(token);
       token = token->next;
       if (equal(token, ")"))
         break;
       if (!equal(token, ","))
-        error_at(token->location, "expected , of define macro's param (preprocess directive)");
+        error_at(token, "expected , of define macro's param (preprocess directive)");
       token = token->next;
     }
     token = token->next;
@@ -163,7 +163,7 @@ static void define_replace(Token *pre_begin){
     // (1, 2, 3)      (e.x.)
     token = token->next;
     if (!equal(token->next, "("))
-      error_at(token->next->location, "expected ( of macro's parameter (define directive preprocess)");
+      error_at(token->next, "expected ( of macro's parameter (define directive preprocess)");
     token = token->next->next;
 
     Token specified_params[100] = {};
@@ -220,13 +220,13 @@ Token *preprocess(Token *token) {
   while (token->next) {
     if (token->next->kind == TK_PREPROCESS_BEGIN) {
       if (!token->next->next)
-        error_at(token->next->location, "faild to tokenize. expected TK_PREPROCESS_BEGIN is pair with TK_PREPROCESS_END");
+        error_at(token->next, "faild to tokenize. expected TK_PREPROCESS_BEGIN is pair with TK_PREPROCESS_END");
       if (equal(token->next->next, "define")) {
         define_preprocess_line(&token, token);
         define_replace(token);
         continue;
       }
-      error_at(token->next->next->location, "unknown preprocess directive");
+      error_at(token->next->next, "unknown preprocess directive");
     }
     token = token->next;
   }

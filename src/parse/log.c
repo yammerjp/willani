@@ -93,7 +93,7 @@ void print_node(FILE *file, Node *node) {
     case ND_STMT_BREAK:           fprintf(file, "break"); break;
     case ND_LABEL_CASE:           fprintf(file, "default"); break;
     case ND_LABEL_DEFAULT:        fprintf(file, "case %dth", node->case_num); break;
-    default : error_at(node->token->location, "unexpected node->kind");
+    default : error_at(node->token, "unexpected node->kind");
   }
 
   fprintf(file, "    (line: %d", get_line_number(get_line_head(node->token->location)));

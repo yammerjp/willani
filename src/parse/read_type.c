@@ -91,14 +91,14 @@ static Type *read_new_type_enum(Token **rest, Token *token) {
   }
   if (!equal(token, "{")) {
     if (!tnamelen)
-      error_at(token->location, "expected { of enum tag");
+      error_at(token, "expected { of enum tag");
     if (!find_enum_tag(tname, tnamelen))
-      error_at(token->location, "used undefined identifer of enum tag");
+      error_at(token, "used undefined identifer of enum tag");
     *rest = token;
     return new_type_enum();
   }
   if (find_tag_in_enum_tags(tname, tnamelen, now_scope->etags))
-    error_at(token->location, "duplicated identifer of enum tag");
+    error_at(token, "duplicated identifer of enum tag");
   new_enum_tag(tname, tnamelen);
   etag = now_scope->etags;
 
@@ -109,9 +109,9 @@ static Type *read_new_type_enum(Token **rest, Token *token) {
   while (!equal(token, "}")) {
     // identifer ("=" number)? ("," identifer ("="number)?)* ","?
     if (!is_identifer_token(token))
-      error_at(token->location, "expected identifer of enum");
+      error_at(token, "expected identifer of enum");
     if (find_in_enum_tag(token->location, token->length, etag))
-      error_at(token->location, "duplicated identifer of enum");
+      error_at(token, "duplicated identifer of enum");
     char *name = token->location;
     int namelen = token->length;
     token = token->next;
@@ -123,12 +123,12 @@ static Type *read_new_type_enum(Token **rest, Token *token) {
       || find_in_typedefs(name, namelen, now_scope->tdfs)
       || find_in_enum_tags(name, namelen, now_scope->etags)
       || !(now_scope->parent) && find_function(name, namelen) )
-      error_at(token->location, "duplicate scope declarations of variable/typedef/function/enum");
+      error_at(token, "duplicate scope declarations of variable/typedef/function/enum");
     new_enum(name, namelen, num++, etag);
     if (equal(token, "}"))
       break;
     if (!equal(token, ","))
-      error_at(token->location, "expected ',' of enum");
+      error_at(token, "expected ',' of enum");
     token = token->next;
   }
 
@@ -152,7 +152,7 @@ Type *read_new_type_struct(Token **rest, Token *token) {
   if (!equal(token, "{")) {
     StructTag *tag = find_tag(name, namelen);
     if (!tag)
-      error_at(token->location, "called a undefined tag of struct");
+      error_at(token, "called a undefined tag of struct");
     *rest = token;
     return tag->type;
   }
@@ -186,7 +186,7 @@ Member *read_member(Token **rest, Token *token, int offset) {
   type = type_suffix(&token, token, type);
 
   if (!equal(token, ";"))
-    error_at(token->location, "expected ;");
+    error_at(token, "expected ;");
   token = token->next;
 
   *rest = token;
@@ -203,12 +203,12 @@ Type *declarator(Token **rest, Token *token, Type *type, char **namep, int *name
     Type *placeholder = calloc(1, sizeof(Type));
     Type *new_type = declarator(&token, token->next, placeholder, namep, namelenp);
     if (!equal(token, ")"))
-      error_at(token->location, "expected ) of nested type");
+      error_at(token, "expected ) of nested type");
     *placeholder = *type_suffix(rest, token->next, type);
     return new_type;
   }
   if (!is_identifer_token(token))
-    error_at(token->location, "expected identifer of declaration with type");
+    error_at(token, "expected identifer of declaration with type");
   *namep = token->location;
   *namelenp = token->length;
   token = token->next;
@@ -226,7 +226,7 @@ Type *type_suffix(Token **rest, Token *token, Type *ancestor) {
   int length = str_to_l(token->location, token->length);
   token = token->next;
   if (!equal(token,"]"))
-    error_at(token->location, "expected ]");
+    error_at(token, "expected ]");
   token = token->next;
 
   Type *parent = type_suffix(&token, token, ancestor);

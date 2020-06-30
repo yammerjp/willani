@@ -1,6 +1,7 @@
 #include "willani.h"
 
-void error_at(char *location, char *msg) {
+void error_at(Token *token, char *msg) {
+  char *location = token->location;
   char *line = get_line_head(location);
   int line_num = get_line_number(line);
   char *end = get_line_end(location);

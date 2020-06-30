@@ -4,7 +4,7 @@
 Node *block_stmt(Token **rest, Token *token) {
   Token *bracket_token = token;
   if (!equal(bracket_token, "{"))
-    error_at(bracket_token->location, "expected {");
+    error_at(bracket_token, "expected {");
   token = bracket_token->next;
 
   Node head = {};
@@ -74,12 +74,12 @@ Node *stmt_without_declaration(Token **rest, Token *token) {
     node = return_stmt(&token, token);
   else if (equal(token, "continue")) {
     if (!equal(token->next, ";"))
-      error_at(token->next->location, "expected ';' of continue statement");
+      error_at(token->next, "expected ';' of continue statement");
     node = new_node_continue(token);
     token = token->next->next;
   } else if (equal(token, "break")) {
     if (!equal(token->next, ";"))
-      error_at(token->next->location, "expected ';' of break statement");
+      error_at(token->next, "expected ';' of break statement");
     node = new_node_break(token);
     token = token->next->next;
   } else
@@ -94,17 +94,17 @@ Node *stmt_without_declaration(Token **rest, Token *token) {
 Node *if_stmt(Token **rest, Token *token) {
   Token *if_token = token;
   if (!equal(if_token, "if" ))
-    error_at(if_token->location, "expected if");
+    error_at(if_token, "expected if");
   token = if_token->next;
 
   if (!equal(token, "("))
-    error_at(token->location, "expected (");
+    error_at(token, "expected (");
   token = token->next;
 
   Node *cond = expr(&token, token);
 
   if (!equal(token, ")"))
-    error_at(token->location, "expected )");
+    error_at(token, "expected )");
   token = token->next;
 
   scope_in();
@@ -128,17 +128,17 @@ Node *if_stmt(Token **rest, Token *token) {
 Node *while_stmt(Token **rest, Token *token) {
   Token *while_token = token;
   if (!equal(while_token, "while" ))
-    error_at(while_token->location, "expected while");
+    error_at(while_token, "expected while");
   token = while_token->next;
 
   if (!equal(token, "("))
-    error_at(token->location, "expected (");
+    error_at(token, "expected (");
   token = token->next;
 
   Node *cond = expr(&token, token);
 
   if (!equal(token, ")"))
-    error_at(token->location, "expected )");
+    error_at(token, "expected )");
   token = token->next;
 
   scope_in();
@@ -166,7 +166,7 @@ static Node *for_init(Token **rest, Token *token) {
   }
   node = new_node_expr_stmt(expr(&token, token), token);
   if (!equal(token, ";"))
-    error_at(token->location, "expected ; to initialize for statement");
+    error_at(token, "expected ; to initialize for statement");
   *rest = token->next;
   return node;
 }
@@ -175,12 +175,12 @@ Node *for_stmt(Token **rest, Token *token) {
   // "for"
   Token *for_token = token;
   if (!equal(for_token, "for"))
-    error_at(for_token->location, "expected for");
+    error_at(for_token, "expected for");
   token = for_token->next;
 
   // "("
   if (!equal(token, "("))
-    error_at(token->location, "expected (");
+    error_at(token, "expected (");
   token = token->next;
 
   // expr? ";"
@@ -189,7 +189,7 @@ Node *for_stmt(Token **rest, Token *token) {
   // expr? ";"
   Node *cond = equal(token, ";") ? new_node_num(1, token) : expr(&token, token);
   if (!equal(token, ";"))
-    error_at(token->location, "expected ;");
+    error_at(token, "expected ;");
   token = token->next;
 
   // expr? ")"
@@ -197,7 +197,7 @@ Node *for_stmt(Token **rest, Token *token) {
   if (!equal(token, ")"))
     increment = new_node_expr_stmt(expr(&token, token), token);
   if (!equal(token, ")"))
-    error_at(token->location, "expected )");
+    error_at(token, "expected )");
   token = token->next;
 
   Node *then = stmt_without_declaration(&token, token);
@@ -210,21 +210,21 @@ Node *for_stmt(Token **rest, Token *token) {
 Node *switch_stmt(Token **rest, Token *token) {
   Token *switch_token = token;
   if (!equal(token, "switch"))
-    error_at(token->location, "expected switch");
+    error_at(token, "expected switch");
   token = token->next;
 
   if (!equal(token, "("))
-    error_at(token->location, "expected ( of switch statement");
+    error_at(token, "expected ( of switch statement");
   token = token->next;
 
   Node *cond = expr(&token, token);
 
   if (!equal(token, ")"))
-    error_at(token->location, "expected ) of switch statement");
+    error_at(token, "expected ) of switch statement");
   token = token->next;
 
   if (!equal(token, "{"))
-    error_at(token->location, "expected { of switch statement");
+    error_at(token, "expected { of switch statement");
   token = token->next;
 
   Node stmt_head = {};
@@ -239,7 +239,7 @@ Node *switch_stmt(Token **rest, Token *token) {
       case_tail = case_tail->next = expr(&token, token->next);
 
       if (!equal(token, ":"))
-        error_at(token->location, "expected : of case label in switch statement");
+        error_at(token, "expected : of case label in switch statement");
       token = token->next;
 
       stmt_tail = stmt_tail->next = new_node_case(case_token, case_num++);
@@ -247,9 +247,9 @@ Node *switch_stmt(Token **rest, Token *token) {
     }
     if (equal(token, "default")) {
       if (!equal(token->next, ":"))
-        error_at(token->next->location, "expected : of default label in switch statement");
+        error_at(token->next, "expected : of default label in switch statement");
       if (have_default)
-        error_at(token->location, "duplicated default label in switch statement");
+        error_at(token, "duplicated default label in switch statement");
 
       have_default = true;
       stmt_tail = stmt_tail->next = new_node_default(token);
@@ -269,13 +269,13 @@ Node *switch_stmt(Token **rest, Token *token) {
 Node *return_stmt(Token **rest, Token *token) {
   Token *return_token = token;
   if (!equal(return_token, "return"))
-    error_at(return_token->location, "expected return");
+    error_at(return_token, "expected return");
   token = return_token->next;
 
   Node *node = new_node_return(expr(&token, token), return_token);
 
   if (!equal(token, ";"))
-    error_at(token->location, "expected ;");
+    error_at(token, "expected ;");
   token = token->next;
 
   *rest = token;
@@ -288,7 +288,7 @@ Node *expr_stmt(Token **rest, Token *token) {
   Node *node = new_node_expr_stmt(expr(&token, token), expr_token);
 
   if (!equal(token, ";"))
-    error_at(token->location, "expected ;");
+    error_at(token, "expected ;");
   token = token->next;
 
   *rest = token;
@@ -303,7 +303,7 @@ Node *declare_lvar_stmt(Token **rest, Token *token) {
   int namelen;
   Type *type;
   if (!is_type_tokens(token, ALLOW_STATIC, DENY_EXTERN))
-    error_at(token->location, "expected type to declare local variable");
+    error_at(token, "expected type to declare local variable");
 
   type = read_type(&token, token, ALLOW_STATIC, DENY_EXTERN);
   if (equal(token,  ";")  && (type->kind == TYPE_STRUCT || type->kind == TYPE_ENUM)) {
@@ -316,7 +316,7 @@ Node *declare_lvar_stmt(Token **rest, Token *token) {
 
   if (find_in_vars(name, namelen, now_scope->vars) || find_in_typedefs(name, namelen, now_scope->tdfs)
     || find_in_enum_tags(name, namelen, now_scope->etags))
-    error_at(token->location, "duplicate scope declarations of variable/typedef/enum");
+    error_at(token, "duplicate scope declarations of variable/typedef/enum");
   new_var(type, name, namelen);
 
   if (equal(token, ";")) {
@@ -326,13 +326,13 @@ Node *declare_lvar_stmt(Token **rest, Token *token) {
   }
 
   if (!equal(token, "="))
-    error_at(token->location, "expected ; or =");
+    error_at(token, "expected ; or =");
   token = token->next;
 
   Node *node = init_lvar_stmts(&token, token, now_scope->vars, NULL);
 
   if (!equal(token, ";"))
-    error_at(token->location, "expected ;");
+    error_at(token, "expected ;");
   token = token->next;
 
   *rest = token;
@@ -341,7 +341,7 @@ Node *declare_lvar_stmt(Token **rest, Token *token) {
 
 void typedef_stmt(Token **rest, Token *token) {
   if (!equal(token, "typedef"))
-     error_at(token->location, "expected 'typedef'");
+     error_at(token, "expected 'typedef'");
   token = token->next;
 
   char *name;
@@ -355,12 +355,12 @@ void typedef_stmt(Token **rest, Token *token) {
     || find_in_enum_tags(name, namelen, now_scope->etags)
     || !(now_scope->parent) && find_function(name, namelen)
   )
-    error_at(token->location, "duplicate scope declarations of variable/typedef/function/enum");
+    error_at(token, "duplicate scope declarations of variable/typedef/function/enum");
 
   new_typedef(type, name, namelen);
 
   if (!equal(token, ";"))
-    error_at(token->location, "expected ; of the end of the typedef statement");
+    error_at(token, "expected ; of the end of the typedef statement");
   token = token->next;
 
   *rest = token;

@@ -28,7 +28,7 @@ static Node *new_node_op2(NodeKind kind, Node *left, Node *right, Token *token) 
 Node *new_node_var(char *name, int length, Token *token) {
   Var *var = find_var(name, length);
   if (!var)
-    error_at(token->location, "use undeclared identifer");
+    error_at(token, "use undeclared identifer");
 
   Node *node = new_node_expr(ND_EXPR_VAR, var->type, token);
   node->var = var;
@@ -56,7 +56,7 @@ Node *new_node_string(Token *token) {
 Node *new_node_func_call(char *name, int len, Node *args, Token *token) {
   Function *func = find_function(name, len);
   if (!func)
-    error_at(token->location, "called undefined function");
+    error_at(token, "called undefined function");
 
   Node *node = new_node_expr(ND_EXPR_FUNC_CALL, func->type, token);
   node->func_name = name;
@@ -232,7 +232,7 @@ Node *new_node_less_equal(Node *left, Node *right, Token *token) {
 Node *new_node_member(Node *parent, char *name, int namelen,  Token *token) {
   Member *member = find_member(parent->type, name, namelen);
   if (!member)
-    error_at(token->location, "refered undefined member of struct");
+    error_at(token, "refered undefined member of struct");
   
   Node *node = new_node_expr(ND_EXPR_MEMBER, member->type, token);
   node->left = parent;

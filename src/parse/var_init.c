@@ -81,11 +81,11 @@ Node *init_lvar_stmts(Token **rest, Token *token, Var *var, ArrayIndexes *descen
     token = token->next;
 
     if (ct > array_length)
-      error_at(token->location, "too many initializer of array");
+      error_at(token, "too many initializer of array");
   }
 
   if (!equal(token, "}"))
-    error_at(token->location, "expected }");
+    error_at(token, "expected }");
   token = token->next;
 
   // Zero padding
