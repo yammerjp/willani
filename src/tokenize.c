@@ -134,6 +134,7 @@ static int reserved_token_length(char *p) {
     "while",
     "case",
     "else",
+    "void",
     "long",
     "char",
     "enum",

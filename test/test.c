@@ -12,6 +12,8 @@ int assert(char *str, long value, long expected) {
   return 0;
 }
 
+void nop_func() {}
+
 int ret3(){return 3;}
 int ret5(){return 5;}
 int add(int a,int b){return a+b;}
@@ -391,6 +393,8 @@ int main() {
   #define DEFINE_3 3
   assert("DEFINE_3", DEFINE_3, 3);
 
+
+  nop_func();
 
   printf("\nOK\n");
   return 0;

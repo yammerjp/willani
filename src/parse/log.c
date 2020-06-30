@@ -7,6 +7,9 @@ static void print_type(FILE *file, Type *type) {
     print_type(file, type->base);
 
   switch (type->kind) {
+  case TYPE_VOID:
+    fprintf(file, "void");
+    return;
   case TYPE_LONG:
     fprintf(file, "long");
     return;

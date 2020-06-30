@@ -75,6 +75,7 @@ int get_line_number(char *line_head);
 //======================================
 // type.c
 typedef enum {
+  TYPE_VOID,
   TYPE_LONG,
   TYPE_INT,
   TYPE_CHAR,
@@ -95,6 +96,7 @@ struct Type {
   bool is_extern;
 };
 
+Type *new_type_void();
 Type *new_type_long();
 Type *new_type_int();
 Type *new_type_char();

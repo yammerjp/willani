@@ -9,6 +9,10 @@ static Type *new_type(TypeKind kind, int size) {
   return type;
 }
 
+Type *new_type_void() {
+  return new_type(TYPE_VOID, 1);
+}
+
 Type *new_type_long() {
   return new_type(TYPE_LONG, 8);
 }

@@ -8,6 +8,7 @@ bool is_type_tokens(Token *token, AllowStaticOrNot ason, AllowExternOrNot aeon) 
     || equal(token, "char")
     || equal(token, "_Bool")
     || equal(token, "long")
+    || equal(token, "void")
     || equal(token, "struct")
     || equal(token, "enum")
     || find_typedef(token->location, token->length)
@@ -20,6 +21,7 @@ bool is_type_tokens(Token *token, AllowStaticOrNot ason, AllowExternOrNot aeon) 
 //         | "char"
 //         | "_Bool"
 //         | "long"
+//         | "void"
 //         | "struct" identifer? ("{" members "}")?
 //         | indentifer    (declared with typedef)
 Type *read_type(Token **rest, Token *token, AllowStaticOrNot ason, AllowExternOrNot aeon) {
@@ -38,6 +40,9 @@ Type *read_type(Token **rest, Token *token, AllowStaticOrNot ason, AllowExternOr
 
   if(equal(token, "long")) {
     type = new_type_long();
+    token = token->next;
+  } else if(equal(token, "void")) {
+    type = new_type_void();
     token = token->next;
   } else if(equal(token, "int")) {
     type = new_type_int();
