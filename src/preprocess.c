@@ -24,6 +24,14 @@ static Token *copies(Token *src, Token *uncopies, Token *tail_next) {
   return predest_head.next;
 }
 
+static bool is_same(Token *t1, Token *t2) {
+  return (
+       t1->kind == t2->kind
+    && t1->length == t2->length
+    && !strncmp(t1->location, t2->location, t1->length)
+  );
+}
+
 static void define(Token **rest, Token *pre_begin) {
   // Read preprocess line
   Token *token = pre_begin->next; //token->kind is TK_PREPROCESS_BEGIN
@@ -41,19 +49,15 @@ static void define(Token **rest, Token *pre_begin) {
 
   while (token->kind != TK_PREPROCESS_END)
     token = token->next;
-//    error_at(token->location, "expected end of preprocess line");
   Token *unreplacings = token;
 
   pre_begin->next = token->next;
   *rest = pre_begin;
 
-  // Replace token
+  // Replace tokens
   token = pre_begin;
   while (token && token->next) {
-    if (ident->kind == token->next->kind
-     && ident->length == token->next->length
-     && !strncmp(ident->location, token->next->location, ident->length)
-    ) {
+    if (is_same(ident, token->next)) {
       Token *dest = token->next->next;
       token->next = copies(replacings, unreplacings, dest);
       while (token->next !=dest)
