@@ -28,7 +28,7 @@ static Node *new_node_op2(NodeKind kind, Node *left, Node *right, Token *token) 
 Node *new_node_var(char *name, int length, Token *token) {
   Var *var = find_var(name, length);
   if (!var)
-    error_at(name, "use undeclared identifer");
+    error_at(token->location, "use undeclared identifer");
 
   Node *node = new_node_expr(ND_EXPR_VAR, var->type, token);
   node->var = var;

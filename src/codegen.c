@@ -231,7 +231,7 @@ static void gen_func_call(Node *node) {
     argc++;
   }
   if (argc > 6)
-    error_at(node->func_name, "unsupport calling function with over 6 argoments");
+    error_at(node->token->location, "unsupport calling function with over 6 argoments");
 
   while (argc>0)
     printf("  popq  %%%s\n", arg_regs8[--argc]);
@@ -574,7 +574,7 @@ static void prologue(Function *func) {
       printf("  movq %%%s, -%d(%%rbp)\n",  arg_regs8[--i], arg->offset);
       break;
     default:
-      error_at(arg->name, "failed to load a argument becase of unknown type size");
+      error_at(func->node->token->location, "failed to load a argument becase of unknown type size");
     }
   }
 }

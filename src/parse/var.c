@@ -38,7 +38,7 @@ void *new_var(Type *type, char *name, int namelen) {
   bool is_global =  !(now_scope->parent);
   // TODO support local static variables
   if (!is_global && type->is_static)
-    error_at(name, "not support local static variables");
+    error("not support local static variables");
   lvar_byte += type->size;
 
   Var *var = calloc(1, sizeof(Var));

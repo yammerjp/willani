@@ -3,7 +3,7 @@
 void new_tag(char *name, int namelen, Type *type) {
   for (StructTag *tag = now_scope->tags; tag; tag = tag->next) {
     if (namelen == tag->namelen && strncmp(name, tag->name, namelen))
-      error_at(name, "define a tag of struct is conflicted");
+      error("define a tag of struct is conflicted: %.*s", namelen, name);
   }
 
   StructTag *tag = calloc(1, sizeof(StructTag));
