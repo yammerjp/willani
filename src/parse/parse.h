@@ -159,8 +159,8 @@ struct StructTag {
   StructTag *next;
 };
 
-void new_tag(char *name, int namelen, Type *type);
-StructTag *find_tag_in_tags(char *name, int namelen, StructTag *tags);
+void new_stag(char *name, int namelen, Type *type);
+StructTag *find_stag_in_stags(char *name, int namelen, StructTag *stags);
 
 
 //=====================================
@@ -203,7 +203,7 @@ void new_typedef(Type *type, char *name, int namelen);
 typedef struct Scope Scope;
 struct Scope {
   Var *vars;
-  StructTag *tags;
+  StructTag *stags;
   TypeDef *tdfs;
   EnumTag *etags;
   Scope *parent;
@@ -214,7 +214,7 @@ void scope_in();
 void scope_out();
 Var *find_var(char *name, int namelen);
 TypeDef *find_typedef(char *name, int namelen);
-StructTag *find_tag(char *name, int namelen);
+StructTag *find_stag(char *name, int namelen);
 Enum *find_enum(char *name, int namelen);
 EnumTag *find_enum_tag(char *name, int namelen);
 

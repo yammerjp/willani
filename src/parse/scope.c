@@ -34,11 +34,11 @@ TypeDef *find_typedef(char *name, int namelen) {
   return NULL;
 }
 
-StructTag *find_tag(char *name, int namelen) {
+StructTag *find_stag(char *name, int namelen) {
   for (Scope *sc = now_scope; sc; sc = sc->parent) {
-    StructTag *tag = find_tag_in_tags(name, namelen, sc->tags);
-    if (tag)
-      return tag;
+    StructTag *stag = find_stag_in_stags(name, namelen, sc->stags);
+    if (stag)
+      return stag;
   }
   return NULL;
 }

@@ -155,11 +155,11 @@ Type *read_new_type_struct(Token **rest, Token *token) {
   }
 
   if (!equal(token, "{")) {
-    StructTag *tag = find_tag(name, namelen);
-    if (!tag)
-      error_at(token, "called a undefined tag of struct");
+    StructTag *stag = find_stag(name, namelen);
+    if (!stag)
+      error_at(token, "called a undefined struct tag");
     *rest = token;
-    return tag->type;
+    return stag->type;
   }
   token = token->next;
 
@@ -176,7 +176,7 @@ Type *read_new_type_struct(Token **rest, Token *token) {
 
   Type *type = new_type_struct(offset, head.next);
   if (name) {
-    new_tag(name, namelen, type);
+    new_stag(name, namelen, type);
   }
 
   *rest = token;
