@@ -397,7 +397,15 @@ int main() {
   #define DEFINE_3 3
   assert("DEFINE_3", DEFINE_3, 3);
 
+  // allow omit return statement
   assert("omit_return()", omit_return(), 0);
+
+  // allow typedef struct tag before define members
+  assert(
+    "({ typedef struct t t; struct t { int mem; }; t x; x.mem=1; })",
+    ({ typedef struct t t; struct t { int mem; }; t x; x.mem=1; }),
+    1
+  );
 
 
   nop_func();

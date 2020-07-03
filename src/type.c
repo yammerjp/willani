@@ -99,3 +99,13 @@ bool same_type(Type *t1, Type *t2) {
 bool is_ptr_or_arr(Type *type) {
   return type->kind == TYPE_PTR || type->kind == TYPE_ARRAY;
 }
+
+void copy_type(Type *dest, Type *src) {
+  dest->kind = src->kind;
+  dest->base = src->base;
+  dest->array_length = src->array_length;
+  dest->members = src->members;
+  dest->is_static = src->is_static;
+  dest->is_extern = src->is_extern;
+  dest->undefined_member = src->undefined_member;
+}

@@ -154,12 +154,22 @@ Type *read_new_type_struct(Token **rest, Token *token) {
     token = token->next;
   }
 
+  StructTag *stag = find_stag(name, namelen);
   if (!equal(token, "{")) {
-    StructTag *stag = find_stag(name, namelen);
-    if (!stag)
-      error_at(token, "called a undefined struct tag");
+    // calling already defined member and named struct tag
+    if (stag) {
+      *rest = token;
+      return stag->type;
+    }
+    if (!name)
+      error_at(token, "expected identifer of struct tag name");
+    // calling undefined member struct tag (expected typedef statement)
+    Type *type = new_type_struct(0, NULL);
+    type->undefined_member = true;
+    new_stag(name, namelen, type);
+
     *rest = token;
-    return stag->type;
+    return type;
   }
   token = token->next;
 
@@ -173,10 +183,19 @@ Type *read_new_type_struct(Token **rest, Token *token) {
   }
   token = token->next;
 
-
   Type *type = new_type_struct(offset, head.next);
+
   if (name) {
-    new_stag(name, namelen, type);
+    // named struct tag
+    StructTag *stag = find_stag(name, namelen);
+    if (stag && stag->type->undefined_member) {
+      // define member of struct tag of defined only tag name with typedef
+      fprintf(stderr, "#update undefined membered struct tag\n");
+      copy_type(stag->type, type);
+    } else {
+      // error handle of same name struct tag in same scope is in new_stag()
+      new_stag(name, namelen, type);
+    }
   }
 
   *rest = token;

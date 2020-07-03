@@ -1,10 +1,7 @@
-#define if(A,B,C) "hello, world %d %d %d\n", B, C, A
-#define add(a,b,c) (a+b+(c))
-#define hoge fuga
 
-int printf(char *, int);
-//#include <stdio.h>
-int main() {
-  printf(if(1,2,3));
-  add((1+2),(3+(4)),5);
+int main () {
+
+  return
+  ({ typedef struct t t; struct t { int mem; }; t x; x.mem=1; })
+  ;
 }

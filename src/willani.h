@@ -94,6 +94,7 @@ struct Type {
   Member *members;  // Used if kind is TYPE_STRUCT
   bool is_static;
   bool is_extern;
+  bool undefined_member;  //Used if kind is TYPE_STRUCT and named by typedef but member is undefined
 };
 
 Type *new_type_void();
@@ -110,6 +111,7 @@ Member *find_member(Type *type, char *name, int namelen);
 Type *type_conversion(Type *left, Type *right);
 bool same_type(Type *t1, Type *t2);
 bool is_ptr_or_arr(Type *type);
+void copy_type(Type *dest, Type *src);
 extern const int type_size_pointer;
 
 
