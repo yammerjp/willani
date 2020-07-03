@@ -4,7 +4,7 @@
 
 int printf(char *, int);
 //#include <stdio.h>
-int main() { ss
+int main() {
   printf(if(1,2,3));
-  return add((1+2),(3+(4)),5);
+  add((1+2),(3+(4)),5);
 }

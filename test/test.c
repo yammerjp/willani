@@ -12,6 +12,10 @@ int assert(char *str, long value, long expected) {
   return 0;
 }
 
+int omit_return() {
+  1;
+}
+
 void nop_func() {}
 
 int ret3(){return 3;}
@@ -392,6 +396,8 @@ int main() {
   assert("DEFINE_ADD((1+2),(3+(4)),5)", DEFINE_ADD((1+2),(3+(4)),5), 15);
   #define DEFINE_3 3
   assert("DEFINE_3", DEFINE_3, 3);
+
+  assert("omit_return()", omit_return(), 0);
 
 
   nop_func();
