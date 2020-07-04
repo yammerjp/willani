@@ -2,7 +2,7 @@
 
 static Type *read_new_type_enum(Token **rest, Token *token);
 
-bool is_type_tokens(Token *token, AllowStaticOrNot ason, AllowExternOrNot aeon) {
+bool is_type_tokens(Token *token, AllowStaticOrNot ason, AllowExternOrNot aeon, AllowConstOrNot acon) {
   return (
        equal(token, "int")
     || equal(token, "char")
@@ -14,6 +14,7 @@ bool is_type_tokens(Token *token, AllowStaticOrNot ason, AllowExternOrNot aeon) 
     || find_typedef(token->location, token->length)
     || ason == ALLOW_STATIC && equal(token, "static")
     || aeon == ALLOW_EXTERN && equal(token, "extern")
+    || acon == ALLOW_CONST && equal(token, "const")
   );
 }
 
@@ -24,7 +25,7 @@ bool is_type_tokens(Token *token, AllowStaticOrNot ason, AllowExternOrNot aeon) 
 //         | "void"
 //         | "struct" identifer? ("{" members "}")?
 //         | indentifer    (declared with typedef)
-Type *read_type(Token **rest, Token *token, AllowStaticOrNot ason, AllowExternOrNot aeon) {
+Type *read_type(Token **rest, Token *token, AllowStaticOrNot ason, AllowExternOrNot aeon, AllowConstOrNot acon) {
   Type *type;
   bool is_extern = false;
   if(aeon == ALLOW_EXTERN && equal(token, "extern")) {
@@ -36,6 +37,12 @@ Type *read_type(Token **rest, Token *token, AllowStaticOrNot ason, AllowExternOr
   if (!is_extern && ason == ALLOW_STATIC && equal(token, "static")) {
     token = token->next;
     is_static = true;
+  }
+
+  bool is_const = false;
+  if (!is_static && acon == ALLOW_CONST && equal(token, "const")) {
+    token = token->next;
+    is_const = true;
   }
 
   if(equal(token, "long")) {
@@ -73,6 +80,7 @@ Type *read_type(Token **rest, Token *token, AllowStaticOrNot ason, AllowExternOr
   }
   type->is_static = is_static;
   type->is_extern = is_extern;
+  type->is_const = is_const;
   *rest = token;
   return type;
 }
@@ -203,7 +211,7 @@ Type *read_new_type_struct(Token **rest, Token *token) {
 Member *read_member(Token **rest, Token *token, int offset) {
   char *name;
   int namelen;
-  Type *type = read_type(&token, token, DENY_STATIC, DENY_EXTERN);
+  Type *type = read_type(&token, token, DENY_STATIC, DENY_EXTERN, DENY_CONST);
   type = declarator(&token, token, type, &name, &namelen);
   type = type_suffix(&token, token, type);
 

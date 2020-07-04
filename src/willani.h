@@ -94,6 +94,7 @@ struct Type {
   Member *members;  // Used if kind is TYPE_STRUCT
   bool is_static;
   bool is_extern;
+  bool is_const;
   bool undefined_member;  //Used if kind is TYPE_STRUCT and named by typedef but member is undefined
 };
 

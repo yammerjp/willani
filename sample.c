@@ -1,7 +1,5 @@
-
 int main () {
+  const int a = 3;
+  return a = 1;
 
-  return
-  ({ typedef struct t t; struct t { int mem; }; t x; x.mem=1; })
-  ;
 }

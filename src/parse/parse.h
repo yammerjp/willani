@@ -140,9 +140,13 @@ typedef enum {
   ALLOW_EXTERN,
   DENY_EXTERN,
 } AllowExternOrNot;
+typedef enum {
+  ALLOW_CONST,
+  DENY_CONST,
+} AllowConstOrNot;
 
-bool is_type_tokens(Token *token, AllowStaticOrNot ason, AllowExternOrNot aeon);
-Type *read_type(Token **rest, Token *token, AllowStaticOrNot ason, AllowExternOrNot aeon);
+bool is_type_tokens(Token *token, AllowStaticOrNot ason, AllowExternOrNot aeon, AllowConstOrNot acon);
+Type *read_type(Token **rest, Token *token, AllowStaticOrNot ason, AllowExternOrNot aeon, AllowConstOrNot acon);
 Type *declarator(Token **rest, Token *token, Type *type, char **namep, int *namelenp);
 Type *type_suffix(Token **rest, Token *token, Type *ancestor);
 Type *type_ptr_suffix(Token **rest, Token *token, Type *type);

@@ -18,6 +18,11 @@ Node *assign(Token **rest, Token *token) {
   Node *left = node;
   Token *op_token = token;
 
+  if (node->type->is_const) {
+    *rest = token;
+    return node;
+  }
+
   if(equal(token, "="))
     node = new_node_assign(left, assign(&token, op_token->next), op_token);
   else if (equal(token, "+="))
@@ -254,8 +259,8 @@ Node *sizeofunary(Token **rest, Token *token, bool inner_parens) {
   }
 
   Type *type;
-  if (is_type_tokens(token, DENY_STATIC, DENY_EXTERN)) {
-    type = read_type(&token, token, DENY_STATIC, DENY_EXTERN);
+  if (is_type_tokens(token, DENY_STATIC, DENY_EXTERN, DENY_CONST)) {
+    type = read_type(&token, token, DENY_STATIC, DENY_EXTERN, DENY_CONST);
     type = type_ptr_suffix(&token, token, type);
     if (!type)
       error_at(token, "expected type tokens");

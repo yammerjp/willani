@@ -43,7 +43,7 @@ Node *stmt(Token **rest, Token *token) {
     return NULL;
   }
 
-  if (is_type_tokens(token, ALLOW_STATIC, DENY_EXTERN))
+  if (is_type_tokens(token, ALLOW_STATIC, DENY_EXTERN, ALLOW_CONST))
     node = declare_lvar_stmt(&token, token);
   else {
     scope_in();
@@ -159,7 +159,7 @@ static Node *for_init(Token **rest, Token *token) {
     return NULL;
   }
   // TODO correspond static local variable
-  if (is_type_tokens(token, DENY_STATIC, DENY_EXTERN)) {
+  if (is_type_tokens(token, DENY_STATIC, DENY_EXTERN, ALLOW_CONST)) {
     node = declare_lvar_stmt(&token, token);
     *rest = token;
     return node;
@@ -302,10 +302,10 @@ Node *declare_lvar_stmt(Token **rest, Token *token) {
   char *name;
   int namelen;
   Type *type;
-  if (!is_type_tokens(token, ALLOW_STATIC, DENY_EXTERN))
+  if (!is_type_tokens(token, ALLOW_STATIC, DENY_EXTERN, ALLOW_CONST))
     error_at(token, "expected type to declare local variable");
 
-  type = read_type(&token, token, ALLOW_STATIC, DENY_EXTERN);
+  type = read_type(&token, token, ALLOW_STATIC, DENY_EXTERN, ALLOW_CONST);
   if (equal(token,  ";")  && (type->kind == TYPE_STRUCT || type->kind == TYPE_ENUM)) {
     // struct or enum declaration only
     *rest = token->next;
@@ -346,7 +346,7 @@ void typedef_stmt(Token **rest, Token *token) {
 
   char *name;
   int namelen;
-  Type *type = read_type(&token, token, ALLOW_STATIC, DENY_EXTERN);
+  Type *type = read_type(&token, token, ALLOW_STATIC, DENY_EXTERN, ALLOW_CONST);
   type = declarator(&token, token, type, &name, &namelen);
   type = type_suffix(&token, token, type);
 

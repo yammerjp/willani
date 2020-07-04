@@ -408,6 +408,8 @@ int main() {
     1
   );
 
+  // const variable
+  assert( "({const int a = 3; })", ({const int a = 3; }), 3);
 
   nop_func();
 
