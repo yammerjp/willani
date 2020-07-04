@@ -188,14 +188,12 @@ Type *read_new_type_struct(Token **rest, Token *token) {
   if (name) {
     // named struct tag
     StructTag *stag = find_stag(name, namelen);
-    if (stag && stag->type->undefined_member) {
+    if (stag && stag->type->undefined_member)
       // define member of struct tag of defined only tag name with typedef
-      fprintf(stderr, "#update undefined membered struct tag\n");
       copy_type(stag->type, type);
-    } else {
+    else
       // error handle of same name struct tag in same scope is in new_stag()
       new_stag(name, namelen, type);
-    }
   }
 
   *rest = token;
