@@ -17,6 +17,11 @@ char get_escape_char(char c) {
   }
 }
 
+void add_string(String *s) {
+  s->next = strings;
+  strings = s;
+}
+
 String *new_string(char *p, int length) {
   char *head = calloc(length+1, sizeof(char));
 
@@ -36,7 +41,5 @@ String *new_string(char *p, int length) {
   str->p = head;
   str->length = length-offset+1;
   str->id = strings ? strings->id +1 : 0;
-  str->next = strings;
-
-  strings = str;
+  return str;
 }

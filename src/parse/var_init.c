@@ -1,101 +1,106 @@
 #include "parse.h"
 
-static ArrayIndexes *add_descendant(ArrayIndexes *now_descendant, int index) {
-  ArrayIndexes *descendant = calloc(1, sizeof(ArrayIndexes));
-  descendant->index = index;
-  descendant->parent = now_descendant;
-  return descendant;
-}
-
-static int var_array_length(ArrayIndexes *indexes, Var *var) {
-  Type *type = var->type;
-  while(indexes) {
-    indexes = indexes->parent;
-    type = type->base;
-  }
-  return type->array_length;
-}
-
-static Node *new_node_array_cell(ArrayIndexes *indexes, Token *token, Var *var) {
-  if (!indexes)
-    return new_node_var(var->name, var->namelen, token);
-
-  return new_node_deref(new_node_add(
-    new_node_array_cell(indexes->parent, token, var),
-    new_node_num(indexes->index, token),
-    token
-  ),token);
-}
-
-static Node *new_node_zero_padding_array(ArrayIndexes *descendant, Token *token, Var *var) {
+static Node *read_array(Token **rest, Token *token, int *lens, long *values, int offset, Var *var) {
   Node head = {};
   Node *tail = &head;
+  if (!lens[0]) {
+    // array cell init
+    if (is_number_token(token)) {
+      // array cell init by number
+      values[offset] = str_to_l(token->location, token->length);
+      *rest = token->next;
+      return NULL;
+    }
+    if (var->is_global)
+      error_at(token, "expected number token to initialize variable");
 
-  ArrayIndexes *indexes = descendant;
-  Type *type = var->type;
-  while(indexes) {
-    indexes = indexes->parent;
-    type = type->base;
-    if (!type)
-      error("too deep initializer of array");
-  }
+    // array cell init by assign
+    Node *left = new_node_var_specified(var, token);
+    while (left->type->kind == TYPE_ARRAY)
+      left = new_node_deref(left, token);
 
-  if (type->kind != TYPE_ARRAY) {
-    Node *cell = new_node_array_cell(descendant, token, var);
-    Node *zero = new_node_num(0, token);
-    return new_node_expr_stmt(new_node_assign(cell, zero, token), token);
-  }
-
-  for (int i = 0; i < type->array_length; i++) {
-    tail->next = new_node_zero_padding_array(add_descendant(descendant, i), token, var);
-    while (tail->next)
-      tail = tail->next;
-  }
-  return head.next;
-}
-
-Node *init_lvar_stmts(Token **rest, Token *token, Var *var, ArrayIndexes *descendant) {
-  Node *node;
-
-  if (!equal(token, "{")) {
     Node *right = assign(&token, token);
-    Node *cell = new_node_array_cell(descendant, token, var);
-    node = new_node_expr_stmt(new_node_assign(cell, right, token), token);
     *rest = token;
-    return node;
+    return new_node_expr_stmt(new_node_assign(left, right, token), token);
   }
+
+  // array row init by string
+  if (!lens[1] && is_string_token(token)) {
+    String *string = new_string(token->location+1, token->length-2);
+    if (lens[0] < string->length)
+      error_at(token, "string token is too longer than array length");
+
+    for (int i=0; i < string->length; i++)
+      values[offset+i] = (string->p)[i];
+    *rest = token->next;
+    return NULL;
+  }
+
+  // array init recursive
+  if (!equal(token, "{"))
+    error_at(token, "expected { to initialize variable");
   token = token->next;
 
-  Node head = {};
-  Node *tail = &head;
-  int array_length = var_array_length(descendant, var);
-  int ct = 0;
+  int cell_size = 1;
+  for (int j=1; lens[j]!=0; j++)
+    cell_size *=lens[j];
 
-  while (!equal(token, "}")) {
-    tail->next = init_lvar_stmts(&token, token, var, add_descendant(descendant, ct++));
-    while(tail->next)
-      tail = tail->next;
-
-    if (!equal(token,","))
+  for (int i=0; i<lens[0]; i++) {
+    if (equal(token, "}"))
       break;
+    tail->next = read_array(&token, token, lens+1, values, offset + (cell_size * i), var);
+    while (tail->next)
+      tail = tail->next;
+    if (equal(token, "}"))
+      break;
+    if (!equal(token, ","))
+      error_at(token, "expected , to initialize variable");
     token = token->next;
-
-    if (ct > array_length)
-      error_at(token, "too many initializer of array");
   }
 
   if (!equal(token, "}"))
-    error_at(token, "expected }");
+    error_at(token, "expected } to initialize variable");
   token = token->next;
 
-  // Zero padding
-  for (;ct< array_length; ct++) {
-    tail->next = new_node_zero_padding_array(add_descendant(descendant, ct), token, var);
-    while(tail->next)
-      tail = tail->next;
+  *rest = token;
+  return head.next;
+}
+
+// declare and initialize variable statement = type declarator type_suffix "=" read_var_init ";"
+// read_var_init                             = num | "{" read_var_init ("," read_var_init)* ","? "}"
+Node *read_var_init(Token **rest, Token *token, Var *var) {
+  // create lens[]
+  //   ex. // int a[2][3] = {{10,20,30},{40,50,60}};
+  //   lens[] is { 2, 3, 0 }  // array tail is zero
+  Type *base_type = var->type;
+  int dimensions = 0;
+  while (base_type->kind == TYPE_ARRAY) {
+    dimensions++;
+    base_type = base_type->base;
+  }
+  int *lens = calloc(dimensions+1, sizeof(int));
+
+  dimensions = 0;
+  base_type = var->type;
+  while (base_type->kind == TYPE_ARRAY) {
+    lens[dimensions++] = base_type->array_length;
+    base_type = base_type->base;
   }
 
-  node = head.next;
-  *rest = token;
+  // read array initialize
+
+  // mesure size
+  int size = 1;
+  for (int i=0; lens[i] != 0; i++)
+    size *= lens[i];
+
+  long *values = calloc(size, sizeof(long));
+
+  Node *runtime_inits = read_array(rest, token, lens, values, 0, var);
+  if (var->is_global && runtime_inits)
+    error_at(token, "failed that global variable is initilized by run-time-settled value");
+
+  Node *node = new_node_var_init(token, var, values, size);
+  node->next = runtime_inits;
   return node;
 }

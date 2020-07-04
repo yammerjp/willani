@@ -1,5 +1,6 @@
-int main () {
-  const int a = 3;
-  return a = 1;
-
+int main() {
+  char *k = "a  b";
+//  char *k;
+//  k = "a  b";
+  return k[3] - k[0];
 }

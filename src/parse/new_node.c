@@ -29,7 +29,9 @@ Node *new_node_var(char *name, int length, Token *token) {
   Var *var = find_var(name, length);
   if (!var)
     error_at(token, "use undeclared identifer");
-
+  return new_node_var_specified(var, token);
+}
+Node *new_node_var_specified(Var *var, Token *token) {
   Node *node = new_node_expr(ND_EXPR_VAR, var->type, token);
   node->var = var;
   return node;
@@ -45,6 +47,7 @@ Node *new_node_num(long value, Token *token) {
 //  ND_EXPR_STRING,       // " ... "
 Node *new_node_string(Token *token) {
   String *string = new_string(token->location+1, token->length-2);
+  add_string(string);
   Type *type = new_type_array(new_type_char(), string->length);
 
   Node *node = new_node_expr(ND_EXPR_STRING, type, token);
@@ -345,6 +348,14 @@ Node *new_node_expr_stmt(Node *expr_node, Token *token) {
   Node *node = new_node_stmt(ND_STMT_WITH_EXPR, token);
   node->left = expr_node;
   return node;
+}
+
+//  ND_STMT_VAR_INIT,     // initialize variable
+Node *new_node_var_init(Token *token, Var *var, long *var_inits, int var_inits_size) {
+  Node *node = new_node_stmt(ND_STMT_VAR_INIT, token);
+  node->var = var;
+  node->var_inits = var_inits;
+  node->var_inits_size = var_inits_size;
 }
 
 //  ND_STMT_CONTINUE,     // continue;

@@ -18,6 +18,8 @@ Node *assign(Token **rest, Token *token) {
   Node *left = node;
   Token *op_token = token;
 
+  if (!(node->type))
+    error_at(node->token, "the node's type is NULL");
   if (node->type->is_const) {
     *rest = token;
     return node;

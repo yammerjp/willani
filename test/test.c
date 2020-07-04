@@ -352,6 +352,7 @@ int main() {
 
   assert( "({ int a = 0; 0==0 || a++!=0; a;})", ({ int a = 0; 0==0 || a++!=0; a;}), 0);
   assert( "({ int a = 0; 0!=0 || a++!=0; a;})", ({ int a = 0; 0!=0 || a++!=0; a;}), 1);
+
   assert( "0!=0 || 0!=0", 0!=0 || 0!=0, 0);
   assert( "0!=0 || 0==0", 0!=0 || 0==0, 1);
   assert( "0==0 || 0!=0", 0==0 || 0!=0, 1);
@@ -409,7 +410,14 @@ int main() {
   );
 
   // const variable
-  assert( "({const int a = 3; })", ({const int a = 3; }), 3);
+  assert( "({const int a = 3;a;})", ({const int a = 3;a;}), 3);
+
+  assert("({ int a[4] = \"abc\"; a[2]; })", ({ int a[4] = "abc"; a[2]; }), 'c');
+  assert(
+    "({ char a[4][10] = { \"abc\", \"def\", \"fghijklm\", \"nm\" }; a[3][1]; })",
+    ({ char a[4][10] = { "abc", "def", "fghijklm", "nm" }; a[3][1]; }),
+    'm'
+  );
 
   nop_func();
 

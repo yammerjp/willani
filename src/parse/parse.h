@@ -7,6 +7,7 @@
 // strings.c
 char get_escape_char(char c);
 String *new_string(char *p, int length);
+void add_string(String *s);
 
 
 //======================================
@@ -21,6 +22,7 @@ void *new_var(Type *type, char *name, int namelen);
 //======================================
 // new_node.c
 Node *new_node_var(char *name, int length, Token *token);
+Node *new_node_var_specified(Var *var, Token *token);
 Node *new_node_num(long value, Token *token);
 Node *new_node_string(Token *token);
 Node *new_node_func_call(char *name, int len, Node *args, Token *token);
@@ -62,6 +64,7 @@ Node *new_node_while(Node *cond, Node *then, Token *token);
 Node *new_node_for(Node *init, Node *cond, Node* increment, Node *then, Token *token);
 Node *new_node_return(Node *left, Token *token);
 Node *new_node_expr_stmt(Node *expr_node, Token *token);
+Node *new_node_var_init(Token *token, Var *var, long *var_inits, int var_inits_size);
 Node *new_node_continue(Token *token);
 Node *new_node_break(Token *token);
 Node *new_node_case(Token *token, int case_num);
@@ -112,13 +115,7 @@ Node *stmt_expr(Token **rest, Token *token);
 
 //======================================
 // var_init.c
-typedef struct ArrayIndexes ArrayIndexes;
-struct ArrayIndexes {
-  int index;
-  ArrayIndexes *parent;
-};
-
-Node *init_lvar_stmts(Token **rest, Token *token, Var *lvar, ArrayIndexes *descendant);
+Node *read_var_init(Token **rest, Token *token, Var *var);
 
 
 //======================================

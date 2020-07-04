@@ -302,6 +302,24 @@ static void gen_log_and(Node *node) {
   printf(".L.end.%d:\n", labct);
 }
 
+static void gen_stmt_var_init(Node *node) {
+  Type *arr_base_type = node->var->type;
+  while (arr_base_type->kind == TYPE_ARRAY)
+    arr_base_type = arr_base_type->base;
+  int cell_size = arr_base_type->size;
+
+  if (node->var->is_global)
+    error_at(node->token, "unsupported initialize global variable");
+    //printf("  mov $%.*s, %%rax\n", node->var->namelen, node->var->name);
+  for (int i=0; i < node->var_inits_size; i++) {
+    printf("  lea -%d(%%rbp), %%rax\n", node->var->offset - (i*cell_size));
+    printf("  pushq %%rax\n");            // pushq rbp - offset
+    printf("  pushq $%ld\n", node->var_inits[i]);
+    store(arr_base_type);
+    printf("  add $8, %%rsp\n");              // drop cond
+  }
+}
+
 static void gen(Node *node) {
   if (!node)
     return;
@@ -332,6 +350,9 @@ static void gen(Node *node) {
   case ND_STMT_WITH_EXPR:
     gen(node->left);
     printf("  add $8, %%rsp\n"); // stmt is not leave any values in the stack
+    break;
+  case ND_STMT_VAR_INIT:
+    gen_stmt_var_init(node);
     break;
   case ND_STMT_CONTINUE:
     if (!continue_stack)

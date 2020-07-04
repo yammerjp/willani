@@ -329,7 +329,7 @@ Node *declare_lvar_stmt(Token **rest, Token *token) {
     error_at(token, "expected ; or = to declare local variable statement");
   token = token->next;
 
-  Node *node = init_lvar_stmts(&token, token, now_scope->vars, NULL);
+  Node *node = read_var_init(&token, token, now_scope->vars);
 
   if (!equal(token, ";"))
     error_at(token, "expected ; to declare local variable statement");

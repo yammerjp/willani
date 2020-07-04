@@ -92,6 +92,7 @@ void print_node(FILE *file, Node *node) {
     case ND_STMT_FOR:             fprintf(file, "for"); break;
     case ND_STMT_RETURN:          fprintf(file, "return"); break;
     case ND_STMT_WITH_EXPR:       fprintf(file, ";"); break;
+    case ND_STMT_VAR_INIT:        fprintf(file, "%.*s = ", node->var->namelen, node->var->name); break;
     case ND_STMT_CONTINUE:        fprintf(file, "continue"); break;
     case ND_STMT_BREAK:           fprintf(file, "break"); break;
     case ND_LABEL_CASE:           fprintf(file, "default"); break;
