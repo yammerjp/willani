@@ -113,15 +113,16 @@ int main() {
   assert("({ long x; sizeof(x); })", ({ long x; sizeof(x); }), 8);
   assert("({ long *x; sizeof(x); })", ({ long *x; sizeof(x); }), 8);
   assert("({ long x; sizeof(x=2); })", ({ long x; sizeof(x=2); }), 8);
-  // assert("sizeof(long)", sizeof(long), 8);
+  assert("sizeof(long)", sizeof(long), 8);
   assert("({ long x=3; *&x; })", ({ long x=3; *&x; }), 3);
   assert("({ int x; sizeof(x); })", ({ int x; sizeof(x); }), 4);
   assert("({ int x; sizeof x ; })", ({ int x; sizeof x ; }), 4);
   assert("({ int *x; sizeof(x); })", ({ int *x; sizeof(x); }), 8);
   assert("({ int x; sizeof(x=2); })", ({ int x; sizeof(x=2); }), 4);
-  // assert("sizeof(int)", sizeof(int), 4);
-  // assert("sizeof(int*)", sizeof(int*), 8);
-  // assert("sizeof(int **)", sizeof(int**), 8);
+  assert("sizeof(int)", sizeof(int), 4);
+  assert("sizeof(int*)", sizeof(int*), 8);
+  assert("sizeof(int **)", sizeof(int**), 8);
+  assert("sizeof(int **)", sizeof(((int**))), 8);
 
   assert("({ int *x; int y; x = &y; *x = 3 ; *x;})", ({ int *x; int y; x = &y; *x = 3 ; *x;}), 3);
   assert("({ int x[3]; sizeof(x); })", ({ int x[3]; sizeof(x); }), 12);

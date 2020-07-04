@@ -189,7 +189,7 @@ Node *for_stmt(Token **rest, Token *token) {
   // expr? ";"
   Node *cond = equal(token, ";") ? new_node_num(1, token) : expr(&token, token);
   if (!equal(token, ";"))
-    error_at(token, "expected ;");
+    error_at(token, "expected ; of conditional expression tail of for statement");
   token = token->next;
 
   // expr? ")"
@@ -275,7 +275,7 @@ Node *return_stmt(Token **rest, Token *token) {
   Node *node = new_node_return(expr(&token, token), return_token);
 
   if (!equal(token, ";"))
-    error_at(token, "expected ;");
+    error_at(token, "expected ; of return statement");
   token = token->next;
 
   *rest = token;
@@ -288,7 +288,7 @@ Node *expr_stmt(Token **rest, Token *token) {
   Node *node = new_node_expr_stmt(expr(&token, token), expr_token);
 
   if (!equal(token, ";"))
-    error_at(token, "expected ;");
+    error_at(token, "expected ; of expression statement");
   token = token->next;
 
   *rest = token;
@@ -326,13 +326,13 @@ Node *declare_lvar_stmt(Token **rest, Token *token) {
   }
 
   if (!equal(token, "="))
-    error_at(token, "expected ; or =");
+    error_at(token, "expected ; or = to declare local variable statement");
   token = token->next;
 
   Node *node = init_lvar_stmts(&token, token, now_scope->vars, NULL);
 
   if (!equal(token, ";"))
-    error_at(token, "expected ;");
+    error_at(token, "expected ; to declare local variable statement");
   token = token->next;
 
   *rest = token;

@@ -227,7 +227,7 @@ Node *unary(Token **rest, Token *token) {
   } else if (equal(op_token, "&")) {
     node = new_node_addr(unary(&token, op_token->next), op_token);
   } else if (equal(op_token, "sizeof")) {
-    node = sizeofunary(&token, token);
+    node = sizeofunary(&token, token->next, false);
   } else if (equal(op_token, "++")) {
     node = new_node_pre_increment(unary(&token, op_token->next), op_token);
   } else if (equal(op_token, "--")) {
@@ -241,14 +241,30 @@ Node *unary(Token **rest, Token *token) {
   return node;
 }
 
-// sizeofunary = "sizeof" unary
-Node *sizeofunary(Token **rest, Token *token) {
-  Token *op_token = token;
-  if (!equal(op_token, "sizeof"))
-    error_at(op_token, "expected sizeof");
-  Node *node = unary(&token, op_token->next);
+// unary of sizeof          = "sizeof" sizeofunary
+// sizeofunary              = "(" sizeofunary_inner_parens ")" | type | unary
+// sizeofunary_inner_parens = "(" sizeofunary_inner_parens ")" | type | expr
+Node *sizeofunary(Token **rest, Token *token, bool inner_parens) {
+  if (equal(token, "(")) {
+    Node *node = sizeofunary(&token, token->next, true);
+    if (!equal(token, ")"))
+      error_at(token, "expected ) of sizeofunary");
+    *rest = token->next;
+    return node;
+  }
+
+  Type *type;
+  if (is_type_tokens(token, DENY_STATIC, DENY_EXTERN)) {
+    type = read_type(&token, token, DENY_STATIC, DENY_EXTERN);
+    type = type_ptr_suffix(&token, token, type);
+    if (!type)
+      error_at(token, "expected type tokens");
+  } else {
+    Node *node = inner_parens ? expr(&token, token) : unary(&token, token);
+    type = node->type;
+  }
   *rest = token;
-  return new_node_num(node->type->size, op_token);
+  return new_node_num(type->size, token);
 }
 
 static Node *postfix(Token **rest, Token *token, Node *primary_node) {

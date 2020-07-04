@@ -92,7 +92,7 @@ static void read_new_gvar(Token **rest, Token *token, Type *type_without_suffix,
   new_var(type, name, namelen);
 
   if (!equal(token, ";"))
-    error_at(token, "expected ;");
+    error_at(token, "expected ; to declare global variable statement");
   token = token->next;
 
   *rest = token;

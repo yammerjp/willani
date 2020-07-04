@@ -216,11 +216,18 @@ Member *read_member(Token **rest, Token *token, int offset) {
 }
 
 // declarator = "*"* ("(" declarator ")" | identifer ) type_suffix
-Type *declarator(Token **rest, Token *token, Type *type, char **namep, int *namelenp) {
+Type *type_ptr_suffix(Token **rest, Token *token, Type *type) {
   while (equal(token, "*")) {
     type = new_type_pointer(type);
     token = token->next;
   }
+  *rest = token;
+  return type;
+}
+
+Type *declarator(Token **rest, Token *token, Type *type, char **namep, int *namelenp) {
+  type = type_ptr_suffix(&token, token, type);
+
   if (equal(token, "(")) {
     Type *placeholder = calloc(1, sizeof(Type));
     Type *new_type = declarator(&token, token->next, placeholder, namep, namelenp);
