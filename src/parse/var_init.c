@@ -7,7 +7,7 @@ static void *read_array_string(Token **rest, Token *token, Type *type, long *val
 // declare and initialize variable statement = type declarator type_suffix "=" read_var_init ";"
 // read_var_init                             = num | "{" read_var_init ("," read_var_init)* ","? "}"
 Node *read_var_init(Token **rest, Token *token, Var *var) {
-  // mesure size
+  // measure size
   int size = 1;
   for (Type *ty = var->type; ty->kind == TYPE_ARRAY; ty = ty->base)
     size *= ty->array_length;
