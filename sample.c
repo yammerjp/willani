@@ -1,4 +1,4 @@
+char hello_world[20] = "hello,world!";
 int main() {
-  int a[3] = {1,2,3};
-  return a[2];
+  return hello_world[10] - 'd';
 }

@@ -43,6 +43,11 @@ int ret10(){ int i = 0; for (;;) { if (i<10) i = i + 1; else return i; } }
 
 static int static_fn() { return 3; }
 
+char ar_char[3] = {1,2,3};
+int ar_int[3] = {1,2,3};
+long ar_long[3] = {1,2,3};
+char hello_world[20] = "hello,world!";
+
 int main() {
   printf("\nRun test\n\n");
 
@@ -418,6 +423,11 @@ int main() {
     ({ char a[4][10] = { "abc", "def", "fghijklm", "nm" }; a[3][1]; }),
     'm'
   );
+
+  assert("char ar_char[3] = {1,2,3}; // 2nd item (global variable)", ar_char[1], 2);
+  assert("int ar_int[3] = {1,2,3}; // 2nd item (global variable)", ar_int[1], 2);
+  assert("long ar_long[3] = {1,2,3}; // 2nd item (global variable)", ar_long[1], 2);
+  assert("char hello_world[20] = \"hello,world!\"; // 10th item (global variable)", hello_world[10], 'd');
 
   nop_func();
 

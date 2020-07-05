@@ -18,6 +18,9 @@ Node *read_var_init(Token **rest, Token *token, Var *var) {
   if (var->is_global && runtime_inits)
     error_at(token, "failed that global variable is initilized by run-time-settled value");
 
+  var->init_values = values;
+  var->init_size = size;
+
   Node *node = new_node_var_init(token, var, values, size);
   node->next = runtime_inits;
   return node;

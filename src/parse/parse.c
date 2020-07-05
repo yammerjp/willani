@@ -91,6 +91,9 @@ static void read_new_gvar(Token **rest, Token *token, Type *type_without_suffix,
 
   new_var(type, name, namelen);
 
+  if (equal(token, "="))
+    read_var_init(&token, token->next, now_scope->vars);
+
   if (!equal(token, ";"))
     error_at(token, "expected ; to declare global variable statement");
   token = token->next;

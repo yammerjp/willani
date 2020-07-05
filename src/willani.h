@@ -128,6 +128,8 @@ struct Var {
   int offset;
   bool is_global;
   bool is_extern;
+  long *init_values;
+  int init_size;
 };
 
 typedef enum {

@@ -620,6 +620,41 @@ static void gen_function(Function *func) {
   epilogue();
 }
 
+static void gen_gvars() {
+  for (Var *var = gvars; var; var = var->next) {
+    if (var->type->is_extern)
+      continue;
+
+    printf("%.*s:\n", var->namelen, var->name);
+
+    Type *base_type = var->type;
+    while (base_type->kind == TYPE_ARRAY)
+      base_type = base_type->base;
+
+    if (!var->init_values) {
+      printf("  .zero %d\n", var->type->size);
+      continue;
+    }
+
+    for (int i =0; i< var->init_size; i++) {
+      switch (base_type->size) {
+        case 1:
+          printf("  .byte 0x%lx\n", var->init_values[i]);
+          break;
+        case 4:
+          printf("  .long 0x%lx\n", var->init_values[i]);
+          break;
+        case 8:
+          printf("  .quad 0x%lx\n", var->init_values[i]);
+          break;
+        default :
+          fprintf(stderr, "size: %d\n", base_type->size);
+          error("unsupport global variable size without 1,4,8");
+      }
+    }
+  }
+}
+
 void code_generate() {
   // data sectioon
   printf(".data\n");
@@ -628,12 +663,7 @@ void code_generate() {
     for (int i=0; i < str->length; i++)
       printf("  .byte 0x%x\n", (str->p)[i]);
   }
-  for (Var *var = gvars; var; var = var->next) {
-    if (var->type->is_extern)
-      continue;
-    printf("%.*s:\n", var->namelen, var->name);
-    printf("  .zero %d\n", var->type->size);
-  }
+  gen_gvars();
 
   // text section
   printf(".text\n");
