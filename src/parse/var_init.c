@@ -1,9 +1,9 @@
 #include "parse.h"
 
-static Node *read_array(Token **rest, Token *token, int *lens, long *values, int offset, Var *var) {
+static Node *read_array(Token **rest, Token *token, Type *type, long *values, int offset, Var *var) {
   Node head = {};
   Node *tail = &head;
-  if (!lens[0]) {
+  if (type->kind != TYPE_ARRAY) {
     // array cell init
     if (is_number_token(token)) {
       // array cell init by number
@@ -25,9 +25,9 @@ static Node *read_array(Token **rest, Token *token, int *lens, long *values, int
   }
 
   // array row init by string
-  if (!lens[1] && is_string_token(token)) {
+  if (type->base->kind != TYPE_ARRAY && is_string_token(token)) {
     String *string = new_string(token->location+1, token->length-2);
-    if (lens[0] < string->length)
+    if (type->array_length < string->length)
       error_at(token, "string token is too longer than array length");
 
     for (int i=0; i < string->length; i++)
@@ -42,13 +42,13 @@ static Node *read_array(Token **rest, Token *token, int *lens, long *values, int
   token = token->next;
 
   int cell_size = 1;
-  for (int j=1; lens[j]!=0; j++)
-    cell_size *=lens[j];
+  for (Type *ty = type->base; ty->kind == TYPE_ARRAY; ty = ty->base)
+    cell_size *= ty->array_length;
 
-  for (int i=0; i<lens[0]; i++) {
+  for (int i=0; i<type->array_length; i++) {
     if (equal(token, "}"))
       break;
-    tail->next = read_array(&token, token, lens+1, values, offset + (cell_size * i), var);
+    tail->next = read_array(&token, token, type->base, values, offset + (cell_size * i), var);
     while (tail->next)
       tail = tail->next;
     if (equal(token, "}"))
@@ -69,34 +69,14 @@ static Node *read_array(Token **rest, Token *token, int *lens, long *values, int
 // declare and initialize variable statement = type declarator type_suffix "=" read_var_init ";"
 // read_var_init                             = num | "{" read_var_init ("," read_var_init)* ","? "}"
 Node *read_var_init(Token **rest, Token *token, Var *var) {
-  // create lens[]
-  //   ex. // int a[2][3] = {{10,20,30},{40,50,60}};
-  //   lens[] is { 2, 3, 0 }  // array tail is zero
-  Type *base_type = var->type;
-  int dimensions = 0;
-  while (base_type->kind == TYPE_ARRAY) {
-    dimensions++;
-    base_type = base_type->base;
-  }
-  int *lens = calloc(dimensions+1, sizeof(int));
-
-  dimensions = 0;
-  base_type = var->type;
-  while (base_type->kind == TYPE_ARRAY) {
-    lens[dimensions++] = base_type->array_length;
-    base_type = base_type->base;
-  }
-
-  // read array initialize
-
   // mesure size
   int size = 1;
-  for (int i=0; lens[i] != 0; i++)
-    size *= lens[i];
+  for (Type *ty = var->type; ty->kind == TYPE_ARRAY; ty = ty->base)
+    size *= ty->array_length;
 
   long *values = calloc(size, sizeof(long));
 
-  Node *runtime_inits = read_array(rest, token, lens, values, 0, var);
+  Node *runtime_inits = read_array(rest, token, var->type, values, 0, var);
   if (var->is_global && runtime_inits)
     error_at(token, "failed that global variable is initilized by run-time-settled value");
 

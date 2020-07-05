@@ -1,6 +1,4 @@
 int main() {
-  char *k = "a  b";
-//  char *k;
-//  k = "a  b";
-  return k[3] - k[0];
+  int a[3] = {1,2,3};
+  return a[2];
 }
