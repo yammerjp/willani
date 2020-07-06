@@ -399,6 +399,8 @@ int main() {
   assert("enum { zero, one, two } x; sizeof(x);", ({ enum { zero, one, two } x; sizeof(x); }), 4);
   assert("enum t { zero, one, two }; enum t y; sizeof(y);", ({ enum t { zero, one, two }; enum t y; sizeof(y); }), 4);
 
+  nop_func();
+
   // preprocessor
   assert("DEFINE_ADD((1+2),(3+(4)),5)", DEFINE_ADD((1+2),(3+(4)),5), 15);
   #define DEFINE_3 3
@@ -424,12 +426,33 @@ int main() {
     'm'
   );
 
+  // initialize global variable
   assert("char ar_char[3] = {1,2,3}; // 2nd item (global variable)", ar_char[1], 2);
   assert("int ar_int[3] = {1,2,3}; // 2nd item (global variable)", ar_int[1], 2);
   assert("long ar_long[3] = {1,2,3}; // 2nd item (global variable)", ar_long[1], 2);
   assert("char hello_world[20] = \"hello,world!\"; // 10th item (global variable)", hello_world[10], 'd');
 
-  nop_func();
+  // omit array length with declaration
+  assert(
+    "({ char hello_world[] = \"hello,world!\"; sizeof(hello_world); })",
+    ({ char hello_world[] = "hello,world!"; sizeof(hello_world); }), 13
+  );
+  assert(
+    "({ int a[] = {10-1,2,3}; sizeof(a); })",
+    ({ int a[] = {10-1,2,3}; sizeof(a); }), 3*4
+  );
+  assert(
+    "({ int b[][2] = {{1},{2},{3}}; sizeof(b); })",
+    ({ int b[][2] = {{1},{2},{3}}; sizeof(b); }), 3*2*4
+  );
+  assert(
+    "({ int c[][2][2] = {{{1}},{{2}},{{3}}}; sizeof(c); })",
+    ({ int c[][2][2] = {{{1}},{{2}},{{3}}}; sizeof(c); }), 3*2*2*4
+  );
+  assert(
+    "({ int d[] = { (0,1), ({1+2;}), 3}; sizeof(d); })",
+    ({ int d[] = { (0,1), ({1+2;}), 3}; sizeof(d); }), 3*4
+  );
 
   printf("\nOK\n");
   return 0;

@@ -75,7 +75,6 @@ gcc src/tokenize.c -S -o asm/tokenize.s
 cat src_self/willani.h > src_self/tokenize.c
 cat src/tokenize.c \
   | grep -v -E '^#' \
-  | sed -e 's/reserved_words\[\]/reserved_words\[58\]/g' \
   | sed -e 's/Token head = {}/Token head/g' \
   >> src_self/tokenize.c
 ./willani src_self/tokenize.c > asm/tokenize.s

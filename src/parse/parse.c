@@ -75,7 +75,7 @@ void *program(Token *token) {
 }
 
 static void read_new_gvar(Token **rest, Token *token, Type *type_without_suffix, char *name, int namelen) {
-  Type *type = type_suffix(&token, token, type_without_suffix);
+  Type *type = type_suffix(&token, token, type_without_suffix, ALLOW_OMIT_LENGTH);
 
   if (find_in_typedefs(name, namelen, now_scope->tdfs) || find_function(name, namelen) || find_in_enum_tags(name, namelen, now_scope->etags)
   )

@@ -252,11 +252,6 @@ void print_node(FILE *file, Node *node);
 
 
 //======================================
-// parse/new_node.c
-Type *type_suffix(Token **rest, Token *token, Type *ancestor);
-
-
-//======================================
 // gen.c
 void code_generate();
 

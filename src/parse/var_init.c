@@ -71,7 +71,8 @@ static Node *read_array(Token **rest, Token *token, Type *type, long *values, in
 }
 
 static Node *read_cell(Token **rest, Token *token, long *values, int offset, Var *var) {
-  if (is_number_token(token)) {
+  if ( is_number_token(token)
+    && (equal(token->next, "}") || equal(token->next, ";") || equal(token->next, ",")) ) {
     // array cell init by number
     values[offset] = str_to_l(token->location, token->length);
     *rest = token->next;

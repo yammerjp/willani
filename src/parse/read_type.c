@@ -1,6 +1,7 @@
 #include "parse.h"
 
 static Type *read_new_type_enum(Token **rest, Token *token);
+static int expect_array_length(Token *token);
 
 bool is_type_tokens(Token *token, AllowStaticOrNot ason, AllowExternOrNot aeon, AllowConstOrNot acon) {
   return (
@@ -212,8 +213,8 @@ Member *read_member(Token **rest, Token *token, int offset) {
   char *name;
   int namelen;
   Type *type = read_type(&token, token, DENY_STATIC, DENY_EXTERN, DENY_CONST);
-  type = declarator(&token, token, type, &name, &namelen);
-  type = type_suffix(&token, token, type);
+  type = declarator(&token, token, type, &name, &namelen, DENY_OMIT_LENGTH);
+  type = type_suffix(&token, token, type, DENY_OMIT_LENGTH);
 
   if (!equal(token, ";"))
     error_at(token, "expected ;");
@@ -233,15 +234,15 @@ Type *type_ptr_suffix(Token **rest, Token *token, Type *type) {
   return type;
 }
 
-Type *declarator(Token **rest, Token *token, Type *type, char **namep, int *namelenp) {
+Type *declarator(Token **rest, Token *token, Type *type, char **namep, int *namelenp, AllowOmitLengthOrNot aolon) {
   type = type_ptr_suffix(&token, token, type);
 
   if (equal(token, "(")) {
     Type *placeholder = calloc(1, sizeof(Type));
-    Type *new_type = declarator(&token, token->next, placeholder, namep, namelenp);
+    Type *new_type = declarator(&token, token->next, placeholder, namep, namelenp, DENY_OMIT_LENGTH);
     if (!equal(token, ")"))
       error_at(token, "expected ) of nested type");
-    *placeholder = *type_suffix(rest, token->next, type);
+    *placeholder = *type_suffix(rest, token->next, type, DENY_OMIT_LENGTH);
     return new_type;
   }
   if (!is_identifer_token(token))
@@ -249,27 +250,82 @@ Type *declarator(Token **rest, Token *token, Type *type, char **namep, int *name
   *namep = token->location;
   *namelenp = token->length;
   token = token->next;
-  type = type_suffix(&token, token, type);
+  type = type_suffix(&token, token, type, aolon);
   *rest = token;
   return type;
 }
 
 // type_suffix       = ("[" num "]" type_suffix)?
-Type *type_suffix(Token **rest, Token *token, Type *ancestor) {
+Type *type_suffix(Token **rest, Token *token, Type *ancestor, AllowOmitLengthOrNot aolon) {
   if (!equal(token, "["))
     return ancestor;
   token = token->next;
 
-  int length = str_to_l(token->location, token->length);
-  token = token->next;
+  int length;
+  if (is_number_token(token)) {
+    length = str_to_l(token->location, token->length);
+    token = token->next;
+  } else {
+    if (aolon != ALLOW_OMIT_LENGTH)
+      error_at(token, "expected number token of array length");
+    if (!equal(token, "]"))
+      error_at(token, "expected ] of array difinition");
+    length = expect_array_length(token);
+  }
   if (!equal(token,"]"))
     error_at(token, "expected ]");
   token = token->next;
 
-  Type *parent = type_suffix(&token, token, ancestor);
+  Type *parent = type_suffix(&token, token, ancestor, DENY_OMIT_LENGTH);
 
   *rest = token;
   return new_type_array(parent, length);
 }
 
+static int expect_array_length(Token *token) {
+  int length = 0;
+  int dimension = 0;
 
+  while (!equal(token, "="))
+    token = token->next;
+  token = token->next;
+
+  if (is_string_token(token)) {
+    String *string = new_string(token->location+1, token->length-2);
+    return string->length; // includes tail's \0
+  }
+
+  while (token && !equal(token, ";")) {
+    if (equal(token, "{")) {
+      ++dimension;
+      token = token->next;
+      continue;
+    }
+    if (equal(token, "}")) {
+      if (--dimension == 1)
+        length++;
+      token = token->next;
+      continue;
+    }
+    if (equal(token, ",")) {
+      token = token->next;
+      continue;
+    }
+
+    for (int depth = 0; depth !=0 || token && (!equal(token, ",") && !equal(token, "}")); token = token->next) {
+      if (equal(token, "(")) {
+        depth++;
+        continue;
+      } else if (equal(token, ")")) {
+        depth--;
+        continue;
+      }
+    }
+    if (dimension==1)
+      length++;
+  }
+
+  if (length==0)
+    error_at(token, "ommited array length is zero");
+  return length;
+}

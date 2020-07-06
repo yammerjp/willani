@@ -311,8 +311,8 @@ Node *declare_lvar_stmt(Token **rest, Token *token) {
     *rest = token->next;
     return NULL;
   }
-  type = declarator(&token, token, type, &name, &namelen);
-  type = type_suffix(&token, token, type);
+  type = declarator(&token, token, type, &name, &namelen, ALLOW_OMIT_LENGTH);
+  type = type_suffix(&token, token, type, DENY_OMIT_LENGTH);
 
   if (find_in_vars(name, namelen, now_scope->vars) || find_in_typedefs(name, namelen, now_scope->tdfs)
     || find_in_enum_tags(name, namelen, now_scope->etags))
@@ -347,8 +347,8 @@ void typedef_stmt(Token **rest, Token *token) {
   char *name;
   int namelen;
   Type *type = read_type(&token, token, ALLOW_STATIC, DENY_EXTERN, ALLOW_CONST);
-  type = declarator(&token, token, type, &name, &namelen);
-  type = type_suffix(&token, token, type);
+  type = declarator(&token, token, type, &name, &namelen, DENY_OMIT_LENGTH);
+  type = type_suffix(&token, token, type, DENY_OMIT_LENGTH);
 
   if ( find_in_typedefs(name, namelen, now_scope->tdfs)
     || find_in_vars(name, namelen, now_scope->vars)

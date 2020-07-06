@@ -141,11 +141,16 @@ typedef enum {
   ALLOW_CONST,
   DENY_CONST,
 } AllowConstOrNot;
+typedef enum {
+  ALLOW_OMIT_LENGTH,
+  DENY_OMIT_LENGTH,
+} AllowOmitLengthOrNot;
 
 bool is_type_tokens(Token *token, AllowStaticOrNot ason, AllowExternOrNot aeon, AllowConstOrNot acon);
 Type *read_type(Token **rest, Token *token, AllowStaticOrNot ason, AllowExternOrNot aeon, AllowConstOrNot acon);
-Type *declarator(Token **rest, Token *token, Type *type, char **namep, int *namelenp);
-Type *type_suffix(Token **rest, Token *token, Type *ancestor);
+Type *declarator(Token **rest, Token *token, Type *type, char **namep, int *namelenp, AllowOmitLengthOrNot aolon);
+
+Type *type_suffix(Token **rest, Token *token, Type *ancestor, AllowOmitLengthOrNot aolon);
 Type *type_ptr_suffix(Token **rest, Token *token, Type *type);
 Member *read_member(Token **rest, Token *token, int offset);
 
