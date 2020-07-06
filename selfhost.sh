@@ -12,6 +12,29 @@ make
 echo -e "\nCompile src/**/*.c => asm/*.s"
 mkdir -p asm
 mkdir -p self
+
+echo "
+typedef _Bool bool;
+typedef long FILE;
+int fprintf();
+int strlen();
+int strncmp();
+int isalpha();
+int calloc();
+int fopen();
+int fclose();
+int isspace();
+int strstr();
+long strtol();
+#define true 1
+#define false 0
+#define NULL 0
+" > self/willani.h
+cat src/willani.h \
+  | grep -v -E '^#' \
+  | sed -e 's/void error(char \*fmt, \.\.\.)/void error()/g' \
+  >> self/willani.h
+
 gcc src/read_file.c -S -o asm/read_file.s
 gcc src/codegen.c -S -o asm/codegen.s
 gcc src/error.c -S -o asm/error.s
@@ -35,7 +58,7 @@ gcc src/parse/var.c -S -o asm/var.s
 gcc src/parse/var_init.c -S -o asm/var_init.s
 
 #gcc src/str_to_l.c -S -o asm/str_to_l.s
-echo -e "long strtol();\nvoid error();\n" > self/str_to_l.c
+cat self/willani.h > self/str_to_l.c
 cat src/str_to_l.c \
   | grep -v -E '^#' \
   >> self/str_to_l.c
@@ -43,27 +66,7 @@ cat src/str_to_l.c \
 
 gcc src/tokenize.c -S -o asm/tokenize.s
 << COMMENTOUT
-str="
-typedef _Bool bool;
-typedef long FILE;
-int fprintf();
-int strlen();
-int strncmp();
-int isalpha();
-int calloc();
-int fopen();
-int fclose();
-int isspace();
-int strstr();
-#define true 1
-#define false 0
-#define NULL 0
-"
-echo "$str" > self/tokenize.c
-cat src/willani.h \
-  | grep -v -E '^#' \
-  | sed -e 's/void error(char \*fmt, \.\.\.)/void error()/g' \
-  >> self/tokenize.c
+cat self/willani.h > self/tokenize.c
 cat src/tokenize.c \
   | grep -v -E '^#' \
   | sed -e 's/reserved_words\[\]/reserved_words\[58\]/g' \
