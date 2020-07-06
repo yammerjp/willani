@@ -120,7 +120,7 @@ static int identifer_token_length(char *p) {
 }
 
 static int reserved_token_length(char *p) {
-  char reserved_words[][8] = {
+  char reserved_words[][9] = {
     "continue",
     "default",
     "typedef",
