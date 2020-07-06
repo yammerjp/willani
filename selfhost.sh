@@ -42,7 +42,6 @@ cat src/willani.h \
 gcc src/read_file.c -S -o asm/read_file.s
 gcc src/error.c -S -o asm/error.s
 gcc src/preprocess.c -S -o asm/preprocess.s
-gcc src/type.c -S -o asm/type.s
 gcc src/parse/enum.c -S -o asm/enum.s
 gcc src/parse/expr.c -S -o asm/expr.s
 gcc src/parse/function.c -S -o asm/function.s
@@ -89,6 +88,15 @@ cat src/codegen.c \
   | grep -v -E '^#' \
   >> src_self/codegen.c
 ./willani src_self/codegen.c > asm/codegen.s
+COMMENTOUT
+
+gcc src/type.c -S -o asm/type.s
+<< COMMENTOUT
+cat src_self/willani.h > src_self/type.c
+cat src/type.c \
+  | grep -v -E '^#' \
+  >> src_self/type.c
+./willani src_self/type.c > asm/type.s
 COMMENTOUT
 
 # assemble
