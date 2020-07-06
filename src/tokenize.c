@@ -1,29 +1,12 @@
 #include "willani.h"
 
+void tokenize_log_open();
+void tokenize_log_close();
+void tokenize_log(Token *token);
+
 static char* tokenize_filename;
 
 // ========== for debug ==========
-static FILE *tokenize_log_file;
-
-static char *token_kind_str(Token *token) {
-  switch (token->kind) {
-    case TK_RESERVED:         return("TK_RESERVED        ");
-    case TK_IDENT:            return("TK_IDENT           ");
-    case TK_NUM:              return("TK_NUM             ");
-    case TK_STRING:           return("TK_STRING          ");
-    case TK_CHAR:             return("TK_CHAR            ");
-    case TK_EOF:              return("TK_EOF             ");
-    case TK_PREPROCESS_BEGIN: return("TK_PREPROCESS_BEGIN");
-    case TK_PREPROCESS_END:   return("TK_PREPROCESS_END  ");
-    default : error("unexpected token->kind");
-  }
-}
-
-static void tokenize_log(Token *token) {
-  fprintf(tokenize_log_file, "%s, ", token_kind_str(token));
-  fprintf(tokenize_log_file, "%.*s\n",token->length ,token->location);
-}
-
 char *get_line_head(char *head) {
   // get line head
   while (user_input < head && head[-1] != '\n')
@@ -246,9 +229,7 @@ Token *tokenize(char *p, char *filename) {
   Token *current = &head;
 
   // for debug
-  tokenize_log_file = fopen("tokenize.log","w");
-  if (tokenize_log_file == NULL)
-    error("fail to open tokenize.log");
+  tokenize_log_open();
 
   bool is_line_head = true;
   bool is_preprocess_line = false;
@@ -348,7 +329,7 @@ Token *tokenize(char *p, char *filename) {
   new_token(TK_EOF, current, p, 0, prev_is_space);
 
   // for debug
-  fclose(tokenize_log_file);
+  tokenize_log_close();
 
   return head.next;
 }

@@ -81,6 +81,13 @@ cat src/tokenize.c \
 ./willani src_self/tokenize.c > asm/tokenize.s
 COMMENTOUT
 
+#gcc src/tokenize_log.c -S -o asm/tokenize_log.s
+cat src_self/willani.h > src_self/tokenize_log.c
+cat src/tokenize_log.c \
+  | grep -v -E '^#' \
+  >> src_self/tokenize_log.c
+./willani src_self/tokenize_log.c > asm/tokenize_log.s
+
 gcc src/codegen.c -S -o asm/codegen.s
 << COMMENTOUT
 cat src_self/willani.h > src_self/codegen.c
