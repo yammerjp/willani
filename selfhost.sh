@@ -38,7 +38,6 @@ cat src/willani.h \
 gcc src/read_file.c -S -o asm/read_file.s
 gcc src/codegen.c -S -o asm/codegen.s
 gcc src/error.c -S -o asm/error.s
-gcc src/main.c -S -o asm/main.s
 gcc src/preprocess.c -S -o asm/preprocess.s
 gcc src/tokenize.c -S -o asm/tokenize.s
 gcc src/type.c -S -o asm/type.s
@@ -63,6 +62,13 @@ cat src/str_to_l.c \
   | grep -v -E '^#' \
   >> src_self/str_to_l.c
 ./willani src_self/str_to_l.c > asm/str_to_l.s
+
+#gcc src/main.c -S -o asm/main.s
+cat src_self/willani.h > src_self/main.c
+cat src/main.c \
+  | grep -v -E '^#' \
+  >> src_self/main.c
+./willani src_self/main.c > asm/main.s
 
 gcc src/tokenize.c -S -o asm/tokenize.s
 << COMMENTOUT
