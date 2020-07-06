@@ -30,5 +30,5 @@ debug: willani
 	gdb tmp
 
 clean:
-	rm -f willani src/*.o src/parse/*.o *~ tmp* *.log core test-*
+	rm -rf willani src/*.o src/parse/*.o *~ tmp* *.log core test-* asm obj self
 .PHONY: test clean sample debug

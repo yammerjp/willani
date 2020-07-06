@@ -9,3 +9,6 @@ willani
 *.log
 core
 .gdb_history
+asm/**/*
+obj/**/*
+self/**/*
