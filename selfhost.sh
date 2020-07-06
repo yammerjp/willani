@@ -99,39 +99,11 @@ cat src/type.c \
 ./willani src_self/type.c > asm/type.s
 COMMENTOUT
 
-# assemble
-# ============================================================
-echo -e "\nAssemble asm/*.s => obj/*.o"
-mkdir -p obj
-as asm/read_file.s -o obj/read_file.o
-as asm/tokenize.s -o obj/tokenize.o
-as asm/codegen.s -o obj/codegen.o
-as asm/error.s -o obj/error.o
-as asm/main.s -o obj/main.o
-as asm/preprocess.s -o obj/preprocess.o
-as asm/str_to_l.s -o obj/str_to_l.o
-as asm/tokenize.s -o obj/tokenize.o
-as asm/type.s -o obj/type.o
-as asm/enum.s -o obj/enum.o
-as asm/expr.s -o obj/expr.o
-as asm/function.s -o obj/function.o
-as asm/log.s -o obj/log.o
-as asm/new_node.s -o obj/new_node.o
-as asm/parse.s -o obj/parse.o
-as asm/read_type.s -o obj/read_type.o
-as asm/scope.s -o obj/scope.o
-as asm/stmt.s -o obj/stmt.o
-as asm/string.s -o obj/string.o
-as asm/struct_tag.s -o obj/struct_tag.o
-as asm/typedef.s -o obj/typedef.o
-as asm/var.s -o obj/var.o
-as asm/var_init.s -o obj/var_init.o
-
-# link
+# assemble & link
 # ============================================================
 rm ./willani
 echo -e "\nLink obj/*.o => ./willani"
-gcc obj/*.o -static -o willani
+gcc asm/*.s -static -o willani
 
 # test
 # ============================================================
