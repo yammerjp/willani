@@ -265,14 +265,20 @@ Node *switch_stmt(Token **rest, Token *token) {
   return new_node_switch(cond, case_head.next, stmt_head.next, have_default, switch_token);
 }
 
-// return_stmt = return expr ";"
+// return_stmt = return expr? ";"
 Node *return_stmt(Token **rest, Token *token) {
   Token *return_token = token;
   if (!equal(return_token, "return"))
     error_at(return_token, "expected return");
   token = return_token->next;
 
-  Node *node = new_node_return(expr(&token, token), return_token);
+  Node *value;
+  if (equal(token, ";"))
+    value = new_node_num(0, token);
+  else
+    value = expr(&token, token);
+
+  Node *node = new_node_return(value, return_token);
 
   if (!equal(token, ";"))
     error_at(token, "expected ; of return statement");

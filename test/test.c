@@ -15,6 +15,11 @@ int assert(char *str, long value, long expected) {
 int omit_return() {
   1;
 }
+void omit_return_value() {
+  int a = 2;
+  a = 2+3;
+  return;
+}
 
 void nop_func() {}
 
@@ -400,6 +405,7 @@ int main() {
   assert("enum t { zero, one, two }; enum t y; sizeof(y);", ({ enum t { zero, one, two }; enum t y; sizeof(y); }), 4);
 
   nop_func();
+  omit_return_value();
 
   // preprocessor
   assert("DEFINE_ADD((1+2),(3+(4)),5)", DEFINE_ADD((1+2),(3+(4)),5), 15);
