@@ -42,7 +42,6 @@ cat src/willani.h \
 gcc src/read_file.c -S -o asm/read_file.s
 gcc src/error.c -S -o asm/error.s
 gcc src/preprocess.c -S -o asm/preprocess.s
-gcc src/tokenize.c -S -o asm/tokenize.s
 gcc src/type.c -S -o asm/type.s
 gcc src/parse/enum.c -S -o asm/enum.s
 gcc src/parse/expr.c -S -o asm/expr.s
