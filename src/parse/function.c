@@ -43,7 +43,7 @@ void add_function(Function *func) {
   tail->next = func;
 }
 
-// function = type ident "(" ( ( type ident ( "," type ident ) * ) ?  ")" block_stmt
+// function_definition = type ident "(" ( ( type ident ( "," type ident ) * ) ?  ")"
 Function *function_definition(Token **rest, Token *token, Type *return_type, char *name, int namelen) {
   bool definition = false;
 
