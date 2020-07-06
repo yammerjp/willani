@@ -11,7 +11,7 @@ make
 # ============================================================
 echo -e "\nCompile src/**/*.c => asm/*.s"
 mkdir -p asm
-mkdir -p self
+mkdir -p src_self
 
 echo "
 typedef _Bool bool;
@@ -29,11 +29,11 @@ long strtol();
 #define true 1
 #define false 0
 #define NULL 0
-" > self/willani.h
+" > src_self/willani.h
 cat src/willani.h \
   | grep -v -E '^#' \
   | sed -e 's/void error(char \*fmt, \.\.\.)/void error()/g' \
-  >> self/willani.h
+  >> src_self/willani.h
 
 gcc src/read_file.c -S -o asm/read_file.s
 gcc src/codegen.c -S -o asm/codegen.s
@@ -58,21 +58,21 @@ gcc src/parse/var.c -S -o asm/var.s
 gcc src/parse/var_init.c -S -o asm/var_init.s
 
 #gcc src/str_to_l.c -S -o asm/str_to_l.s
-cat self/willani.h > self/str_to_l.c
+cat src_self/willani.h > src_self/str_to_l.c
 cat src/str_to_l.c \
   | grep -v -E '^#' \
-  >> self/str_to_l.c
-./willani self/str_to_l.c > asm/str_to_l.s
+  >> src_self/str_to_l.c
+./willani src_self/str_to_l.c > asm/str_to_l.s
 
 gcc src/tokenize.c -S -o asm/tokenize.s
 << COMMENTOUT
-cat self/willani.h > self/tokenize.c
+cat src_self/willani.h > src_self/tokenize.c
 cat src/tokenize.c \
   | grep -v -E '^#' \
   | sed -e 's/reserved_words\[\]/reserved_words\[58\]/g' \
   | sed -e 's/Token head = {}/Token head/g' \
-  >> self/tokenize.c
-./willani self/tokenize.c > asm/tokenize.s
+  >> src_self/tokenize.c
+./willani src_self/tokenize.c > asm/tokenize.s
 COMMENTOUT
 
 # assemble

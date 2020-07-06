@@ -11,4 +11,4 @@ core
 .gdb_history
 asm/**/*
 obj/**/*
-self/**/*
+src_self/**/*
