@@ -29,6 +29,10 @@ long strtol();
 #define true 1
 #define false 0
 #define NULL 0
+int printf();
+int fprintf();
+extern int stdout;
+extern int stderr;
 " > src_self/willani.h
 cat src/willani.h \
   | grep -v -E '^#' \
@@ -36,7 +40,6 @@ cat src/willani.h \
   >> src_self/willani.h
 
 gcc src/read_file.c -S -o asm/read_file.s
-gcc src/codegen.c -S -o asm/codegen.s
 gcc src/error.c -S -o asm/error.s
 gcc src/preprocess.c -S -o asm/preprocess.s
 gcc src/tokenize.c -S -o asm/tokenize.s
@@ -78,6 +81,15 @@ cat src/tokenize.c \
   | sed -e 's/Token head = {}/Token head/g' \
   >> src_self/tokenize.c
 ./willani src_self/tokenize.c > asm/tokenize.s
+COMMENTOUT
+
+gcc src/codegen.c -S -o asm/codegen.s
+<< COMMENTOUT
+cat src_self/willani.h > src_self/codegen.c
+cat src/codegen.c \
+  | grep -v -E '^#' \
+  >> src_self/codegen.c
+./willani src_self/codegen.c > asm/codegen.s
 COMMENTOUT
 
 # assemble
