@@ -566,7 +566,7 @@ static void gen_binary_operator(Node *node) {
   case ND_EXPR_BIT_AND:
     printf("  and %%rdi, %%rax\n");
     break;
-  defalt:
+  default:
     error_at(node->token, "unknown binary operator");
   }
   printf("  pushq %%rax\n");          // store result to stack top
