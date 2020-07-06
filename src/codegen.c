@@ -600,7 +600,7 @@ static void prologue(Function *func) {
   }
 }
 
-static void epilogue(void) {
+static void epilogue() {
   printf("  movq $0, %%rax\n");
   printf(".L.return.%.*s:\n", funcnamelen, funcname);
   printf("  movq %%rbp, %%rsp\n");    // ignore the remanig data in the stack
