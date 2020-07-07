@@ -7,6 +7,7 @@ test-*
 a.out
 willani
 *.log
+ast.json
 core
 .gdb_history
 asm/**/*
