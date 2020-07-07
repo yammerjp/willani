@@ -102,10 +102,12 @@ bool is_ptr_or_arr(Type *type) {
 
 void copy_type(Type *dest, Type *src) {
   dest->kind = src->kind;
+  dest->size = src->size;
   dest->base = src->base;
   dest->array_length = src->array_length;
   dest->members = src->members;
   dest->is_static = src->is_static;
   dest->is_extern = src->is_extern;
+  dest->is_const = src->is_const;
   dest->undefined_member = src->undefined_member;
 }
