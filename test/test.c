@@ -265,7 +265,7 @@ int main() {
   assert("struct {int a;} x[4]; sizeof(x);", ({ struct {int a;} x[4]; sizeof(x); }), 16);
   assert("struct {int a[3];} x[2]; sizeof(x)};", ({ struct {int a[3];} x[2]; sizeof(x); }), 24);
   assert("struct {char a; char b;} x; sizeof(x);", ({ struct {char a; char b;} x; sizeof(x); }), 2);
-  assert("struct {char a; int b;} x; sizeof(x);", ({ struct {char a; int b;} x; sizeof(x); }), 5);
+  assert("struct {char a; int b;} x; sizeof(x);", ({ struct {char a; int b;} x; sizeof(x); }), 8);
 
   assert("struct t {int a; int b;} x; struct t y; sizeof(y);", ({ struct t {int a; int b;} x; struct t y; sizeof(y); }), 8);
   assert("struct t {int a; int b;}; struct t y; sizeof(y);", ({ struct t {int a; int b;}; struct t y; sizeof(y); }), 8);
