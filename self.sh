@@ -69,6 +69,7 @@ SELFHOST_FILES=$(cat << EOS
 src/main.c
 src/str_to_l.c
 src/tokenize_log.c
+src/type.c
 EOS
 )
 
