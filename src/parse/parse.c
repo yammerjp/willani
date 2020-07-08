@@ -71,7 +71,7 @@ void *program(Token *token) {
   // Todo memolize gvars (now_scope->vars)
   gvars = now_scope->vars;
   scope_out();
-  parse_log();
+  node_log();
 }
 
 static void read_new_gvar(Token **rest, Token *token, Type *type_without_suffix, char *name, int namelen) {

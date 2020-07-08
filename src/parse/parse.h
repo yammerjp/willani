@@ -74,7 +74,7 @@ Node *new_node_default(Token *token);
 //======================================
 // log.c
 void print_node(FILE *file, Node *node);
-void parse_log();
+void node_log();
 
 
 //======================================

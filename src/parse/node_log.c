@@ -1,6 +1,6 @@
 #include "parse.h"
 
-FILE *parse_logfile;
+FILE *node_logfile;
 
 static void print_type(FILE *file, Type *type) {
   if (type->base)
@@ -104,41 +104,41 @@ void print_node(FILE *file, Node *node) {
   fprintf(file, ", token: %.*s", node->token->length, node->token->location);
   if (node->type) {
     fprintf(file, ", type: ");
-    print_type(parse_logfile, node->type);
+    print_type(node_logfile, node->type);
   }
   fprintf(file, ")\n");
 }
 
-static void parse_log_nodes(Node *node, int depth) {
+static void node_log_nodes(Node *node, int depth) {
   if (!node)
     return;
 
-  fprintf(parse_logfile, "%*s",depth*2, "");
-  print_node(parse_logfile, node);
+  fprintf(node_logfile, "%*s",depth*2, "");
+  print_node(node_logfile, node);
 
-  parse_log_nodes(node->left, depth+1);
-  parse_log_nodes(node->right, depth+1);
-  parse_log_nodes(node->init, depth+1);
-  parse_log_nodes(node->cond, depth+1);
-  parse_log_nodes(node->cases, depth+1);
-  parse_log_nodes(node->increment, depth+1);
-  parse_log_nodes(node->then, depth+1);
-  parse_log_nodes(node->els, depth+1);
-  parse_log_nodes(node->body, depth+1);
-  parse_log_nodes(node->func_args, depth+1);
+  node_log_nodes(node->left, depth+1);
+  node_log_nodes(node->right, depth+1);
+  node_log_nodes(node->init, depth+1);
+  node_log_nodes(node->cond, depth+1);
+  node_log_nodes(node->cases, depth+1);
+  node_log_nodes(node->increment, depth+1);
+  node_log_nodes(node->then, depth+1);
+  node_log_nodes(node->els, depth+1);
+  node_log_nodes(node->body, depth+1);
+  node_log_nodes(node->func_args, depth+1);
 
-  parse_log_nodes(node->next, depth);
+  node_log_nodes(node->next, depth);
 }
 
-void parse_log() {
-  parse_logfile = fopen("parse.log","w");
-  if (!parse_logfile)
-    error("fail to open parse.log");
+void node_log() {
+  node_logfile = fopen("node.log","w");
+  if (!node_logfile)
+    error("fail to open node.log");
 
   for (Function *func = functions; func; func = func->next) {
-    fprintf(parse_logfile, "%.*s: ", func->namelen, func->name);
-    parse_log_nodes(func->node, 0);
+    fprintf(node_logfile, "%.*s: ", func->namelen, func->name);
+    node_log_nodes(func->node, 0);
   }
  
-  fclose(parse_logfile);
+  fclose(node_logfile);
 }
