@@ -6,6 +6,8 @@ static void read_new_gvar(Token **rest, Token *token, Type *type_without_suffix,
 // declare_gvar = type ident type_suffix ";"
 
 void *program(Token *token) {
+  parse_log_open();
+
   scope_in();
   while (!is_eof_token(token)) {
     lvar_byte = 0;
@@ -71,10 +73,13 @@ void *program(Token *token) {
   // Todo memolize gvars (now_scope->vars)
   gvars = now_scope->vars;
   scope_out();
+
+  parse_log_close();
   node_log();
 }
 
 static void read_new_gvar(Token **rest, Token *token, Type *type_without_suffix, char *name, int namelen) {
+  parse_log("read_new_gvar()");
   Type *type = type_suffix(&token, token, type_without_suffix, ALLOW_OMIT_LENGTH);
 
   if (find_in_typedefs(name, namelen, now_scope->tdfs) || find_function(name, namelen) || find_in_enum_tags(name, namelen, now_scope->etags)

@@ -2,6 +2,7 @@
 
 // block_stmt = "{" stmt* "}"
 Node *block_stmt(Token **rest, Token *token) {
+  parse_log("block_stmt()");
   Token *bracket_token = token;
   if (!equal(bracket_token, "{"))
     error_at(bracket_token, "expected {");
@@ -35,6 +36,7 @@ Node *block_stmt(Token **rest, Token *token) {
 //            | declare_lvar_stmt
 
 Node *stmt(Token **rest, Token *token) {
+  parse_log("stmt()");
   Node *node;
 
   if (equal(token, "typedef")) {
@@ -55,6 +57,7 @@ Node *stmt(Token **rest, Token *token) {
 }
 
 Node *stmt_without_declaration(Token **rest, Token *token) {
+  parse_log("stmt_without_declaration()");
   Node *node;
 
   if (equal(token, "if"))
@@ -92,6 +95,7 @@ Node *stmt_without_declaration(Token **rest, Token *token) {
 
 // if_stmt = "if" "(" expr ")" stmt ( "else" stmt ) ?
 Node *if_stmt(Token **rest, Token *token) {
+  parse_log("if_stmt()");
   Token *if_token = token;
   if (!equal(if_token, "if" ))
     error_at(if_token, "expected if");
@@ -126,6 +130,7 @@ Node *if_stmt(Token **rest, Token *token) {
 
 // while_stmt = "while" "(" expr ")" stmt
 Node *while_stmt(Token **rest, Token *token) {
+  parse_log("while_stmt()");
   Token *while_token = token;
   if (!equal(while_token, "while" ))
     error_at(while_token, "expected while");
@@ -172,6 +177,7 @@ static Node *for_init(Token **rest, Token *token) {
 }
 
 Node *for_stmt(Token **rest, Token *token) {
+  parse_log("for_stmt()");
   // "for"
   Token *for_token = token;
   if (!equal(for_token, "for"))
@@ -208,6 +214,7 @@ Node *for_stmt(Token **rest, Token *token) {
 }
 
 Node *switch_stmt(Token **rest, Token *token) {
+  parse_log("switch_stmt()");
   Token *switch_token = token;
   if (!equal(token, "switch"))
     error_at(token, "expected switch");
@@ -267,6 +274,7 @@ Node *switch_stmt(Token **rest, Token *token) {
 
 // return_stmt = return expr? ";"
 Node *return_stmt(Token **rest, Token *token) {
+  parse_log("return_stmt()");
   Token *return_token = token;
   if (!equal(return_token, "return"))
     error_at(return_token, "expected return");
@@ -290,6 +298,7 @@ Node *return_stmt(Token **rest, Token *token) {
 
 // expr_stmt  =  expr ";"
 Node *expr_stmt(Token **rest, Token *token) {
+  parse_log("expr_stmt()");
   Token *expr_token = token;
   Node *node = new_node_expr_stmt(expr(&token, token), expr_token);
 
@@ -305,6 +314,7 @@ Node *expr_stmt(Token **rest, Token *token) {
 // declare node is skipped by codegen
 
 Node *declare_lvar_stmt(Token **rest, Token *token) {
+  parse_log("declare_lvar_stmt()");
   char *name;
   int namelen;
   Type *type;
@@ -346,6 +356,7 @@ Node *declare_lvar_stmt(Token **rest, Token *token) {
 }
 
 void typedef_stmt(Token **rest, Token *token) {
+  parse_log("typedef_stmt()");
   if (!equal(token, "typedef"))
      error_at(token, "expected 'typedef'");
   token = token->next;

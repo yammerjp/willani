@@ -2,6 +2,7 @@
 
 // expr       = assign ("," assign)*
 Node *expr(Token **rest, Token *token) {
+  parse_log("expr()");
   Node *node = assign(&token, token);
   while (equal(token, ",")) {
     Token *comma_token = token;
@@ -14,6 +15,7 @@ Node *expr(Token **rest, Token *token) {
 
 // assign     = ternary (("=" | "+=" | "-=" | "*=" | "/=" | "%=") assign )?
 Node *assign(Token **rest, Token *token) {
+  parse_log("assign()");
   Node *node = ternary(&token, token);
   Node *left = node;
   Token *op_token = token;
@@ -44,6 +46,7 @@ Node *assign(Token **rest, Token *token) {
 
 // ternary = log_or ("?" expr ":" ternary)?
 Node *ternary(Token **rest, Token *token) {
+  parse_log("ternary()");
   Node *node = log_or(&token, token);
 
   if (equal(token, "?")) {
@@ -60,6 +63,7 @@ Node *ternary(Token **rest, Token *token) {
 
 // log_or  = log_and ("||" log_or)?
 Node *log_or(Token **rest, Token *token) {
+  parse_log("log_or()");
   Node *node = log_and(&token, token);
 
   if (equal(token, "||")) {
@@ -72,6 +76,7 @@ Node *log_or(Token **rest, Token *token) {
 
 // log_and = bit_or ("&&" log_and) ?
 Node *log_and(Token **rest, Token *token) {
+  parse_log("log_and()");
   Node *node = bit_or(&token, token);
   if (equal(token, "&&")) {
     Token *op_token = token;
@@ -83,6 +88,7 @@ Node *log_and(Token **rest, Token *token) {
 
 // bit_or   = bit_xor ("|" bit_or)?
 Node *bit_or(Token **rest, Token *token) {
+  parse_log("log_or()");
   Node *node = bit_xor(&token, token);
   if (equal(token, "|")) {
     Token *op_token = token;
@@ -95,6 +101,7 @@ Node *bit_or(Token **rest, Token *token) {
 
 // bit_xor   = bit_and ("|" bit_xor)?
 Node *bit_xor(Token **rest, Token *token) {
+  parse_log("log_xor()");
   Node *node = bit_and(&token, token);
   if (equal(token, "^")) {
     Token *op_token = token;
@@ -106,6 +113,7 @@ Node *bit_xor(Token **rest, Token *token) {
 
 // bit_and  = equality ("&" bit_and)?
 Node *bit_and(Token **rest, Token *token) {
+  parse_log("bit_and()");
   Node *node = equality(&token, token);
   if (equal(token, "&")) {
     Token *op_token = token;
@@ -117,6 +125,7 @@ Node *bit_and(Token **rest, Token *token) {
 
 // equality = relational ("==" relational | "!=" relational)*
 Node *equality(Token **rest, Token *token) {
+  parse_log("equality()");
   Node *node = relational(&token, token);
   for(;;) {
     Token *op_token = token;
@@ -137,6 +146,7 @@ Node *equality(Token **rest, Token *token) {
 
 // relational = add ("<" add | "<=" add | ">" add | ">=" add)*
 Node *relational(Token **rest, Token *token) {
+  parse_log("relational()");
   Node *node = add(&token, token);
   for(;;) {
     Token *op_token = token;
@@ -164,6 +174,7 @@ Node *relational(Token **rest, Token *token) {
 
 // add = mul ("+" mul | "-" mul)*
 Node *add(Token **rest, Token *token) {
+  parse_log("add()");
   Node *node = mul(&token, token);
 
   for(;;) {
@@ -184,6 +195,7 @@ Node *add(Token **rest, Token *token) {
 
 // mul = unary (("*" | "/" | "%") unary )*
 Node *mul(Token **rest, Token *token) {
+  parse_log("mul()");
   Node *node = unary(&token, token);
 
   for(;;) {
@@ -218,6 +230,7 @@ static Node *postfix(Token **rest, Token *token, Node *primary_node);
 //       | "&" unary
 //       | primary postfix
 Node *unary(Token **rest, Token *token) {
+  parse_log("unary()");
   Node *node;
   Token *op_token = token;
 
@@ -252,6 +265,7 @@ Node *unary(Token **rest, Token *token) {
 // sizeofunary              = "(" sizeofunary_inner_parens ")" | type | unary
 // sizeofunary_inner_parens = "(" sizeofunary_inner_parens ")" | type | expr
 Node *sizeofunary(Token **rest, Token *token, bool inner_parens) {
+  parse_log("sizeofunary()");
   if (equal(token, "(")) {
     Node *node = sizeofunary(&token, token->next, true);
     if (!equal(token, ")"))
@@ -330,6 +344,7 @@ static Node *postfix(Token **rest, Token *token, Node *primary_node) {
 //            | "(" expr ")"
 //            | "(" "{" stmt+ "}" ")"
 Node *primary(Token **rest, Token *token) {
+  parse_log("primary()");
   Node *node;
 
   // num
@@ -386,6 +401,7 @@ Node *primary(Token **rest, Token *token) {
 
 // primary_identifer = ident ( "(" ")" )?
 Node *primary_identifer(Token **rest, Token *token) {
+  parse_log("primary_identifer()");
   // identifer
   Token *ident_token = token;
   if (!is_identifer_token(ident_token))
@@ -426,6 +442,7 @@ Node *primary_identifer(Token **rest, Token *token) {
 }
 
 Node *stmt_expr(Token **rest, Token *token) {
+  parse_log("stmt_expr()");
   if (!equal(token, "(") || !equal(token->next, "{"))
     error_at(token->next, "expected statement expression");
   token = token->next;

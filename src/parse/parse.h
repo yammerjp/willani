@@ -205,6 +205,7 @@ struct TypeDef {
 TypeDef *find_in_typedefs(char *name, int namelen, TypeDef *tdfs);
 void new_typedef(Type *type, char *name, int namelen);
 
+
 //======================================
 // scope.c
 typedef struct Scope Scope;
@@ -225,5 +226,11 @@ StructTag *find_stag(char *name, int namelen);
 Enum *find_enum(char *name, int namelen);
 EnumTag *find_enum_tag(char *name, int namelen);
 
+
+//======================================
+// parse_log.c
+void parse_log_open();
+void parse_log_close();
+void parse_log(char *s);
 
 #endif

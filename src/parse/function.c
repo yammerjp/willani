@@ -45,6 +45,7 @@ void add_function(Function *func) {
 
 // function_definition = type ident "(" ( ( type ident ( "," type ident ) * ) ?  ")"
 Function *function_definition(Token **rest, Token *token, Type *return_type, char *name, int namelen) {
+  parse_log("functin_definiton()");
   bool definition = false;
 
   // arguments
