@@ -187,18 +187,26 @@ Type *read_new_type_struct(Token **rest, Token *token) {
   int offset = 0;
   int member_size_max = 0;
   while (!equal(token, "}")) {
-    tail->next = read_member(&token, token, offset);
-    tail = tail->next;
+    Member *mem = read_member(&token, token, offset);
+    Type *base = mem->type;
+    while (base->kind == TYPE_ARRAY)
+      base = base->base;
+    int size = base->size;
+    offset += ((size - (offset % size))%size); // alignment of structure memory layout for System V ABI
+    mem->offset = offset;
 
-    int size = tail->type->size;
+    tail = tail->next = mem;
+
     if (size > member_size_max)
       member_size_max = size;
-    offset += ((size - (offset % size))%size) + size; // alignment of structure memory layout for System V ABI
+    offset +=  mem->type->size; // alignment of structure memory layout for System V ABI
   }
   token = token->next;
 
   offset += (member_size_max - (offset%member_size_max))%member_size_max; // alignment of structure memory layout for System V ABI
+
   Type *type = new_type_struct(offset, head.next);
+
 
   if (name) {
     // named struct tag
