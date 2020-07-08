@@ -202,7 +202,8 @@ static void gen_for(Node *node) {
   push(&continue_stack, labct);
   push(&break_stack, labct);
 
-  gen(node->init);
+  for (Node *n = node->init; n; n=n->next)
+    gen(n);
 
   printf("  jmp .L.first.%d\n", labct); // jump initialize
   printf(".L.begin.%d:\n", labct);
