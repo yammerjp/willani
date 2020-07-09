@@ -1,5 +1,6 @@
 #include "parse.h"
 
+static Node *read_cells(Token **rest, Token *token, Type *type, long *values, int offset, Var *var);
 static Node *read_array(Token **rest, Token *token, Type *type, long *values, int offset, Var *var);
 static Node *read_cell(Token **rest, Token *token, long *values, int offset, Var *var);
 static void *read_array_string(Token **rest, Token *token, Type *type, long *values, int offset, Var *var);
@@ -14,7 +15,7 @@ Node *read_var_init(Token **rest, Token *token, Var *var) {
 
   long *values = calloc(size, sizeof(long));
 
-  Node *runtime_inits = read_array(rest, token, var->type, values, 0, var);
+  Node *runtime_inits = read_cells(rest, token, var->type, values, 0, var);
   if (var->is_global && runtime_inits)
     error_at(token, "failed that global variable is initilized by run-time-settled value");
 
@@ -26,16 +27,21 @@ Node *read_var_init(Token **rest, Token *token, Var *var) {
   return node;
 }
 
+static Node *read_cells(Token **rest, Token *token, Type *type, long *values, int offset, Var *var) {
+  if (type->kind == TYPE_ARRAY)
+    return read_array(rest, token, type, values, offset, var);
+  if (type->kind == TYPE_STRUCT)
+    error_at(token, "unsupport struct initialization");
+
+  return read_cell(rest, token, values, offset, var);
+}
+
 static Node *read_array(Token **rest, Token *token, Type *type, long *values, int offset, Var *var) {
   Node head = {};
   Node *tail = &head;
 
-  // array cell init
-  if (type->kind != TYPE_ARRAY)
-    return read_cell(rest, token, values, offset, var);
-
   // array row init by string
-  if (type->base->kind != TYPE_ARRAY && is_string_token(token)) {
+  if (type->base->kind != TYPE_ARRAY && type->base->kind != TYPE_STRUCT && is_string_token(token)) {
     read_array_string(rest, token, type, values, offset, var);
     return NULL;
   }
@@ -52,7 +58,7 @@ static Node *read_array(Token **rest, Token *token, Type *type, long *values, in
   for (int i=0; i < type->array_length; i++) {
     if (equal(token, "}"))
       break;
-    tail->next = read_array(&token, token, type->base, values, offset + (cell_size * i), var);
+    tail->next = read_cells(&token, token, type->base, values, offset + (cell_size * i), var);
     while (tail->next)
       tail = tail->next;
     if (equal(token, "}"))
