@@ -71,6 +71,7 @@ src/str_to_l.c
 src/tokenize_log.c
 src/type.c
 src/tokenize.c
+src/codegen.c
 EOS
 )
 
