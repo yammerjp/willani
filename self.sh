@@ -70,6 +70,7 @@ src/main.c
 src/str_to_l.c
 src/tokenize_log.c
 src/type.c
+src/tokenize.c
 EOS
 )
 
@@ -87,6 +88,7 @@ fi
 
 cat "$C_SOURCE" \
   | grep -v -E '^#' \
+  | sed 's/Token head = {};/Token head;/g' \
   >> "$C_OVERWRITED"
 
 echo "./willani $C_OVERWRITED > $ASM"
