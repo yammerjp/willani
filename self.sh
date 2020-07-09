@@ -88,11 +88,12 @@ src/preprocess.c
 EOS
 )
 # --- souce files compiled by gcc ---
-# src/read_file.c
-# src/error.c
-# src/parse/read_type.c
-# src/parse/new_node.c
-# src/parse/var_init.c
+# path // why it cannot compile
+# src/read_file.c // errno
+# src/error.c // variadic function
+# src/parse/read_type.c // struct assignment
+# src/parse/new_node.c // segmentation fault
+# src/parse/var_init.c // bit shift
 
 echo "$SELFHOST_FILES" | while read -r C_SOURCE
 do
