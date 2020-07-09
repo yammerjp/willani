@@ -82,6 +82,7 @@ src/parse/strings.c
 src/parse/struct_tag.c
 src/parse/typedef.c
 src/parse/var.c
+src/parse/stmt.c
 EOS
 )
 # --- souce files compiled by gcc ---
@@ -89,7 +90,6 @@ EOS
 # src/error.c
 # src/parse/read_type.c
 # src/parse/new_node.c
-# src/parse/stmt.c
 # src/parse/expr.c
 # src/parse/var_init.c
 # src/preprocess.c
