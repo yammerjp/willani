@@ -72,6 +72,7 @@ src/tokenize_log.c
 src/type.c
 src/tokenize.c
 src/codegen.c
+src/parse/enum.c
 EOS
 )
 
