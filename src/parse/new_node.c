@@ -383,6 +383,7 @@ Node *new_node_var_init(Token *token, Var *var, char *var_inits, int var_inits_s
   node->var = var;
   node->var_inits = var_inits;
   node->var_inits_size = var_inits_size;
+  return node;
 }
 
 //  ND_STMT_CONTINUE,     // continue;
