@@ -73,8 +73,26 @@ src/type.c
 src/tokenize.c
 src/codegen.c
 src/parse/enum.c
+src/parse/function.c
+src/parse/node_log.c
+src/parse/parse.c
+src/parse/parse_log.c
+src/parse/scope.c
+src/parse/strings.c
+src/parse/struct_tag.c
+src/parse/typedef.c
+src/parse/var.c
+src/parse/var_init.c
 EOS
 )
+# --- souce files compiled by gcc ---
+# src/read_file.c
+# src/error.c
+# src/parse/read_type.c
+# src/parse/new_node.c
+# src/parse/stmt.c
+# src/parse/expr.c
+# src/preprocess.c
 
 echo "$SELFHOST_FILES" | while read -r C_SOURCE
 do
@@ -91,6 +109,7 @@ fi
 cat "$C_SOURCE" \
   | grep -v -E '^#' \
   | sed 's/Token head = {};/Token head;/g' \
+  | sed 's/Node head = {};/Node head;/g' \
   >> "$C_OVERWRITED"
 
 echo "./willani $C_OVERWRITED > $ASM"
