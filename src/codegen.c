@@ -370,7 +370,10 @@ static void gen(Node *node) {
 
   // expression
   case ND_EXPR_NUM:
-    printf("  pushq $%ld\n", node->value); // pushq constant
+    if (node->type->kind == TYPE_LONG)
+      printf("  pushq $%ld\n", node->value); // pushq constant
+    else
+      printf("  pushq $%d\n", node->value); // pushq constant
     break;
   case ND_EXPR_STRING:
     printf("  pushq $.LC%d\n", node->string->id);
