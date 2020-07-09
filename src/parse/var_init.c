@@ -83,7 +83,7 @@ static Node *read_cell(Token **rest, Token *token, Type *type, char *values, int
     // array cell init by number
     for (int i=0; i < size; i++) {
       values[offset+i] = val;
-      val >>= 8;
+      val >>= 8; // x86_64 is little endian
     }
     *rest = token->next;
     return NULL;
@@ -91,13 +91,12 @@ static Node *read_cell(Token **rest, Token *token, Type *type, char *values, int
   if (var->is_global)
     error_at(token, "expected number token to initialize variable");
 
-  /*
-  if (!offset)
-    error_at(token, "unsupport array initialization with runtime-settled value");
-  */
+  // array cell init by assign that settled runtime
+  Var *var_cell = calloc(1, sizeof(Var));
+  var_cell->type = type;
+  var_cell->offset = var->offset - offset;
 
-  // array cell init by assign
-  Node *left = new_node_var_specified(var, token);
+  Node *left = new_node_var_specified(var_cell, token);
   while (left->type->kind == TYPE_ARRAY)
     left = new_node_deref(left, token);
 
