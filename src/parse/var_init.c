@@ -2,6 +2,7 @@
 
 static Node *read_cells(Token **rest, Token *token, Type *type, char *values, int offset, Var *var);
 static Node *read_array(Token **rest, Token *token, Type *type, char *values, int offset, Var *var);
+static Node *read_struct(Token **rest, Token *token, Type *type, char *values, int offset, Var *var);
 static Node *read_cell(Token **rest, Token *token, Type *type, char *values, int offset, Var *var);
 static void *read_array_string(Token **rest, Token *token, Type *type, char *values, int offset, Var *var);
 
@@ -29,7 +30,7 @@ static Node *read_cells(Token **rest, Token *token, Type *type, char *values, in
   if (type->kind == TYPE_ARRAY)
     return read_array(rest, token, type, values, offset, var);
   if (type->kind == TYPE_STRUCT)
-    error_at(token, "unsupport struct initialization");
+    return read_struct(rest, token, type, values, offset, var);
 
   return read_cell(rest, token, type, values, offset, var);
 }
@@ -57,6 +58,36 @@ static Node *read_array(Token **rest, Token *token, Type *type, char *values, in
     if (equal(token, "}"))
       break;
     tail->next = read_cells(&token, token, type->base, values, offset + (cell_size * i), var);
+    while (tail->next)
+      tail = tail->next;
+    if (equal(token, "}"))
+      break;
+    if (!equal(token, ","))
+      error_at(token, "expected , to initialize variable");
+    token = token->next;
+  }
+
+  if (!equal(token, "}"))
+    error_at(token, "expected } to initialize variable");
+  token = token->next;
+
+  *rest = token;
+  return head.next;
+}
+
+static Node *read_struct(Token **rest, Token *token, Type *type, char *values, int offset, Var *var) {
+  Node head = {};
+  Node *tail = &head;
+
+  // array init recursive
+  if (!equal(token, "{"))
+    error_at(token, "expected { to initialize variable");
+  token = token->next;
+
+  for (Member *m = type->members; m; m=m->next) {
+    if (equal(token, "}"))
+      break;
+    tail->next = read_cells(&token, token, m->type, values, offset + m->offset, var);
     while (tail->next)
       tail = tail->next;
     if (equal(token, "}"))

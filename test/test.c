@@ -463,7 +463,16 @@ int main() {
     "({ int d[] = { (0,1), ({1+2;}), 3}; d[1]; })",
     ({ int d[] = { (0,1), ({1+2;}), 3}; d[1]; }), 3
   );
-
+  assert(
+    "({ struct { char m1; int m2; char m3; } s = { 10,20,30 }; s.m3; })",
+    ({ struct { char m1; int m2; char m3; } s = { 10,20,30 }; s.m3; }),
+    30
+  );
+  assert(
+    "({ struct { char m1; int m2; char m3; } s = { 10,20,30 }; s.m3; })",
+    ({ int p = 100;struct { char m1; int m2; char m3; } s = { 10,p,30 }; s.m2; }),
+    100
+  );
 
   printf("\nOK\n");
   return 0;

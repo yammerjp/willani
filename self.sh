@@ -108,10 +108,6 @@ fi
 
 cat "$C_SOURCE" \
   | grep -v -E '^#' \
-  | sed 's/Token head = {};/Token head;/g' \
-  | sed 's/Node head = {};/Node head;/g' \
-  | sed 's/Token predest_head = {};/Token predest_head;/g' \
-  | sed 's/Token preparams = {};/Token preparams;/g' \
   >> "$C_OVERWRITED"
 
 echo "./willani $C_OVERWRITED > $ASM"
