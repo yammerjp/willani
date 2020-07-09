@@ -63,6 +63,8 @@ void print_node(FILE *file, Node *node) {
     case ND_EXPR_ASSIGN_MUL:      fprintf(file, "*="); break;
     case ND_EXPR_ASSIGN_DIV:      fprintf(file, "/="); break;
     case ND_EXPR_ASSIGN_MOD:      fprintf(file, "%%="); break;
+    case ND_EXPR_ASSIGN_SHIFT_LEFT:   fprintf(file, "<<="); break;
+    case ND_EXPR_ASSIGN_SHIFT_RIGHT:  fprintf(file, ">>="); break;
     case ND_EXPR_ADD:             fprintf(file, "+"); break;
     case ND_EXPR_PTR_ADD:         fprintf(file, "+ (pointer)"); break;
     case ND_EXPR_SUB:             fprintf(file, "-"); break;
@@ -82,6 +84,8 @@ void print_node(FILE *file, Node *node) {
     case ND_EXPR_BIT_AND:         fprintf(file, "&"); break;
     case ND_EXPR_LOG_OR:          fprintf(file, "||"); break;
     case ND_EXPR_LOG_AND:         fprintf(file, "&&"); break;
+    case ND_EXPR_SHIFT_LEFT:      fprintf(file, "<<"); break;
+    case ND_EXPR_SHIFT_RIGHT:     fprintf(file, ">>"); break;
     // multiple operator
     case ND_EXPR_TERNARY:         fprintf(file, "?:"); break;
     case ND_EXPR_WITH_STMTS:      fprintf(file, "({})"); break;

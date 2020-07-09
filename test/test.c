@@ -484,6 +484,20 @@ int main() {
   assert("(long)&*(int *)0", (long)&*(int *)0, 0);
   assert("int x=5; long y=(long)&x; *(int*)y", ({ int x=5; long y=(long)&x; *(int*)y; }), 5);
 
+  // bit shift
+  assert("1<<0", 1<<0, 1);
+  assert("1<<3", 1<<3, 8);
+  assert("5<<1", 5<<1, 10);
+  assert("5>>1", 5>>1, 2);
+  assert("-1>>1", -1>>1, -1);
+  assert("int i=1; i<<0;", ({ int i=1; i<<=0; i; }), 1);
+  assert("int i=1; i<<3;", ({ int i=1; i<<=3; i; }), 8);
+  assert("int i=5; i<<1;", ({ int i=5; i<<=1; i; }), 10);
+  assert("int i=5; i>>1;", ({ int i=5; i>>=1; i; }), 2);
+  assert("-1", -1, -1);
+  //assert("int i=-1; i;", ({ int i=-1; i; }), -1);
+  //assert("int i=1; i>>1;", ({ int i=-1; i>>=1; i; }), -1);
+
   printf("\nOK\n");
   return 0;
 }

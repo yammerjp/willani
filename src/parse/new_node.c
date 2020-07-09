@@ -168,6 +168,16 @@ Node *new_node_assign_mod(Node *left, Node *right, Token *token) {
   return new_node_op2(ND_EXPR_ASSIGN_MOD, left, right, token);
 }
 
+// ND_EXPR_ASSIGN_SHIFT_LEFT, // <<=
+Node *new_node_assign_shift_left(Node *left, Node *right, Token *token) {
+  return new_node_op2(ND_EXPR_ASSIGN_SHIFT_LEFT, left, right, token);
+}
+
+// ND_EXPR_ASSIGN_SHIFT_RIGHT, // >>=
+Node *new_node_assign_shift_right(Node *left, Node *right, Token *token) {
+  return new_node_op2(ND_EXPR_ASSIGN_SHIFT_RIGHT, left, right, token);
+}
+
 //  ND_EXPR_ADD,          // +
 //  ND_EXPR_PTR_ADD,      // (pointer) + (int)
 Node *new_node_add(Node *left, Node *right, Token *token) {
@@ -287,6 +297,16 @@ Node *new_node_logical_and(Node *left, Node *right, Token *token) {
   node->left = left;
   node->right = right;
   return node;
+}
+
+//  ND_EXPR_SHIFT_LEFT,   // ... << ...
+Node *new_node_shift_left(Node *left, Node *right, Token *token) {
+  return new_node_op2(ND_EXPR_SHIFT_LEFT, left, right, token);
+}
+
+//  ND_EXPR_SHIFT_RIGHT,  // ... >> ...
+Node *new_node_shift_right(Node *left, Node *right, Token *token) {
+  return new_node_op2(ND_EXPR_SHIFT_RIGHT, left, right, token);
 }
 
 //  ND_EXPR_TERNARY,      // ... ? ... : ...

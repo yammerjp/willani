@@ -416,6 +416,8 @@ static void gen(Node *node) {
   case ND_EXPR_ASSIGN_MUL:
   case ND_EXPR_ASSIGN_DIV:
   case ND_EXPR_ASSIGN_MOD:
+  case ND_EXPR_ASSIGN_SHIFT_LEFT:
+  case ND_EXPR_ASSIGN_SHIFT_RIGHT:
     gen_addr(node->left);
     printf("  pushq (%%rsp)\n");
     load(node->left->type);
@@ -583,6 +585,16 @@ static void gen_binary_operator(Node *node) {
     break;
   case ND_EXPR_BIT_AND:
     printf("  and %%rdi, %%rax\n");
+    break;
+  case ND_EXPR_SHIFT_LEFT:
+  case ND_EXPR_ASSIGN_SHIFT_LEFT:
+    printf("  mov %%rdi, %%rcx\n");
+    printf("  shl %%cl, %%rax\n");
+    break;
+  case ND_EXPR_SHIFT_RIGHT:
+  case ND_EXPR_ASSIGN_SHIFT_RIGHT:
+    printf("  mov %%rdi, %%rcx\n");
+    printf("  sar %%cl, %%rax\n");
     break;
   default:
     error_at(node->token, "unknown binary operator");

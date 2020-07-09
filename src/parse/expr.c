@@ -39,6 +39,10 @@ Node *assign(Token **rest, Token *token) {
     node = new_node_assign_div(left, assign(&token, op_token->next), op_token);
   else if (equal(token, "%="))
     node = new_node_assign_mod(left, assign(&token, op_token->next), op_token);
+  else if (equal(token, "<<="))
+    node = new_node_assign_shift_left(left, assign(&token, op_token->next), op_token);
+  else if (equal(token, ">>="))
+    node = new_node_assign_shift_right(left, assign(&token, op_token->next), op_token);
 
   *rest = token;
   return node;
@@ -123,22 +127,42 @@ Node *bit_and(Token **rest, Token *token) {
   return node;
 }
 
-// equality = relational ("==" relational | "!=" relational)*
+// equality = shift ("==" shift | "!=" shift)*
 Node *equality(Token **rest, Token *token) {
   parse_log("equality()");
-  Node *node = relational(&token, token);
+  Node *node = shift(&token, token);
   for(;;) {
     Token *op_token = token;
 
     if (equal(op_token, "==")){
-      node = new_node_equal(node, relational(&token, op_token->next), op_token);
+      node = new_node_equal(node, shift(&token, op_token->next), op_token);
       continue;
     }
     if (equal(op_token, "!=")) {
-      node = new_node_not_equal(node, relational(&token, op_token->next), op_token);
+      node = new_node_not_equal(node, shift(&token, op_token->next), op_token);
       continue;
     }
 
+    *rest = token;
+    return node;
+  }
+}
+
+// shift = relational (">>" relational | "<<" relational)*
+Node *shift(Token **rest, Token *token) {
+  parse_log("shift()");
+  Node *node = relational(&token, token);
+  for (;;) {
+    Token *op_token = token;
+
+    if (equal(op_token, "<<")) {
+      node = new_node_shift_left(node, relational(&token, op_token->next), op_token);
+      continue;
+    }
+    if (equal(op_token, ">>")) {
+      node = new_node_shift_right(node, relational(&token, op_token->next), op_token);
+      continue;
+    }
     *rest = token;
     return node;
   }

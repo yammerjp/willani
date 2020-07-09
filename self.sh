@@ -85,6 +85,7 @@ src/parse/var.c
 src/parse/stmt.c
 src/parse/expr.c
 src/preprocess.c
+src/parse/var_init.c
 EOS
 )
 # --- souce files compiled by gcc ---
@@ -93,7 +94,6 @@ EOS
 # src/error.c // variadic function
 # src/parse/read_type.c // struct assignment
 # src/parse/new_node.c // segmentation fault
-# src/parse/var_init.c // bit shift
 
 echo "$SELFHOST_FILES" | while read -r C_SOURCE
 do
