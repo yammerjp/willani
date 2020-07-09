@@ -124,6 +124,13 @@ Node *new_node_post_decrement(Node *left, Token *token) {
   return node;
 }
 
+//  ND_EXPR_TYPE_CAST     // (type)  ...
+Node *new_node_cast(Node *left, Type *type, Token *token) {
+  Node *node = new_node_expr(ND_EXPR_TYPE_CAST, type, token);
+  node->left = left;
+  return node;
+}
+
 
 //  ND_EXPR_ASSIGN,       // =
 Node *new_node_assign(Node *left, Node *right, Token *token) {

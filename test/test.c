@@ -474,6 +474,16 @@ int main() {
     100
   );
 
+  // type cast
+  assert("(int)8590066177", (int)8590066177, 131585);
+  assert("(char)8590066177", (char)8590066177, 1);
+  assert("(_Bool)1", (_Bool)1, 1);
+  assert("(_Bool)2", (_Bool)2, 1);
+  assert("(_Bool)(char)256", (_Bool)(char)256, 0);
+  assert("(long)1", (long)1, 1);
+  assert("(long)&*(int *)0", (long)&*(int *)0, 0);
+  assert("int x=5; long y=(long)&x; *(int*)y", ({ int x=5; long y=(long)&x; *(int*)y; }), 5);
+
   printf("\nOK\n");
   return 0;
 }

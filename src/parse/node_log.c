@@ -53,6 +53,7 @@ void print_node(FILE *file, Node *node) {
     case ND_EXPR_PRE_DEC:         fprintf(file, "-- ..."); break;
     case ND_EXPR_POST_INC:        fprintf(file, "... ++"); break;
     case ND_EXPR_POST_DEC:        fprintf(file, "... --"); break;
+    case ND_EXPR_TYPE_CAST:       fprintf(file, "(type) ..."); break;
     // dual operator
     case ND_EXPR_ASSIGN:          fprintf(file, "="); break;
     case ND_EXPR_ASSIGN_ADD:      fprintf(file, "+="); break;

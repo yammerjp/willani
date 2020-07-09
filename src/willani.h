@@ -146,6 +146,7 @@ typedef enum {
   ND_EXPR_PRE_DEC,      // -- ...
   ND_EXPR_POST_INC,     // ... ++
   ND_EXPR_POST_DEC,     // ... --
+  ND_EXPR_TYPE_CAST,    // (type)  ...
   // dual operator
   ND_EXPR_ASSIGN,       // =
   ND_EXPR_ASSIGN_ADD,   // +=

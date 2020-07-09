@@ -310,6 +310,27 @@ static void gen_stmt_var_init(Node *node) {
     printf("  movb $%d, -%d(%%rbp)\n", (node->var_inits[i])&0b00000000000000000000000011111111, node->var->offset - i); 
 }
 
+static void cast(Type *type) {
+  printf("  popq %%rax\n");
+  if (type->kind == TYPE_BOOL) {
+    printf("  cmp $0, %%rax\n");
+    printf("  setne %%al\n");
+  }
+  switch (type->size) {
+  case 1:
+    printf("  movsx %%al, %%rax\n");
+    break;
+  case 4:
+    printf("  movsx %%eax, %%rax\n");
+    break;
+  case 8:
+    break;
+  default:
+    error("faild to cast type to unknown type size");
+  }
+  printf("  pushq  %%rax\n");
+}
+
 static void gen(Node *node) {
   if (!node)
     return;
@@ -373,7 +394,7 @@ static void gen(Node *node) {
     if (node->type->kind == TYPE_LONG)
       printf("  pushq $%ld\n", node->value); // pushq constant
     else
-      printf("  pushq $%d\n", node->value); // pushq constant
+      printf("  pushq $%d\n", (int) node->value); // pushq constant
     break;
   case ND_EXPR_STRING:
     printf("  pushq $.LC%d\n", node->string->id);
@@ -478,6 +499,10 @@ static void gen(Node *node) {
     printf("  sub $%d, (%%rsp)\n", node->type->base ? node->type->base->size : 1);
     store(node->type);
     printf("  add $%d, (%%rsp)\n", node->type->base ? node->type->base->size : 1);
+    break;
+  case ND_EXPR_TYPE_CAST:
+    gen(node->left);
+    cast(node->type);
     break;
   default:
     // expect binary operator node

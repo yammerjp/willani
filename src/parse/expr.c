@@ -252,6 +252,12 @@ Node *unary(Token **rest, Token *token) {
     node = new_node_pre_increment(unary(&token, op_token->next), op_token);
   } else if (equal(op_token, "--")) {
     node = new_node_pre_decrement(unary(&token, op_token->next), op_token);
+  } else if (equal(op_token, "(") && is_type_tokens(op_token->next, DENY_STATIC, DENY_EXTERN, DENY_CONST)) {
+    Type *type = read_type(&token, op_token->next, DENY_STATIC, DENY_EXTERN, DENY_CONST);
+    type = type_ptr_suffix(&token, token, type);
+    if (!equal(token, ")"))
+      error_at(token, "expected ) of type cast");
+    node = new_node_cast(unary(&token, token->next), type, op_token->next);
   } else {
     node = primary(&token, token);
     node = postfix(&token, token ,node);
