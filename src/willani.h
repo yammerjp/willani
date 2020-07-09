@@ -128,7 +128,7 @@ struct Var {
   int offset;
   bool is_global;
   bool is_extern;
-  long *init_values;
+  char *init_values;
   int init_size;
 };
 
@@ -208,7 +208,7 @@ struct Node {
   int func_namelen;     // Used if kind is  ND_EXPR_FUNC_CALL
   Node *func_args;      // Used if kind is  ND_EXPR_FUNC_CALL
 
-  long *var_inits;      // Used if kind is ND_STMT_VAR_INIT
+  char *var_inits;      // Used if kind is ND_STMT_VAR_INIT
   int var_inits_size;  // Used if kind is ND_STMT_VAR_INIT
 
   Node *next;

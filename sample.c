@@ -1,4 +1,7 @@
-char hello_world[20] = "hello,world!";
+int hello_world[5] = {0xff01,4,3,2,1};
 int main() {
-  return hello_world[10] - 'd';
+  if (hello_world[0] == 0xff01)
+    return 1;
+  return 0;
+  return hello_world[0];
 }

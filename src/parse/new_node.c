@@ -351,7 +351,7 @@ Node *new_node_expr_stmt(Node *expr_node, Token *token) {
 }
 
 //  ND_STMT_VAR_INIT,     // initialize variable
-Node *new_node_var_init(Token *token, Var *var, long *var_inits, int var_inits_size) {
+Node *new_node_var_init(Token *token, Var *var, char *var_inits, int var_inits_size) {
   Node *node = new_node_stmt(ND_STMT_VAR_INIT, token);
   node->var = var;
   node->var_inits = var_inits;

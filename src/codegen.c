@@ -304,21 +304,10 @@ static void gen_log_and(Node *node) {
 }
 
 static void gen_stmt_var_init(Node *node) {
-  Type *arr_base_type = node->var->type;
-  while (arr_base_type->kind == TYPE_ARRAY)
-    arr_base_type = arr_base_type->base;
-  int cell_size = arr_base_type->size;
-
   if (node->var->is_global)
     error_at(node->token, "unsupported initialize global variable");
-    //printf("  mov $%.*s, %%rax\n", node->var->namelen, node->var->name);
-  for (int i=0; i < node->var_inits_size; i++) {
-    printf("  lea -%d(%%rbp), %%rax\n", node->var->offset - (i*cell_size));
-    printf("  pushq %%rax\n");            // pushq rbp - offset
-    printf("  pushq $%ld\n", node->var_inits[i]);
-    store(arr_base_type);
-    printf("  add $8, %%rsp\n");              // drop cond
-  }
+  for (int i =0; i < node->var_inits_size; i++)
+    printf("  movb $%d, -%d(%%rbp)\n", (node->var_inits[i])&0b00000000000000000000000011111111, node->var->offset - i); 
 }
 
 static void gen(Node *node) {
@@ -628,31 +617,13 @@ static void gen_gvars() {
 
     printf("%.*s:\n", var->namelen, var->name);
 
-    Type *base_type = var->type;
-    while (base_type->kind == TYPE_ARRAY)
-      base_type = base_type->base;
-
     if (!var->init_values) {
       printf("  .zero %d\n", var->type->size);
       continue;
     }
 
-    for (int i =0; i< var->init_size; i++) {
-      switch (base_type->size) {
-        case 1:
-          printf("  .byte 0x%lx\n", var->init_values[i]);
-          break;
-        case 4:
-          printf("  .long 0x%lx\n", var->init_values[i]);
-          break;
-        case 8:
-          printf("  .quad 0x%lx\n", var->init_values[i]);
-          break;
-        default :
-          fprintf(stderr, "size: %d\n", base_type->size);
-          error("unsupport global variable size without 1,4,8");
-      }
-    }
+    for (int i =0; i< var->init_size; i++)
+      printf("  .byte 0x%x\n", (var->init_values[i])&0b00000000000000000000000011111111);
   }
 }
 

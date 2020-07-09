@@ -64,7 +64,7 @@ Node *new_node_while(Node *cond, Node *then, Token *token);
 Node *new_node_for(Node *init, Node *cond, Node* increment, Node *then, Token *token);
 Node *new_node_return(Node *left, Token *token);
 Node *new_node_expr_stmt(Node *expr_node, Token *token);
-Node *new_node_var_init(Token *token, Var *var, long *var_inits, int var_inits_size);
+Node *new_node_var_init(Token *token, Var *var, char *var_inits, int var_inits_size);
 Node *new_node_continue(Token *token);
 Node *new_node_break(Token *token);
 Node *new_node_case(Token *token, int case_num);

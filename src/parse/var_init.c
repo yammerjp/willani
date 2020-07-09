@@ -1,19 +1,17 @@
 #include "parse.h"
 
-static Node *read_cells(Token **rest, Token *token, Type *type, long *values, int offset, Var *var);
-static Node *read_array(Token **rest, Token *token, Type *type, long *values, int offset, Var *var);
-static Node *read_cell(Token **rest, Token *token, long *values, int offset, Var *var);
-static void *read_array_string(Token **rest, Token *token, Type *type, long *values, int offset, Var *var);
+static Node *read_cells(Token **rest, Token *token, Type *type, char *values, int offset, Var *var);
+static Node *read_array(Token **rest, Token *token, Type *type, char *values, int offset, Var *var);
+static Node *read_cell(Token **rest, Token *token, Type *type, char *values, int offset, Var *var);
+static void *read_array_string(Token **rest, Token *token, Type *type, char *values, int offset, Var *var);
 
 // declare and initialize variable statement = type declarator type_suffix "=" read_var_init ";"
 // read_var_init                             = num | "{" read_var_init ("," read_var_init)* ","? "}"
 Node *read_var_init(Token **rest, Token *token, Var *var) {
   // measure size
-  int size = 1;
-  for (Type *ty = var->type; ty->kind == TYPE_ARRAY; ty = ty->base)
-    size *= ty->array_length;
+  int size = var->type->size;
 
-  long *values = calloc(size, sizeof(long));
+  char *values = calloc(size, sizeof(char));
 
   Node *runtime_inits = read_cells(rest, token, var->type, values, 0, var);
   if (var->is_global && runtime_inits)
@@ -27,21 +25,23 @@ Node *read_var_init(Token **rest, Token *token, Var *var) {
   return node;
 }
 
-static Node *read_cells(Token **rest, Token *token, Type *type, long *values, int offset, Var *var) {
+static Node *read_cells(Token **rest, Token *token, Type *type, char *values, int offset, Var *var) {
   if (type->kind == TYPE_ARRAY)
     return read_array(rest, token, type, values, offset, var);
   if (type->kind == TYPE_STRUCT)
     error_at(token, "unsupport struct initialization");
 
-  return read_cell(rest, token, values, offset, var);
+  return read_cell(rest, token, type, values, offset, var);
 }
 
-static Node *read_array(Token **rest, Token *token, Type *type, long *values, int offset, Var *var) {
+static Node *read_array(Token **rest, Token *token, Type *type, char *values, int offset, Var *var) {
   Node head = {};
   Node *tail = &head;
 
   // array row init by string
-  if (type->base->kind != TYPE_ARRAY && type->base->kind != TYPE_STRUCT && is_string_token(token)) {
+  if (is_string_token(token)) {
+    if (type->base->kind == TYPE_ARRAY || type->base->kind == TYPE_STRUCT)
+      error_at(token, "expected { of array or struct initialization");
     read_array_string(rest, token, type, values, offset, var);
     return NULL;
   }
@@ -51,9 +51,7 @@ static Node *read_array(Token **rest, Token *token, Type *type, long *values, in
     error_at(token, "expected { to initialize variable");
   token = token->next;
 
-  int cell_size = 1;
-  for (Type *ty = type->base; ty->kind == TYPE_ARRAY; ty = ty->base)
-    cell_size *= ty->array_length;
+  int cell_size = type->base->size;
 
   for (int i=0; i < type->array_length; i++) {
     if (equal(token, "}"))
@@ -76,16 +74,27 @@ static Node *read_array(Token **rest, Token *token, Type *type, long *values, in
   return head.next;
 }
 
-static Node *read_cell(Token **rest, Token *token, long *values, int offset, Var *var) {
+static Node *read_cell(Token **rest, Token *token, Type *type, char *values, int offset, Var *var) {
   if ( is_number_token(token)
     && (equal(token->next, "}") || equal(token->next, ";") || equal(token->next, ",")) ) {
+
+    int size = type->size;
+    long val = str_to_l(token->location, token->length);
     // array cell init by number
-    values[offset] = str_to_l(token->location, token->length);
+    for (int i=0; i < size; i++) {
+      values[offset+i] = val;
+      val >>= 8;
+    }
     *rest = token->next;
     return NULL;
   }
   if (var->is_global)
     error_at(token, "expected number token to initialize variable");
+
+  /*
+  if (!offset)
+    error_at(token, "unsupport array initialization with runtime-settled value");
+  */
 
   // array cell init by assign
   Node *left = new_node_var_specified(var, token);
@@ -97,12 +106,13 @@ static Node *read_cell(Token **rest, Token *token, long *values, int offset, Var
   return new_node_expr_stmt(new_node_assign(left, right, token), token);
 }
 
-static void *read_array_string(Token **rest, Token *token, Type *type, long *values, int offset, Var *var) {
+static void *read_array_string(Token **rest, Token *token, Type *type, char *values, int offset, Var *var) {
   String *string = new_string(token->location+1, token->length-2);
   if (type->array_length < string->length)
     error_at(token, "string token is too longer than array length");
+  int charactor_size = type->base->size;
 
   for (int i=0; i < string->length; i++)
-    values[offset+i] = (string->p)[i];
+    values[offset + (i * charactor_size)] = (string->p)[i];
   *rest = token->next;
 }
