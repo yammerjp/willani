@@ -12,3 +12,4 @@ core
 asm/**/*
 obj/**/*
 src_self/**/*
+ast.json

@@ -239,4 +239,9 @@ void parse_log_open();
 void parse_log_close();
 void parse_log(char *s);
 
+
+//======================================
+// ast.c
+void print_ast(Function *funcs);
+
 #endif
