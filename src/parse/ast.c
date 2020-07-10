@@ -1,8 +1,7 @@
 #include "parse.h"
 
-FILE *parse_logfile;
+static FILE *parse_logfile;
 
-static void print_log(char *fmt, ...);
 static void indent(int length);
 static void print_key(char *s);
 
@@ -25,12 +24,6 @@ static void print_ast_nodes(Node *node, int idt);
 static void print_ast_function(Function *func, int idt);
 static void print_ast_functions(Function *funcs, int idt);
 
-
-static void print_log(char *fmt, ...) {
-  va_list ap;
-  va_start(ap, fmt);
-  vfprintf(parse_logfile, fmt, ap);
-}
 
 // >> detect type reference loop
 typedef struct TypeStack TypeStack;
@@ -63,36 +56,36 @@ int find(Type *type) {
 
 static void indent(int length) {
   if (length)
-    print_log("%*s", length, "");
+    fprintf(parse_logfile, "%*s", length, "");
 }
 
 static void print_key(char *s) {
-  print_log("\"%s\": ", s);
+  fprintf(parse_logfile, "\"%s\": ", s);
 }
 
 static void print_ast_member(Member *member, int idt) {
-  print_log("{\n");
+  fprintf(parse_logfile, "{\n");
 
-  indent(idt+2); print_key("struct");   print_log("\"Member\",\n");
-  indent(idt+2); print_key("name");     print_log("\"%.*s\",\n", member->namelen, member->name);
-  indent(idt+2); print_key("offset");   print_log("%d,\n", member->offset);
+  indent(idt+2); print_key("struct");   fprintf(parse_logfile, "\"Member\",\n");
+  indent(idt+2); print_key("name");     fprintf(parse_logfile, "\"%.*s\",\n", member->namelen, member->name);
+  indent(idt+2); print_key("offset");   fprintf(parse_logfile, "%d,\n", member->offset);
   indent(idt+2); print_key("type");     print_ast_type(member->type, idt+2);
 
-  print_log("\n");
-  indent(idt); print_log("}");
+  fprintf(parse_logfile, "\n");
+  indent(idt); fprintf(parse_logfile, "}");
 }
 
 static void print_ast_members(Member *members, int idt) {
-  print_log("[");
+  fprintf(parse_logfile, "[");
   bool is_head = true;
   for (Member *mem = members; mem; mem = mem->next) {
-    print_log(is_head ? "\n" : ",\n");
+    fprintf(parse_logfile, is_head ? "\n" : ",\n");
     is_head = false;
 
     indent(idt+2); print_ast_member(mem, idt+2);
   }
-  print_log("\n");
-  indent(idt); print_log("]");
+  fprintf(parse_logfile, "\n");
+  indent(idt); fprintf(parse_logfile, "]");
 
 }
 
@@ -114,78 +107,78 @@ static char *type_kind_string(TypeKind kind) {
 static void print_ast_type(Type *type, int idt) {
   int loop_type_generation_diff = find(type);
   if (loop_type_generation_diff) {
-    print_log("{\n");
-    indent(idt+2); print_key("struct");           print_log("\"Type(Reference)\",\n");
-    indent(idt+2); print_key("generations_diff"); print_log("%d\n", loop_type_generation_diff);
-    indent(idt); print_log("}");
+    fprintf(parse_logfile, "{\n");
+    indent(idt+2); print_key("struct");           fprintf(parse_logfile, "\"Type(Reference)\",\n");
+    indent(idt+2); print_key("generations_diff"); fprintf(parse_logfile, "%d\n", loop_type_generation_diff);
+    indent(idt); fprintf(parse_logfile, "}");
     return;
   }
   push(type);
 
-  print_log("{\n");
+  fprintf(parse_logfile, "{\n");
 
-  indent(idt+2); print_key("struct");           print_log("\"Type\",\n");
-  indent(idt+2); print_key("kind");             print_log("\"%s\",\n", type_kind_string(type->kind));
-  indent(idt+2); print_key("size");             print_log("%d,\n", type->size);
-  indent(idt+2); print_key("array_length");     print_log("%d,\n", type->array_length);
+  indent(idt+2); print_key("struct");           fprintf(parse_logfile, "\"Type\",\n");
+  indent(idt+2); print_key("kind");             fprintf(parse_logfile, "\"%s\",\n", type_kind_string(type->kind));
+  indent(idt+2); print_key("size");             fprintf(parse_logfile, "%d,\n", type->size);
+  indent(idt+2); print_key("array_length");     fprintf(parse_logfile, "%d,\n", type->array_length);
 
-  indent(idt+2); print_key("is_static");        print_log(type->is_static ? "true,\n" : "false,\n");
-  indent(idt+2); print_key("is_extern");        print_log(type->is_extern ? "true,\n" : "false,\n");
-  indent(idt+2); print_key("is_const");         print_log(type->is_const ? "true,\n" : "false,\n");
-  indent(idt+2); print_key("undefined_member"); print_log(type->undefined_member ? "true" : "false");
+  indent(idt+2); print_key("is_static");        fprintf(parse_logfile, type->is_static ? "true,\n" : "false,\n");
+  indent(idt+2); print_key("is_extern");        fprintf(parse_logfile, type->is_extern ? "true,\n" : "false,\n");
+  indent(idt+2); print_key("is_const");         fprintf(parse_logfile, type->is_const ? "true,\n" : "false,\n");
+  indent(idt+2); print_key("undefined_member"); fprintf(parse_logfile, type->undefined_member ? "true" : "false");
 
   if (type->base) {
-    print_log(",\n");
+    fprintf(parse_logfile, ",\n");
     indent(idt+2); print_key("base");
       print_ast_type(type->base, idt+2);
   }
   if (type->members) {
-    print_log(",\n");
+    fprintf(parse_logfile, ",\n");
     indent(idt+2); print_key("base");
       print_ast_members(type->members, idt+2);
   }
 
-  print_log("\n");
-  indent(idt); print_log("}");
+  fprintf(parse_logfile, "\n");
+  indent(idt); fprintf(parse_logfile, "}");
 
   drop();
 }
 
 static void print_ast_var(Var *var, int idt) {
-  print_log("{\n");
+  fprintf(parse_logfile, "{\n");
 
-  indent(idt+2); print_key("struct");     print_log("\"Var\",\n");
-  indent(idt+2); print_key("name");       print_log("\"%.*s\",\n", var->namelen, var->name);
-  indent(idt+2); print_key("offset");     print_log("%d,\n", var->offset);
-  indent(idt+2); print_key("is_global");  print_log(var->is_global ? "true,\n" : "false,\n");
-  indent(idt+2); print_key("is_extern");  print_log(var->is_extern ? "true,\n" : "false,\n");
-  indent(idt+2); print_key("init_size");  print_log("%d", var->init_size);
+  indent(idt+2); print_key("struct");     fprintf(parse_logfile, "\"Var\",\n");
+  indent(idt+2); print_key("name");       fprintf(parse_logfile, "\"%.*s\",\n", var->namelen, var->name);
+  indent(idt+2); print_key("offset");     fprintf(parse_logfile, "%d,\n", var->offset);
+  indent(idt+2); print_key("is_global");  fprintf(parse_logfile, var->is_global ? "true,\n" : "false,\n");
+  indent(idt+2); print_key("is_extern");  fprintf(parse_logfile, var->is_extern ? "true,\n" : "false,\n");
+  indent(idt+2); print_key("init_size");  fprintf(parse_logfile, "%d", var->init_size);
   if (var->init_size) {
-    print_log(",\n");
-    indent(idt+2); print_key("init_values"); print_log("[");
+    fprintf(parse_logfile, ",\n");
+    indent(idt+2); print_key("init_values"); fprintf(parse_logfile, "[");
     for (int i=0; i < var->init_size; i++)
-      print_log("%s %ld", i==0 ? "" : ",", var->init_values[i]);
-    print_log(" ]");
+      fprintf(parse_logfile, "%s %d", i==0 ? "" : ",", var->init_values[i]);
+    fprintf(parse_logfile, " ]");
   }
-  print_log(",\n");
+  fprintf(parse_logfile, ",\n");
   indent(idt+2); print_key("type");
     print_ast_type(var->type, idt+2);
 
-  print_log("\n");
-  indent(idt); print_log("}");
+  fprintf(parse_logfile, "\n");
+  indent(idt); fprintf(parse_logfile, "}");
 }
 
 static void print_ast_vars(Var *vars, int idt) {
-  print_log("[");
+  fprintf(parse_logfile, "[");
   bool is_head = true;
   for (Var *var = vars; var; var=var->next) {
-    print_log(is_head ? "\n" : ",\n");
+    fprintf(parse_logfile, is_head ? "\n" : ",\n");
     is_head = false;
 
     indent(idt+2); print_ast_var(var, idt+2);
   }
-  print_log("\n");
-  indent(idt); print_log("]");
+  fprintf(parse_logfile, "\n");
+  indent(idt); fprintf(parse_logfile, "]");
 }
 static char *node_kind_string(NodeKind kind) {
   switch (kind) {
@@ -267,186 +260,186 @@ static char *token_kind_string(TokenKind kind) {
 }
 
 static void print_ast_token(Token *token, int idt) {
-  print_log("{ \n");
+  fprintf(parse_logfile, "{ \n");
 
-  indent(idt+2); print_key("struct");           print_log("\"Token\", \n");
-  indent(idt+2); print_key("kind");             print_log("\"%s\", \n", token_kind_string(token->kind));
+  indent(idt+2); print_key("struct");           fprintf(parse_logfile, "\"Token\", \n");
+  indent(idt+2); print_key("kind");             fprintf(parse_logfile, "\"%s\", \n", token_kind_string(token->kind));
 
   indent(idt+2); print_key("string");
   if (token->kind == TK_STRING)
-    print_log("\"\\%.*s\\\"\", \n", token->length -1, token->location);
+    fprintf(parse_logfile, "\"\\%.*s\\\"\", \n", token->length -1, token->location);
   else
-    print_log("\"%.*s\", \n", token->length, token->location);
+    fprintf(parse_logfile, "\"%.*s\", \n", token->length, token->location);
 
-  indent(idt+2); print_key("filename");         print_log("\"%s\", \n", token->filename);
-  indent(idt+2); print_key("prev_is_space");    print_log(token->prev_is_space ? "true" : "false");
+  indent(idt+2); print_key("filename");         fprintf(parse_logfile, "\"%s\", \n", token->filename);
+  indent(idt+2); print_key("prev_is_space");    fprintf(parse_logfile, token->prev_is_space ? "true" : "false");
 
-  print_log("\n");
+  fprintf(parse_logfile, "\n");
   indent(idt);
-  print_log("}");
+  fprintf(parse_logfile, "}");
 }
 
 static void print_ast_node(Node *node, int idt) {
-  print_log("{\n");
+  fprintf(parse_logfile, "{\n");
 
-  indent(idt+2); print_key("struct");     print_log("\"Node\",\n");
-  indent(idt+2); print_key("kind");       print_log("\"%s\",\n", node_kind_string(node->kind));
-  indent(idt+2); print_key("token");      print_ast_token(node->token, idt+2); print_log(",\n");
-  indent(idt+2); print_key("value");      print_log("%ld", node->value);
+  indent(idt+2); print_key("struct");     fprintf(parse_logfile, "\"Node\",\n");
+  indent(idt+2); print_key("kind");       fprintf(parse_logfile, "\"%s\",\n", node_kind_string(node->kind));
+  indent(idt+2); print_key("token");      print_ast_token(node->token, idt+2); fprintf(parse_logfile, ",\n");
+  indent(idt+2); print_key("value");      fprintf(parse_logfile, "%ld", node->value);
 
   if (node->var_inits_size) {
-    print_log(",\n");
-    indent(idt+2); print_key("var_inits"); print_log("[");
+    fprintf(parse_logfile, ",\n");
+    indent(idt+2); print_key("var_inits"); fprintf(parse_logfile, "[");
     bool is_head = true;
     for (int i=0; i < node->var_inits_size; i++) {
-      print_log(is_head ? "" : ",");
+      fprintf(parse_logfile, is_head ? "" : ",");
       is_head = false;
-      print_log(" %ld", node->var_inits[i]);
+      fprintf(parse_logfile, " %d", node->var_inits[i]);
     }
-    print_log(" ]");
+    fprintf(parse_logfile, " ]");
   }
 
   if (node->string) {
-    print_log(",\n");
-    indent(idt+2); print_key("string");       print_log("%.*s", node->token->length, node->token->location);
+    fprintf(parse_logfile, ",\n");
+    indent(idt+2); print_key("string");       fprintf(parse_logfile, "%.*s", node->token->length, node->token->location);
   }
   if (node->kind == ND_STMT_SWITCH) {
-    print_log(",\n");
-    indent(idt+2); print_key("have_default"); print_log(node->have_default ? "true" : "false");
+    fprintf(parse_logfile, ",\n");
+    indent(idt+2); print_key("have_default"); fprintf(parse_logfile, node->have_default ? "true" : "false");
   }
 
   if (node->kind == ND_LABEL_CASE) {
-    print_log(",\n");
-    indent(idt+2); print_key("case_num");       print_log("%d", node->case_num);
+    fprintf(parse_logfile, ",\n");
+    indent(idt+2); print_key("case_num");       fprintf(parse_logfile, "%d", node->case_num);
   }
 
   if (node->var) {
-    print_log(",\n");
+    fprintf(parse_logfile, ",\n");
     indent(idt+2); print_key("var");
     print_ast_vars(node->var, idt+2);
   }
   if (node->member) {
-    print_log(",\n");
+    fprintf(parse_logfile, ",\n");
     indent(idt+2); print_key("member");
     print_ast_member(node->member, idt+2);
   }
   if (node->type) {
-    print_log(",\n");
+    fprintf(parse_logfile, ",\n");
     indent(idt+2); print_key("type");
     print_ast_type(node->type, idt+2);
   }
 
   if (node->func_name) {
-    print_log(",\n");
-    indent(idt+2); print_key("func_name");       print_log("\"%.*s\"", node->func_namelen, node->func_name);
+    fprintf(parse_logfile, ",\n");
+    indent(idt+2); print_key("func_name");       fprintf(parse_logfile, "\"%.*s\"", node->func_namelen, node->func_name);
   }
   if (node->func_args) {
-    print_log(",\n");
+    fprintf(parse_logfile, ",\n");
     indent(idt+2); print_key("func_args");
     print_ast_nodes(node->func_args, idt+2);
   }
 
   if (node->left) {
-    print_log(",\n");
+    fprintf(parse_logfile, ",\n");
     indent(idt+2); print_key("left");
     print_ast_node(node->left, idt+2);
   }
   if (node->right) {
-    print_log(",\n");
+    fprintf(parse_logfile, ",\n");
     indent(idt+2); print_key("right");
     print_ast_node(node->right, idt+2);
   }
   if (node->cond) {
-    print_log(",\n");
+    fprintf(parse_logfile, ",\n");
     indent(idt+2); print_key("cond");
     print_ast_node(node->cond, idt+2);
   }
   if (node->then) {
-    print_log(",\n");
+    fprintf(parse_logfile, ",\n");
     indent(idt+2); print_key("then");
     print_ast_node(node->then, idt+2);
   }
   if (node->els) {
-    print_log(",\n");
+    fprintf(parse_logfile, ",\n");
     indent(idt+2); print_key("els");
     print_ast_node(node->els, idt+2);
   }
   if (node->init) {
-    print_log(",\n");
+    fprintf(parse_logfile, ",\n");
     indent(idt+2); print_key("init");
     print_ast_node(node->init, idt+2);
   }
   if (node->increment) {
-    print_log(",\n");
+    fprintf(parse_logfile, ",\n");
     indent(idt+2); print_key("increment");
     print_ast_node(node->increment, idt+2);
   }
   if (node->body) {
-    print_log(",\n");
+    fprintf(parse_logfile, ",\n");
     indent(idt+2); print_key("body");
     print_ast_nodes(node->body, idt+2);
   }
   if (node->cases) {
-    print_log(",\n");
+    fprintf(parse_logfile, ",\n");
     indent(idt+2); print_key("cases");
     print_ast_nodes(node->cases, idt+2);
   }
 
-  print_log("\n");
-  indent(idt); print_log("}");
+  fprintf(parse_logfile, "\n");
+  indent(idt); fprintf(parse_logfile, "}");
 }
 
 static void print_ast_nodes(Node *nodes, int idt) {
-  print_log("[");
+  fprintf(parse_logfile, "[");
   bool is_head = true;
   for (Node *node = nodes; node; node=node->next) {
-    print_log(is_head ? "\n" : ",\n");
+    fprintf(parse_logfile, is_head ? "\n" : ",\n");
     is_head = false;
 
     indent(idt+2); print_ast_node(node, idt+2);
   }
-  print_log("\n");
-  indent(idt); print_log("]");
+  fprintf(parse_logfile, "\n");
+  indent(idt); fprintf(parse_logfile, "]");
 }
 
 static void print_ast_function(Function *func, int idt) {
-  print_log("{\n");
+  fprintf(parse_logfile, "{\n");
 
-  indent(idt+2); print_key("struct");     print_log("\"Function\",\n");
-  indent(idt+2); print_key("name");       print_log("\"%.*s\",\n", func->namelen, func->name);
-  indent(idt+2); print_key("var_byte");   print_log("%d,\n", func->var_byte);
-  indent(idt+2); print_key("definition"); print_log(func->definition ? "true,\n" : "false,\n");
-  indent(idt+2); print_key("argc");       print_log("%d", func->argc);
+  indent(idt+2); print_key("struct");     fprintf(parse_logfile, "\"Function\",\n");
+  indent(idt+2); print_key("name");       fprintf(parse_logfile, "\"%.*s\",\n", func->namelen, func->name);
+  indent(idt+2); print_key("var_byte");   fprintf(parse_logfile, "%d,\n", func->var_byte);
+  indent(idt+2); print_key("definition"); fprintf(parse_logfile, func->definition ? "true,\n" : "false,\n");
+  indent(idt+2); print_key("argc");       fprintf(parse_logfile, "%d", func->argc);
   if (func->argc) {
-    print_log(",\n");
+    fprintf(parse_logfile, ",\n");
     indent(idt+2); print_key("args");
     print_ast_vars(func->args, idt+2);
   }
-  print_log(",\n");
+  fprintf(parse_logfile, ",\n");
   indent(idt+2); print_key("type");
   print_ast_type(func->type, idt+2);
 
   if (func->node) {
-    print_log(",\n");
+    fprintf(parse_logfile, ",\n");
     indent(idt+2); print_key("node");
     print_ast_node(func->node, idt+2);
   }
 
-  print_log("\n");
-  indent(idt); print_log("}");
+  fprintf(parse_logfile, "\n");
+  indent(idt); fprintf(parse_logfile, "}");
 }
 
 static void print_ast_functions(Function *funcs, int idt) {
-  print_log("[");
+  fprintf(parse_logfile, "[");
   bool is_head = true;
   for (Function *func = funcs; func; func = func->next) {
-    print_log(is_head ? "\n" : ",\n");
+    fprintf(parse_logfile, is_head ? "\n" : ",\n");
     is_head = false;
 
     indent(idt+2); print_ast_function(func, idt+2);
   }
-  print_log("\n");
-  indent(idt); print_log("]\n");
+  fprintf(parse_logfile, "\n");
+  indent(idt); fprintf(parse_logfile, "]\n");
 }
 
 void print_ast(Function *funcs) {

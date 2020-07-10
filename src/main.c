@@ -21,6 +21,10 @@ bool find_strs(char *target, char* str1, char* str2) {
     return true;
   return false;
 }
+void usage(char *argv0) {
+  fprintf(stderr, " Usage: %s inputfile -o outputfile", argv0);
+  exit(1);
+}
 
 void read_args(int argc, char **argv) {
   for (int i=1; i < argc; i++) {
@@ -29,7 +33,7 @@ void read_args(int argc, char **argv) {
     }
     if (find_strs(argv[i], "-o", "--output")) {
       if (++i >= argc)
-        error("Usage: %s inputfile -o outputfile", argv[0]);
+        usage(argv[0]);
       output_filename = argv[i];
       continue;
     }
@@ -53,8 +57,10 @@ void read_args(int argc, char **argv) {
       is_printing_parse_log = true;
       continue;
     }
-    if (argv[i][0] == '-')
-      error("unknown option: %s", argv[i]);
+    if (argv[i][0] == '-') {
+      fprintf(stderr, "unknown option: %s", argv[i]);
+      exit(1);
+    }
 
     if (input_filename != NULL)
       error("duplicated input files");
@@ -63,7 +69,7 @@ void read_args(int argc, char **argv) {
   }
 
   if (!output_filename || !input_filename)
-    error("Usage: %s inputfile -o outputfile", argv[0]);
+    usage(argv[0]);
 }
 
 int main(int argc, char **argv) {

@@ -17,10 +17,7 @@ void error_at(Token *token, char *msg) {
   exit(1);
 }
 
-void error(char *fmt, ...) {
-  va_list ap;
-  va_start(ap, fmt);
-  vfprintf(stderr, fmt, ap);
-  fprintf(stderr, "\n");
+void error(char *p) {
+  fprintf(stderr, "%s\n", p);
   exit(1);
 }

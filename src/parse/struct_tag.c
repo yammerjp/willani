@@ -2,8 +2,10 @@
 
 void new_stag(char *name, int namelen, Type *type) {
   for (StructTag *stag = now_scope->stags; stag; stag = stag->next) {
-    if (namelen == stag->namelen && !strncmp(name, stag->name, namelen))
-      error("define a struct tag is conflicted: %.*s", namelen, name);
+    if (namelen == stag->namelen && !strncmp(name, stag->name, namelen)) {
+      fprintf(stderr, "tag name:%.*s", namelen, name);
+      error("define a struct tag is conflicted");
+    }
   }
 
   StructTag *stag = calloc(1, sizeof(StructTag));

@@ -264,7 +264,7 @@ void code_generate(char *filename);
 //======================================
 // error.c
 void error_at(Token *token, char *msg);
-void error(char *fmt, ...);
+void error(char *p);
 
 
 //======================================

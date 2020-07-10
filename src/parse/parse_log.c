@@ -1,6 +1,6 @@
 #include "parse.h"
 
-FILE *parse_logfile;
+static FILE *parse_logfile;
 
 void parse_log_open() {
   if (!is_printing_parse_log)
