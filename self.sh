@@ -11,24 +11,13 @@ make clean
 make
 
 # ==========================================================================
-# Create 1.5th generation compiler
+# Create 2nd generation compiler
+# Patch and Compile souce files by willani
 # ==========================================================================
-echo -e "\nCreate 1.5th generation compiler\n"
+echo -e "\nCreate 2nd generation compiler\n"
 mkdir -p asm
 mkdir -p src_self
 
-# Compile souce files by gcc
-# ==========================================================================
-
-echo -e "\nCompile souce files by gcc\n"
-find src -type f | grep -E '*\.c' | while read -r C_SOURCE
-do
-  ASM=$(echo "$C_SOURCE" | sed 's#^src/parse/#asm/#g' | sed 's#^src/#asm/#g' | sed 's#c$#s#g')
-  gcc "$C_SOURCE" -S -o "$ASM"
-done
-
-# Patch and Compile souce files by willani
-# ==========================================================================
 echo -e "\nPatch and Compile souce files by willani\n"
 
 # header
@@ -63,7 +52,6 @@ EOS
 
 cat src/willani.h \
   | grep -v -E '^#' \
-  | sed -e 's/void error(char \*fmt, \.\.\.)/void error()/g' \
   >> src_self/willani.h
 
 cat src_self/willani.h > src_self/parse.h
@@ -72,37 +60,7 @@ cat src/parse/parse.h \
   >> src_self/parse.h
 
 # source
-SELFHOST_FILES=$(cat << EOS
-src/main.c
-src/str_to_l.c
-src/tokenize_log.c
-src/type.c
-src/tokenize.c
-src/codegen.c
-src/parse/enum.c
-src/parse/function.c
-src/parse/node_log.c
-src/parse/parse.c
-src/parse/parse_log.c
-src/parse/scope.c
-src/parse/strings.c
-src/parse/struct_tag.c
-src/parse/typedef.c
-src/parse/var.c
-src/parse/stmt.c
-src/parse/expr.c
-src/preprocess.c
-src/parse/var_init.c
-src/parse/new_node.c
-src/parse/read_type.c
-src/read_file.c
-EOS
-)
-# --- souce files compiled by gcc ---
-# path // why it cannot compile
-# src/error.c // variadic function
-
-echo "$SELFHOST_FILES" | while read -r C_SOURCE
+find src -type f | grep -E '*\.c' | while read -r C_SOURCE
 do
 
 C_OVERWRITED=$(echo "$C_SOURCE" | sed 's#^src/parse/#src_self/#g' | sed 's#^src/#src_self/#g')
