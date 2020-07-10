@@ -248,6 +248,18 @@ Type *type_ptr_suffix(Token **rest, Token *token, Type *type) {
   return type;
 }
 
+void cpy(Type *type_dst, Type *type_src) {
+  type_dst->kind = type_src->kind;
+  type_dst->size = type_src->size;
+  type_dst->base = type_src->base;
+  type_dst->array_length = type_src->array_length;
+  type_dst->members = type_src->members;
+  type_dst->is_static = type_src->is_static;
+  type_dst->is_extern = type_src->is_extern;
+  type_dst->is_const = type_src->is_const;
+  type_dst->undefined_member = type_src->undefined_member;
+}
+
 Type *declarator(Token **rest, Token *token, Type *type, char **namep, int *namelenp, AllowOmitLengthOrNot aolon) {
   type = type_ptr_suffix(&token, token, type);
 
@@ -256,7 +268,8 @@ Type *declarator(Token **rest, Token *token, Type *type, char **namep, int *name
     Type *new_type = declarator(&token, token->next, placeholder, namep, namelenp, DENY_OMIT_LENGTH);
     if (!equal(token, ")"))
       error_at(token, "expected ) of nested type");
-    *placeholder = *type_suffix(rest, token->next, type, DENY_OMIT_LENGTH);
+//    *placeholder = *type_suffix(rest, token->next, type, DENY_OMIT_LENGTH);
+     cpy(placeholder,type_suffix(rest, token->next, type, DENY_OMIT_LENGTH));
     return new_type;
   }
   if (!is_identifer_token(token))

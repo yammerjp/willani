@@ -88,13 +88,13 @@ src/parse/expr.c
 src/preprocess.c
 src/parse/var_init.c
 src/parse/new_node.c
+src/parse/read_type.c
 EOS
 )
 # --- souce files compiled by gcc ---
 # path // why it cannot compile
 # src/read_file.c // errno
 # src/error.c // variadic function
-# src/parse/read_type.c // struct assignment
 
 echo "$SELFHOST_FILES" | while read -r C_SOURCE
 do
