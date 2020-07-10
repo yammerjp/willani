@@ -4,6 +4,7 @@ char *filename;
 char *user_input;
 Function *functions;
 int is_printing_ast = false;
+int is_printing_asm_debug = false;
 
 int main(int argc, char **argv) {
   char *input_filename = NULL;
@@ -23,11 +24,17 @@ int main(int argc, char **argv) {
       is_printing_ast = true;
       continue;
     }
+    if (len==2 && !strncmp("-d", argv[i], 2)
+     || len==7 && !strncmp("--debug", argv[i], 7)) {
+      is_printing_asm_debug = true;
+      continue;
+    }
     if (input_filename != NULL)
       error("duplicated input files");
     input_filename = argv[i];
     filename = argv[i];
   }
+
   if (!output_filename || !input_filename)
     error("Usage: %s inputfile -o outputfile", argv[0]);
 

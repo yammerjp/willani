@@ -338,7 +338,10 @@ static void gen(Node *node) {
     return;
 
   // for debug
-  fprintf(file, "  # >>> "); print_node(file, node);
+  if (is_printing_asm_debug) {
+    fprintf(file, "  # >>> ");
+    print_node(file, node);
+  }
 
   switch (node->kind) {
   // statements
@@ -516,7 +519,10 @@ static void gen(Node *node) {
   }
 
   // for debug
-  fprintf(file, "  # <<< "); print_node(file, node);
+  if (is_printing_asm_debug) {
+    fprintf(file, "  # <<< ");
+    print_node(file, node);
+  }
 }
 
 static void gen_binary_operator(Node *node) {

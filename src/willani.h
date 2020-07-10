@@ -273,6 +273,7 @@ extern char *filename;
 extern char *user_input;
 extern Function *functions;
 extern int is_printing_ast;
+extern int is_printing_asm_debug;
 
 
 //======================================
