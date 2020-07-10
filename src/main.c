@@ -11,7 +11,8 @@ int main(int argc, char **argv) {
 
   for (int i=1; i < argc; i++) {
     int len = strlen(argv[i]);
-    if (len==2 && !strncmp("-o", argv[i], 2)) {
+    if (len==2 && !strncmp("-o", argv[i], 2)
+     || len==8 && !strncmp("--output", argv[i], 8)) {
       if (++i >= argc)
         error("Usage: %s inputfile -o outputfile", argv[0]);
       output_filename = argv[i];
