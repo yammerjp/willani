@@ -5,6 +5,7 @@ char *user_input;
 Function *functions;
 int is_printing_ast = false;
 int is_printing_asm_debug = false;
+int is_printing_tokenize_log = false;
 
 int main(int argc, char **argv) {
   char *input_filename = NULL;
@@ -27,6 +28,11 @@ int main(int argc, char **argv) {
     if (len==2 && !strncmp("-d", argv[i], 2)
      || len==7 && !strncmp("--debug", argv[i], 7)) {
       is_printing_asm_debug = true;
+      continue;
+    }
+    if (len==3 && !strncmp("-tl", argv[i], 3)
+     || len==14 && !strncmp("--tokenize-log", argv[i], 14)) {
+      is_printing_tokenize_log = true;
       continue;
     }
     if (input_filename != NULL)

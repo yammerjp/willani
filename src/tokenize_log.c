@@ -18,16 +18,25 @@ static char *token_kind_str(Token *token) {
 
 
 void tokenize_log_open() {
+  if (!is_printing_tokenize_log)
+    return;
+
   tokenize_log_file = fopen("tokenize.log","w");
   if (tokenize_log_file == NULL)
     error("fail to open tokenize.log");
 }
 
 void tokenize_log_close() {
+  if (!is_printing_tokenize_log)
+    return;
+
   fclose(tokenize_log_file);
 }
 
 void tokenize_log(Token *token) {
+  if (!is_printing_tokenize_log)
+    return;
+
   fprintf(tokenize_log_file, "%s, ", token_kind_str(token));
   fprintf(tokenize_log_file, "%.*s\n",token->length ,token->location);
 }
