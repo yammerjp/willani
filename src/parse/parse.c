@@ -76,7 +76,8 @@ void *program(Token *token) {
 
   parse_log_close();
   node_log();
-  print_ast(functions);
+  if (is_printing_ast)
+    print_ast(functions);
 }
 
 static void read_new_gvar(Token **rest, Token *token, Type *type_without_suffix, char *name, int namelen) {

@@ -3,6 +3,7 @@
 char *filename;
 char *user_input;
 Function *functions;
+int is_printing_ast = false;
 
 int main(int argc, char **argv) {
   char *input_filename = NULL;
@@ -14,6 +15,11 @@ int main(int argc, char **argv) {
       if (++i >= argc)
         error("Usage: %s inputfile -o outputfile", argv[0]);
       output_filename = argv[i];
+      continue;
+    }
+    if (len==2 && !strncmp("-a", argv[i], 2)
+     || len==5 && !strncmp("--ast", argv[i], 5)) {
+      is_printing_ast = true;
       continue;
     }
     if (input_filename != NULL)

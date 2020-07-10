@@ -272,6 +272,7 @@ void error(char *fmt, ...);
 extern char *filename;
 extern char *user_input;
 extern Function *functions;
+extern int is_printing_ast;
 
 
 //======================================
