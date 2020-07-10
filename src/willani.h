@@ -258,7 +258,7 @@ void print_node(FILE *file, Node *node);
 
 //======================================
 // gen.c
-void code_generate();
+void code_generate(char *filename);
 
 
 //======================================

@@ -10,7 +10,7 @@ $(OBJS): src/willani.h src/parse/parse.h
 test: willani
 	rm -f test-*
 	echo 'int static_fn() { return 5; }' | gcc -xc -c -o test-01.o -
-	./willani test/test.c > test-00.s
+	./willani test/test.c -o test-00.s
 	gcc -static test-00.s test-01.o -o test-00.out
 	./test-00.out
 	@echo 'test1 is finished!!'
@@ -20,12 +20,12 @@ test: willani
 	@echo 'test3 is finished!!'
 
 sample: willani
-	./willani sample.c > tmp.s
+	./willani sample.c -o tmp.s
 	gcc -static tmp.s -o tmp
 	-./tmp
 
 debug: willani
-	./willani sample.c > tmp.s
+	./willani sample.c -o tmp.s
 	gcc -g -static tmp.s -o tmp
 	gdb tmp
 

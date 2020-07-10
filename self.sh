@@ -111,8 +111,8 @@ cat "$C_SOURCE" \
   | grep -v -E '^#' \
   >> "$C_OVERWRITED"
 
-echo "./willani $C_OVERWRITED > $ASM"
-./willani "$C_OVERWRITED" > "$ASM"
+echo "./willani $C_OVERWRITED -o $ASM"
+./willani "$C_OVERWRITED" -o "$ASM"
 
 done
 

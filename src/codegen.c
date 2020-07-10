@@ -669,8 +669,11 @@ static void gen_gvars() {
   }
 }
 
-void code_generate() {
-  file = stdout;
+void code_generate(char *filename) {
+  file = fopen(filename,"w");
+  if (!file)
+    error("fail to open input file");
+ 
   // data sectioon
   fprintf(file, ".data\n");
   for (String *str = strings; str; str = str->next) {
@@ -698,4 +701,6 @@ void code_generate() {
       continue;
     gen_function(func);
   }
+
+  fclose(file);
 }
