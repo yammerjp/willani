@@ -9,12 +9,19 @@ int is_printing_tokenize_log = false;
 int is_printing_node_log = false;
 int is_printing_parse_log = false;
 
+static void help(char * argv0);
+
 int main(int argc, char **argv) {
   char *input_filename = NULL;
   char *output_filename = NULL;
 
   for (int i=1; i < argc; i++) {
     int len = strlen(argv[i]);
+    if (len==2 && !strncmp("-h", argv[i], 2)
+     || len==6 && !strncmp("--help", argv[i], 6)) {
+      help(argv[0]);
+    }
+
     if (len==2 && !strncmp("-o", argv[i], 2)
      || len==8 && !strncmp("--output", argv[i], 8)) {
       if (++i >= argc)
@@ -47,6 +54,8 @@ int main(int argc, char **argv) {
       is_printing_parse_log = true;
       continue;
     }
+    if (argv[i][0] == '-')
+      error("unknown option: %s", argv[i]);
     if (input_filename != NULL)
       error("duplicated input files");
     input_filename = argv[i];
@@ -66,4 +75,25 @@ int main(int argc, char **argv) {
   code_generate(output_filename);
 
   return 0;
+}
+
+static void help(char *argv0) {
+  fprintf(stderr, "Willani is a compiler for the C programming language.\n");
+  fprintf(stderr, "Willani output a text of assembly language of AT&T syntax\n\n");
+  fprintf(stderr, "Usage: %s [options] <file>\n", argv0);
+  fprintf(stderr, "  <file> : input file of C programming language\n");
+  fprintf(stderr, "Options\n");
+  fprintf(stderr, "  -o <file>\n");
+  fprintf(stderr, "  --output <file>  Place the output into <file>\n");
+  fprintf(stderr, "  -d\n");
+  fprintf(stderr, "  --debug          Output debug info into <file> (with using -o option)\n");
+  fprintf(stderr, "  -a\n");
+  fprintf(stderr, "  --ast            Output ast.json to print Abstruct Syntax Tree\n");
+  fprintf(stderr, "  -tl\n");
+  fprintf(stderr, "  --tokenize-log   Output tokenize.log to print tokenizing log\n");
+  fprintf(stderr, "  -nl\n");
+  fprintf(stderr, "  --node-log       Output node.log to print parsed node\n");
+  fprintf(stderr, "  -pl\n");
+  fprintf(stderr, "  --parse-log      Output parse.log to print parsing log\n");
+  exit(0);
 }

@@ -52,6 +52,7 @@ int printf();
 int fprintf();
 extern int stdout;
 extern int stderr;
+int exit();
 EOS
 
 cat src/willani.h \
