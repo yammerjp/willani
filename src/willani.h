@@ -275,7 +275,7 @@ extern Function *functions;
 extern int is_printing_ast;
 extern int is_printing_asm_debug;
 extern int is_printing_tokenize_log;
-
+extern int is_printing_node_log;
 
 //======================================
 // read_file.c

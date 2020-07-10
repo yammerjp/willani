@@ -6,6 +6,7 @@ Function *functions;
 int is_printing_ast = false;
 int is_printing_asm_debug = false;
 int is_printing_tokenize_log = false;
+int is_printing_node_log = false;
 
 int main(int argc, char **argv) {
   char *input_filename = NULL;
@@ -33,6 +34,11 @@ int main(int argc, char **argv) {
     if (len==3 && !strncmp("-tl", argv[i], 3)
      || len==14 && !strncmp("--tokenize-log", argv[i], 14)) {
       is_printing_tokenize_log = true;
+      continue;
+    }
+    if (len==3 && !strncmp("-nl", argv[i], 3)
+     || len==10 && !strncmp("--node-log", argv[i], 10)) {
+      is_printing_node_log = true;
       continue;
     }
     if (input_filename != NULL)

@@ -136,6 +136,9 @@ static void node_log_nodes(Node *node, int depth) {
 }
 
 void node_log() {
+  if (!is_printing_node_log)
+    return;
+
   node_logfile = fopen("node.log","w");
   if (!node_logfile)
     error("fail to open node.log");
