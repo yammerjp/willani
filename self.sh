@@ -53,6 +53,12 @@ int fprintf();
 extern int stdout;
 extern int stderr;
 int exit();
+#define SEEK_END 2
+#define SEEK_SET 0
+int fseek();
+typedef int size_t;
+int ftell();
+int fread();
 EOS
 
 cat src/willani.h \
@@ -89,11 +95,11 @@ src/preprocess.c
 src/parse/var_init.c
 src/parse/new_node.c
 src/parse/read_type.c
+src/read_file.c
 EOS
 )
 # --- souce files compiled by gcc ---
 # path // why it cannot compile
-# src/read_file.c // errno
 # src/error.c // variadic function
 
 echo "$SELFHOST_FILES" | while read -r C_SOURCE
