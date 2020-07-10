@@ -13,6 +13,7 @@ It is under development, and now, it can compile a subset of the C programming l
 $ git clone https://github.com/basd4g/willani.git
 $ cd willani
 $ make test   # Run test.
+$ ./self.sh # Build 3rd generation compiler
 ```
 
 ### macOS

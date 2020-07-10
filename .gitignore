@@ -5,11 +5,11 @@ tmp*
 test.s
 test-*
 a.out
-willani
+willani*
 *.log
 core
 .gdb_history
-asm/**/*
+asm*
 obj/**/*
 src_self/**/*
 ast.json
