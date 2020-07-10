@@ -109,7 +109,7 @@ void print_node(FILE *file, Node *node) {
   fprintf(file, ", token: %.*s", node->token->length, node->token->location);
   if (node->type) {
     fprintf(file, ", type: ");
-    print_type(node_logfile, node->type);
+    print_type(file, node->type);
   }
   fprintf(file, ")\n");
 }
