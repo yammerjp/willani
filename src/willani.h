@@ -258,6 +258,11 @@ void print_node(FILE *file, Node *node);
 
 
 //======================================
+// parse/ast.c
+void fprint_ast_token(FILE *file, Token *token, int idt);
+
+
+//======================================
 // gen.c
 void code_generate(char *filename);
 
@@ -272,6 +277,7 @@ void error(char *p);
 // main.c
 extern Function *functions;
 extern int is_printing_ast;
+extern int is_printing_token;
 extern int is_printing_asm_debug;
 extern int is_printing_tokenize_log;
 extern int is_printing_node_log;
@@ -290,5 +296,10 @@ struct SourceFile {
 //======================================
 // preprocess.c
 Token *preprocess(Token *token);
+
+
+//======================================
+// token_json.c
+void token_json_log(Token *token);
 
 #endif

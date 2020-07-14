@@ -54,13 +54,20 @@ int find(Type *type) {
 }
 // << detect type reference loop
 
-static void indent(int length) {
+static void findent(FILE *file, int length) {
   if (length)
-    fprintf(parse_logfile, "%*s", length, "");
+    fprintf(file, "%*s", length, "");
 }
 
+static void indent(int length) {
+  findent(parse_logfile, length);
+}
+
+static void fprint_key(FILE *file, char *s) {
+  fprintf(file, "\"%s\": ", s);
+}
 static void print_key(char *s) {
-  fprintf(parse_logfile, "\"%s\": ", s);
+  fprint_key(parse_logfile, s);
 }
 
 static void print_ast_member(Member *member, int idt) {
@@ -260,23 +267,29 @@ static char *token_kind_string(TokenKind kind) {
 }
 
 static void print_ast_token(Token *token, int idt) {
-  fprintf(parse_logfile, "{ \n");
+  fprint_ast_token(parse_logfile, token, idt);
+}
 
-  indent(idt+2); print_key("struct");           fprintf(parse_logfile, "\"Token\", \n");
-  indent(idt+2); print_key("kind");             fprintf(parse_logfile, "\"%s\", \n", token_kind_string(token->kind));
+void fprint_ast_token(FILE *file, Token *token, int idt) {
+  fprintf(file, "{ \n");
 
-  indent(idt+2); print_key("string");
+  findent(file, idt+2); fprint_key(file, "struct");           fprintf(file, "\"Token\", \n");
+  findent(file, idt+2); fprint_key(file, "kind");             fprintf(file, "\"%s\", \n", token_kind_string(token->kind));
+
+  findent(file, idt+2); fprint_key(file, "string");
   if (token->kind == TK_STRING)
-    fprintf(parse_logfile, "\"\\%.*s\\\"\", \n", token->length -1, token->location);
+    fprintf(file, "\"\\%.*s\\\"\", \n", token->length -1, token->location);
   else
-    fprintf(parse_logfile, "\"%.*s\", \n", token->length, token->location);
+    fprintf(file, "\"%.*s\", \n", token->length, token->location);
 
-  indent(idt+2); print_key("filename");         fprintf(parse_logfile, "\"%s\", \n", token->file->path);
-  indent(idt+2); print_key("prev_is_space");    fprintf(parse_logfile, token->prev_is_space ? "true" : "false");
+  if (!token->file)
+    error("token->file is NULL");
+  findent(file, idt+2); fprint_key(file, "filename");         fprintf(file, "\"%s\", \n", token->file->path);
+  findent(file, idt+2); fprint_key(file, "prev_is_space");    fprintf(file, token->prev_is_space ? "true" : "false");
 
-  fprintf(parse_logfile, "\n");
-  indent(idt);
-  fprintf(parse_logfile, "}");
+  fprintf(file, "\n");
+  findent(file, idt);
+  fprintf(file, "}");
 }
 
 static void print_ast_node(Node *node, int idt) {

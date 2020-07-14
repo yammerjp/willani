@@ -2,6 +2,7 @@
 
 Function *functions;
 int is_printing_ast = false;
+int is_printing_token = false;
 int is_printing_asm_debug = false;
 int is_printing_tokenize_log = false;
 int is_printing_node_log = false;
@@ -35,8 +36,12 @@ void read_args(int argc, char **argv) {
       output_filename = argv[i];
       continue;
     }
-    if (find_strs(argv[i], "-a", "--ast")) {
+    if (find_strs(argv[i], "-aj", "--ast-json")) {
       is_printing_ast = true;
+      continue;
+    }
+    if (find_strs(argv[i], "-tj", "--token-json")) {
+      is_printing_token = true;
       continue;
     }
     if (find_strs(argv[i], "-d", "--debug")) {
@@ -77,6 +82,7 @@ int main(int argc, char **argv) {
   Token *token = tokenize(sf);
   token = preprocess(token);
 
+  token_json_log(token);
   // parse
   program(token);
 

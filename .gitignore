@@ -13,3 +13,4 @@ asm*
 obj/**/*
 src_self/**/*
 ast.json
+token.json
