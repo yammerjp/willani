@@ -1,9 +1,5 @@
 #include "willani.h"
 
-void tokenize_log_open();
-void tokenize_log_close();
-void tokenize_log(Token *token);
-
 SourceFile *now_loading_sf = NULL;
 
 // ========== for debug ==========
@@ -234,8 +230,6 @@ Token *tokenize(SourceFile *sf) {
   Token head = {};
   Token *current = &head;
 
-  // for debug
-  tokenize_log_open();
 
   bool is_line_head = true;
   bool is_preprocess_line = false;
@@ -334,9 +328,6 @@ Token *tokenize(SourceFile *sf) {
   }
 
   new_token(TK_EOF, current, p, 0, prev_is_space);
-
-  // for debug
-  tokenize_log_close();
 
   return head.next;
 }

@@ -74,6 +74,11 @@ int get_line_number(char *line_head, SourceFile *sf);
 
 
 //======================================
+// tokenize_log.c
+void tokenize_log_open();
+void tokenize_log_close();
+void tokenize_log(Token *token);
+//======================================
 // type.c
 typedef enum {
   TYPE_VOID,

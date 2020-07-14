@@ -78,11 +78,18 @@ int main(int argc, char **argv) {
   // read commandline arguments and flag options
   read_args(argc, argv);
 
+  // for debug
+  tokenize_log_open();
+
   SourceFile *sf = read_file(input_filename);
   Token *token = tokenize(sf);
   token = preprocess(token);
 
+  // for debug
+  tokenize_log_close();
+
   token_json_log(token);
+
   // parse
   program(token);
 
