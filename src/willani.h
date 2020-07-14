@@ -9,6 +9,7 @@
 #include <string.h>
 
 typedef struct Type Type;
+typedef struct SourceFile SourceFile;
 
 //======================================
 // str_to_l.c
@@ -53,7 +54,7 @@ typedef struct Token Token;
 struct Token {
   TokenKind kind;
   Token *next;
-  char *filename;
+  SourceFile *file;
   char *location;
   int length;
   bool prev_is_space; // Used for define directive's macro of preprocessor
@@ -65,11 +66,11 @@ bool is_char_token(Token *token);
 bool is_string_token(Token *token);
 bool is_eof_token(Token *token);
 bool equal(Token *token, char *str);
-Token *tokenize(char *p, char *filename);
+Token *tokenize(SourceFile *sf);
 
-char *get_line_head(char *head);
+char *get_line_head(char *head, SourceFile *sf);
 char *get_line_end(char *end);
-int get_line_number(char *line_head);
+int get_line_number(char *line_head, SourceFile *sf);
 
 
 //======================================
@@ -269,8 +270,6 @@ void error(char *p);
 
 //======================================
 // main.c
-extern char *filename;
-extern char *user_input;
 extern Function *functions;
 extern int is_printing_ast;
 extern int is_printing_asm_debug;
@@ -280,7 +279,12 @@ extern int is_printing_parse_log;
 
 //======================================
 // read_file.c
-char *read_file(char *path);
+SourceFile *read_file(char *path);
+
+struct SourceFile {
+  char *path;
+  char *text;
+};
 
 
 //======================================

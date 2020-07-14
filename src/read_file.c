@@ -1,6 +1,6 @@
 #include "willani.h"
 
-char *read_file(char *path) {
+SourceFile *read_file(char *path) {
   FILE *fp = fopen(path, "r");
   if (!fp) {
     fprintf(stderr, "file :%s", path);
@@ -24,5 +24,8 @@ char *read_file(char *path) {
   buf[size] = '\0';
 
   fclose(fp);
-  return buf;
+  SourceFile *sf = calloc(1, sizeof(SourceFile));
+  sf->path = path;
+  sf->text = buf;
+  return sf;
 }

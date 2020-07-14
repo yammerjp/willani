@@ -1,7 +1,5 @@
 #include "willani.h"
 
-char *filename;
-char *user_input;
 Function *functions;
 int is_printing_ast = false;
 int is_printing_asm_debug = false;
@@ -65,7 +63,6 @@ void read_args(int argc, char **argv) {
     if (input_filename != NULL)
       error("duplicated input files");
     input_filename = argv[i];
-    filename = argv[i];
   }
 
   if (!output_filename || !input_filename)
@@ -76,8 +73,8 @@ int main(int argc, char **argv) {
   // read commandline arguments and flag options
   read_args(argc, argv);
 
-  user_input = read_file(input_filename);
-  Token *token = tokenize(user_input, input_filename);
+  SourceFile *sf = read_file(input_filename);
+  Token *token = tokenize(sf);
   token = preprocess(token);
 
   // parse

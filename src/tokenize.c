@@ -4,10 +4,11 @@ void tokenize_log_open();
 void tokenize_log_close();
 void tokenize_log(Token *token);
 
-static char* tokenize_filename;
+SourceFile *now_loading_sf = NULL;
 
 // ========== for debug ==========
-char *get_line_head(char *head) {
+char *get_line_head(char *head, SourceFile *sf) {
+  char *user_input = sf->text;
   // get line head
   while (user_input < head && head[-1] != '\n')
     head--;
@@ -20,7 +21,8 @@ char *get_line_end(char *end) {
   return end;
 }
 
-int get_line_number(char *line_head) {
+int get_line_number(char *line_head, SourceFile *sf) {
+  char *user_input = sf->text;
   // get line number
   int line_num = 1;
   for (char *p  = user_input; p < line_head; p++)
@@ -212,7 +214,7 @@ static int string_token_length(char *p) {
 static Token *new_token(TokenKind kind, Token *current, char *location, int length, bool prev_is_space) {
   Token *token = calloc(1, sizeof(Token));
   token->kind = kind;
-  token->filename = tokenize_filename;
+  token->file = now_loading_sf;
   token->location = location;
   token->length = length;
   token->prev_is_space = prev_is_space;
@@ -226,8 +228,8 @@ static Token *new_token(TokenKind kind, Token *current, char *location, int leng
 
 
 // ========== tokenize ==========
-Token *tokenize(char *p, char *filename) {
-  tokenize_filename = filename;
+Token *tokenize(SourceFile *sf) {
+  now_loading_sf = sf;
 
   Token head = {};
   Token *current = &head;
@@ -239,6 +241,7 @@ Token *tokenize(char *p, char *filename) {
   bool is_preprocess_line = false;
   bool prev_is_space = false;
 
+  char *p = sf->text;
   while (*p) {
     // Begin preprocess
     if (*p == '#' && is_line_head) {

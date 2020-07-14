@@ -271,7 +271,7 @@ static void print_ast_token(Token *token, int idt) {
   else
     fprintf(parse_logfile, "\"%.*s\", \n", token->length, token->location);
 
-  indent(idt+2); print_key("filename");         fprintf(parse_logfile, "\"%s\", \n", token->filename);
+  indent(idt+2); print_key("filename");         fprintf(parse_logfile, "\"%s\", \n", token->file->path);
   indent(idt+2); print_key("prev_is_space");    fprintf(parse_logfile, token->prev_is_space ? "true" : "false");
 
   fprintf(parse_logfile, "\n");

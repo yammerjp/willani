@@ -1,17 +1,16 @@
 #include "willani.h"
 
 void error_at(Token *token, char *msg) {
-  char *location = token->location;
-  char *line = get_line_head(location);
-  int line_num = get_line_number(line);
-  char *end = get_line_end(location);
+  char *line = get_line_head(token->location, token->file);
+  int line_num = get_line_number(line, token->file);
+  char *end = get_line_end(token->location);
 
   // print filename and line number
-  int indent = fprintf(stderr, "%s:%d: ",token->filename, line_num);
+  int indent = fprintf(stderr, "%s:%d: ",token->file->path, line_num);
   fprintf(stderr, "%.*s\n", (int)(end - line), line);
 
   // print error position
-  int pos = location - line + indent;
+  int pos = token->location - line + indent;
   fprintf(stderr, "%*s", pos, "");
   fprintf(stderr, "^ %s\n", msg);
   exit(1);
