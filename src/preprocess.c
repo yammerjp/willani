@@ -53,6 +53,7 @@ static Token *copy(Token *token) {
   copied->length = token->length;
   copied->kind = token->kind;
   copied->next = token->next;
+  copied->file = token->file;
   return copied;
 }
 
