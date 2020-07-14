@@ -106,8 +106,10 @@ static void help(char *argv0) {
   fprintf(stderr, "  --output <file>  Place the output into <file>\n");
   fprintf(stderr, "  -d\n");
   fprintf(stderr, "  --debug          Output debug info into <file> (with using -o option)\n");
-  fprintf(stderr, "  -a\n");
-  fprintf(stderr, "  --ast            Output ast.json to print Abstruct Syntax Tree\n");
+  fprintf(stderr, "  -aj\n");
+  fprintf(stderr, "  --ast-json       Output ast.json to print Abstruct Syntax Tree\n");
+  fprintf(stderr, "  -tj\n");
+  fprintf(stderr, "  --token-json     Output token.json to print preproessed tokens\n");
   fprintf(stderr, "  -tl\n");
   fprintf(stderr, "  --tokenize-log   Output tokenize.log to print tokenizing log\n");
   fprintf(stderr, "  -nl\n");
