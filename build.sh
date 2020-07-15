@@ -6,7 +6,7 @@ cd "$SCRIPT_DIR"
 # ==========================================================================
 # Compile souce files by willani
 # ==========================================================================
-mkdir -p asm
+mkdir -p asm/parse
 
 echo -e "\nCompile souce files by willani\n"
 
@@ -23,4 +23,4 @@ done
 # Assemble and Link
 # ==========================================================================
 echo -e "\nAssemble and link\n"
-gcc -static -O0 -o willani asm/*.s
+gcc -static -O0 -o willani asm/*.s asm/parse/*.s

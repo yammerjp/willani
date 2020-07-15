@@ -7,7 +7,7 @@ cd "$SCRIPT_DIR"
 # Patch souce files to compile willani
 # ==========================================================================
 rm -rf src_self
-mkdir -p src_self
+mkdir -p src_self/parse
 echo  "Patch souce files to compile by willani"
 # header
 cat << EOS > src_self/willani.h
@@ -41,18 +41,16 @@ void memcpy();
 EOS
 
 cat src/willani.h \
-  | grep -v -E '^#' \
+  | grep -v -E '^#include <' \
   >> src_self/willani.h
 
-echo -e "#include \"willani.h\"\n" > src_self/parse.h
-cat src/parse/parse.h \
-  | grep -v -E '^#' \
-  >> src_self/parse.h
+#echo -e "#include \"willani.h\"\n" > src_self/parse/parse.h
+cat src/parse/parse.h > src_self/parse/parse.h
 
 # source
 find src -type f | grep -E '*\.c' | while read -r C_SOURCE
 do
-  C_OVERWRITED=$(echo "$C_SOURCE" | sed 's#^src/parse/#src_self/#g' | sed 's#^src/#src_self/#g')
+  C_OVERWRITED=$(echo "$C_SOURCE" |  sed 's#^src/#src_self/#g')
   cat "$C_SOURCE" > "$C_OVERWRITED"
 done
 
