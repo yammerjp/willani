@@ -8,18 +8,18 @@ struct DefineDirective {
   Token *ident;
   Token *params;
   Token *replacings;
-  Token *unreplacings;
+  Token *preprocess_end;
   DefineDirective *next;
 };
 
 DefineDirective *defines;
 
-static void add_defines(Token *ident, Token *params, Token *replacings, Token *unreplacings) {
+static void add_defines(Token *ident, Token *params, Token *replacings, Token *preprocess_end) {
   DefineDirective *new = calloc(1, sizeof(DefineDirective));
   new->ident = ident;
   new->params = params;
   new->replacings = replacings;
-  new->unreplacings = unreplacings;
+  new->preprocess_end = preprocess_end;
 
   new->next = defines;
   defines = new;
@@ -34,6 +34,7 @@ static int param_num(Token *param_ident) {
   }
   return 0;
 }
+
 static Token *param(int num) {
   int ct = 1;
   Token *param_ident;
@@ -83,10 +84,11 @@ static bool is_same(Token *t1, Token *t2) {
   );
 }
 
-static void define_preprocess_line(Token **rest, Token *pre_begin) {
+static void define_preprocess_line(Token **rest, Token *token) {
   // Read preprocess line
-  Token *token = pre_begin->next; //token->kind is TK_PREPROCESS_BEGIN
-  token = token->next;
+  //token->next->kind is TK_PREPROCESS_BEGIN
+  Token *prebegin = token;
+  token = token->next->next;
 
   // define
   if (!equal(token, "define"))
@@ -94,10 +96,12 @@ static void define_preprocess_line(Token **rest, Token *pre_begin) {
   token = token->next;
 
   // ident
+  if (!is_identifer_token(token))
+    error_at(token, "expected identifer (preprocess directive)");
   Token *ident = token;
   token = token->next;
 
-
+  // params
   Token preparams = {};
   Token *params_tail = &preparams;
   if (equal(token, "(") && !token->prev_is_space) {
@@ -122,18 +126,19 @@ static void define_preprocess_line(Token **rest, Token *pre_begin) {
   Token *replacings = token;
   token = token->next;
 
+  // find the end of preprocess line
   while (token->kind != TK_PREPROCESS_END)
     token = token->next;
-  Token *unreplacings = token;
+  Token *end = token;
+
+  add_defines(ident, preparams.next, replacings, end);
 
   // delete preprocess line tokens from tokens row
-  pre_begin->next = token->next;
-  *rest = pre_begin;
-
-  add_defines(ident, preparams.next, replacings, unreplacings);
+  prebegin->next = end->next;
+  *rest = prebegin;
 }
 
-static void define_replace(Token *pre_begin){
+static void define_replace(Token *pre_begin) {
   // Replace tokens
   Token *token = pre_begin;
   while (token && token->next) {
@@ -150,7 +155,7 @@ static void define_replace(Token *pre_begin){
     if (!defines->params) {
       // ident => replacement
       dest = token->next->next;
-      token->next = copies(defines->replacings, defines->unreplacings, dest);
+      token->next = copies(defines->replacings, defines->preprocess_end, dest);
       while (token->next !=dest)
         token = token->next;
       continue;
@@ -168,12 +173,12 @@ static void define_replace(Token *pre_begin){
     token = token->next->next;
 
     Token specified_params[100] = {};
-    Token *specified_params_tail = &(specified_params[0]);
+    Token *specified_params_tail = specified_params;
     int parens_ct = 0;
     int num = 0;
     while (!equal(token, ")") || parens_ct) {
       if (!parens_ct && equal(token, ",")) {
-        specified_params_tail = &(specified_params[++num]);
+        specified_params_tail = specified_params + ++num;
       } else {
         if (equal(token, "("))
           parens_ct++;
@@ -185,11 +190,10 @@ static void define_replace(Token *pre_begin){
     }
     token = token->next;
 
-
     // replace identifer and parameters to replacement of define line
     //  ident(1, 2, 3) => C+B+A     (e.x.)
     dest = token;
-    prereplaced->next = copies(defines->replacings, defines->unreplacings, dest);
+    prereplaced->next = copies(defines->replacings, defines->preprocess_end, dest);
     token = prereplaced->next;
     while (token->next != dest)
       token = token->next;
