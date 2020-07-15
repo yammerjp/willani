@@ -284,18 +284,25 @@ static void include_preprocess_line(Token **rest, Token *token) {
   *rest = prebegin;
 }
 
-static void ifndef_preprocess_line(Token **rest, Token *token) {
+static void ifdef_ifndef_preprocess_line(Token **rest, Token *token) {
   // token->next->kind is TK_PREPROCESS_BEGIN
   Token *prebegin = token;
   token = token->next->next;
 
-  if (!equal(token, "ifndef"))
+  bool invert_cond;
+  if (equal(token, "ifdef"))
+    invert_cond = false;
+  else if (equal(token, "ifndef"))
+    invert_cond = true;
+  else
     error_at(token, "expected ifndef (preprocess directive)");
   token = token->next;
 
   if (!is_identifer_token(token))
     error_at(token, "expected identifer of ifndef preprocess line");
-  bool condition = !find_defines(token);
+  bool condition = find_defines(token);
+  if (invert_cond)
+    condition = !condition;
   token = token->next;
 
   if (token->kind != TK_PREPROCESS_END)
@@ -376,8 +383,9 @@ Token *preprocess(Token *token) {
         include_preprocess_line(&token, token);
         continue;
       }
-      if (equal(token->next->next, "ifndef")) {
-        ifndef_preprocess_line(&token, token);
+      if (equal(token->next->next, "ifndef")
+       || equal(token->next->next, "ifdef")) {
+        ifdef_ifndef_preprocess_line(&token, token);
         continue;
       }
       error_at(token->next->next, "unknown preprocess directive");
