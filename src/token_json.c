@@ -1,6 +1,9 @@
 #include "willani.h"
 
 void token_json_log(Token *token) {
+  if (!is_printing_token)
+    return;
+
   FILE *fp = fopen("token.json","w");
   if (!fp)
     error("fail to open token.json");
