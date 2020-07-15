@@ -301,17 +301,26 @@ static void ifndef_preprocess_line(Token **rest, Token *token) {
   if (token->kind != TK_PREPROCESS_END)
     error_at(token, "expected preprocess line end");
   Token *end = token;
-  token = token->next;
 
   // delete preprocess line tokens from tokens row
   prebegin->next = end->next;
 
-  while (1) {
-    if (token->next->kind == TK_PREPROCESS_BEGIN && equal(token->next->next, "endif")) {
-      break;
+  for (int if_depth=0;;token = token->next) {
+    if (!token || !token->next)
+      error("need #endif of preprocess line");
+    if (token->next->kind != TK_PREPROCESS_BEGIN)
+      continue;
+    if (equal(token->next->next, "ifndef")) {
+      if_depth++;
+      continue;
     }
-    token = token->next;
-    if (!token || !token->next || !token->next->next)
+    if (equal(token->next->next, "endif")) {
+      if (if_depth == 0)
+        break;
+      if_depth--;
+      continue;
+    }
+    if (!token->next->next || !token->next->next->next)
       error("need #endif of preprocess line");
   }
   Token *endif_prebegin = token;

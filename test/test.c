@@ -507,6 +507,16 @@ int main() {
   assert("The assert will be run because of ifndef directive.", 0, 0);
   #endif
 
+  #define DEFINED 1
+  #ifndef DEFINED
+  #ifndef DEFINING
+  assert("The assert will not be run because of nested ifndef directive.", 1, 0);
+  #endif
+  #ifndef DEFINING
+  #endif
+  #endif
+
+
   printf("\nOK\n");
   return 0;
 }
