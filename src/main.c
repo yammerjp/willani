@@ -98,23 +98,25 @@ int main(int argc, char **argv) {
 
 static void help(char *argv0) {
   fprintf(stderr, "Willani is a compiler for the C programming language.\n");
-  fprintf(stderr, "Willani output a text of assembly language of AT&T syntax\n\n");
+  fprintf(stderr, "Willani output a text of assembly language of AT&T syntax.\n\n");
   fprintf(stderr, "Usage: %s [options] <file>\n", argv0);
   fprintf(stderr, "  <file> : input file of C programming language\n");
   fprintf(stderr, "Options\n");
   fprintf(stderr, "  -o <file>\n");
-  fprintf(stderr, "  --output <file>  Place the output into <file>\n");
+  fprintf(stderr, "  --output <file>  Place the output into <file>.\n");
   fprintf(stderr, "  -d\n");
-  fprintf(stderr, "  --debug          Output debug info into <file> (with using -o option)\n");
+  fprintf(stderr, "  --debug          Output debug info into <file> (with using -o option).\n");
   fprintf(stderr, "  -aj\n");
-  fprintf(stderr, "  --ast-json       Output ast.json to print Abstruct Syntax Tree\n");
+  fprintf(stderr, "  --ast-json       Output ast.json to print Abstruct Syntax Tree.\n");
   fprintf(stderr, "  -tj\n");
-  fprintf(stderr, "  --token-json     Output token.json to print preproessed tokens\n");
+  fprintf(stderr, "  --token-json     Output token.json to print preprocessed tokens.\n");
   fprintf(stderr, "  -tl\n");
-  fprintf(stderr, "  --tokenize-log   Output tokenize.log to print tokenizing log\n");
+  fprintf(stderr, "  --tokenize-log   Output tokenize.log to print tokenizing log.\n");
   fprintf(stderr, "  -nl\n");
-  fprintf(stderr, "  --node-log       Output node.log to print parsed node\n");
+  fprintf(stderr, "  --node-log       Output node.log to print parsed node.\n");
   fprintf(stderr, "  -pl\n");
-  fprintf(stderr, "  --parse-log      Output parse.log to print parsing log\n");
+  fprintf(stderr, "  --parse-log      Output parse.log to print parsing log.\n");
+  fprintf(stderr, "  -h\n");
+  fprintf(stderr, "  --help           Show how to use willani.\n");
   exit(0);
 }
