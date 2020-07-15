@@ -295,7 +295,7 @@ static void ifndef_preprocess_line(Token **rest, Token *token) {
 
   if (!is_identifer_token(token))
     error_at(token, "expected identifer of ifndef preprocess line");
-  bool is_defined = find_defines(token);
+  bool condition = !find_defines(token);
   token = token->next;
 
   if (token->kind != TK_PREPROCESS_END)
@@ -305,6 +305,8 @@ static void ifndef_preprocess_line(Token **rest, Token *token) {
   // delete preprocess line tokens from tokens row
   prebegin->next = end->next;
 
+  Token *else_prebegin = NULL;
+  Token *else_end = NULL;
   for (int if_depth=0;;token = token->next) {
     if (!token || !token->next)
       error("need #endif of preprocess line");
@@ -314,11 +316,21 @@ static void ifndef_preprocess_line(Token **rest, Token *token) {
       if_depth++;
       continue;
     }
-    if (equal(token->next->next, "endif")) {
-      if (if_depth == 0)
-        break;
-      if_depth--;
+    if (equal(token->next->next, "else")) {
+      else_prebegin = token;
+      token = token->next->next;
+      if (token->next->kind != TK_PREPROCESS_END)
+        error_at(token->next, "expected preprocess line end");
+      else_end = token->next;
+
+      // delete preprocess line tokens from tokens row
+      else_prebegin->next = else_end->next;
       continue;
+    }
+    if (equal(token->next->next, "endif")) {
+      if (if_depth-- > 0)
+        continue;
+      break;
     }
     if (!token->next->next || !token->next->next->next)
       error("need #endif of preprocess line");
@@ -334,7 +346,12 @@ static void ifndef_preprocess_line(Token **rest, Token *token) {
   // delete preprocess line tokens from tokens row
   endif_prebegin->next = endif_end->next;
 
-  if (is_defined) {
+  if (else_prebegin) {
+    if (condition)
+      else_prebegin->next = endif_end->next;
+    else
+      prebegin->next = else_end->next;
+  } else if (!condition) {
     // delete ifndef ~ endif
     prebegin->next = endif_end->next;
   }

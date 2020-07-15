@@ -516,6 +516,12 @@ int main() {
   #endif
   #endif
 
+  #ifndef DEFINED
+  assert("The assert will not be run because of ifndef else directive.", 1, 0);
+  #else
+  assert("The assert will be run because of ifndef else directive.", 0, 0);
+  #endif
+
 
   printf("\nOK\n");
   return 0;

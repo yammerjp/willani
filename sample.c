@@ -5,8 +5,9 @@ int a = 2;
 #endif
 #ifndef DEFINING
 #endif
-#endif
+#else
 int a = 1;
+#endif
 
 int main () {
   return a;
