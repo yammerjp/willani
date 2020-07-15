@@ -25,6 +25,14 @@ static void add_defines(Token *ident, Token *params, Token *replacings, Token *p
   defines = new;
 }
 
+static bool find_defines(Token *ident) {
+  for (DefineDirective *define = defines; define; define = define->next) {
+    if (ident->length == define->ident->length && !strncmp(ident->location, define->ident->location, ident->length))
+      return true;
+  }
+  return false;
+}
+
 static int param_num(Token *param_ident) {
   int num = 1;
   for (Token *tk = defines->params; tk; tk = tk->next) {
@@ -142,6 +150,12 @@ static void define_replace(Token *pre_begin) {
   // Replace tokens
   Token *token = pre_begin;
   while (token && token->next) {
+    if (token->next->kind == TK_PREPROCESS_BEGIN) {
+      token = token->next;
+      while (token->kind != TK_PREPROCESS_END)
+        token = token->next;
+      continue;
+    }
     if (!is_same(defines->ident, token->next)) {
       // not replacing
       token = token->next;
@@ -270,6 +284,55 @@ static void include_preprocess_line(Token **rest, Token *token) {
   *rest = prebegin;
 }
 
+static void ifndef_preprocess_line(Token **rest, Token *token) {
+  // token->next->kind is TK_PREPROCESS_BEGIN
+  Token *prebegin = token;
+  token = token->next->next;
+
+  if (!equal(token, "ifndef"))
+    error_at(token, "expected ifndef (preprocess directive)");
+  token = token->next;
+
+  if (!is_identifer_token(token))
+    error_at(token, "expected identifer of ifndef preprocess line");
+  bool is_defined = find_defines(token);
+  token = token->next;
+
+  if (token->kind != TK_PREPROCESS_END)
+    error_at(token, "expected preprocess line end");
+  Token *end = token;
+  token = token->next;
+
+  // delete preprocess line tokens from tokens row
+  prebegin->next = end->next;
+
+  while (1) {
+    if (token->next->kind == TK_PREPROCESS_BEGIN && equal(token->next->next, "endif")) {
+      break;
+    }
+    token = token->next;
+    if (!token || !token->next || !token->next->next)
+      error("need #endif of preprocess line");
+  }
+  Token *endif_prebegin = token;
+  token = token->next->next->next;
+
+  if (token->kind != TK_PREPROCESS_END)
+    error_at(token, "expected preprocess line end");
+  Token *endif_end = token;
+  token = token->next;
+
+  // delete preprocess line tokens from tokens row
+  endif_prebegin->next = endif_end->next;
+
+  if (is_defined) {
+    // delete ifndef ~ endif
+    prebegin->next = endif_end->next;
+  }
+
+  *rest = prebegin;
+}
+
 Token *preprocess(Token *token) {
   head.next = token;
   token = &head;
@@ -287,7 +350,12 @@ Token *preprocess(Token *token) {
         include_preprocess_line(&token, token);
         continue;
       }
+      if (equal(token->next->next, "ifndef")) {
+        ifndef_preprocess_line(&token, token);
+        continue;
+      }
       error_at(token->next->next, "unknown preprocess directive");
+
     }
     token = token->next;
   }

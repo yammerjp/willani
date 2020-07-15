@@ -498,6 +498,15 @@ int main() {
   //assert("int i=-1; i;", ({ int i=-1; i; }), -1);
   //assert("int i=1; i>>1;", ({ int i=-1; i>>=1; i; }), -1);
 
+  #define DEFINED_IFNDEF_DIRECTIVE 1
+  #ifndef DEFINED_IFNDEF_DIRECTIVE
+  assert("The assert will not be run because of ifndef directive.", 1, 0);
+  #endif
+
+  #ifndef UNDEFINED_IFNDEF_DIRECTIVE
+  assert("The assert will be run because of ifndef directive.", 0, 0);
+  #endif
+
   printf("\nOK\n");
   return 0;
 }

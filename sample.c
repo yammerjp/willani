@@ -1,7 +1,10 @@
-int main() {
-  assert(
-    "({ struct { char m1; int m2; char m3; } s = { 10,20,30 }; s.m3; })",
-    ({ int p = 100;struct { char m1; int m2; char m3; } s = { 10,p,30 }; s.m2; }),
-    100
-  );
+#define DEFINED 1
+int p = 1;
+#ifndef DEFINED
+int a = 2;
+#endif
+int a = 1;
+
+int main () {
+  return a;
 }
