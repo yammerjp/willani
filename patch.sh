@@ -37,13 +37,14 @@ int fseek();
 typedef int size_t;
 int ftell();
 int fread();
+void memcpy();
 EOS
 
 cat src/willani.h \
   | grep -v -E '^#' \
   >> src_self/willani.h
 
-cat src_self/willani.h > src_self/parse.h
+echo -e "#include \"willani.h\"\n" > src_self/parse.h
 cat src/parse/parse.h \
   | grep -v -E '^#' \
   >> src_self/parse.h
@@ -51,18 +52,8 @@ cat src/parse/parse.h \
 # source
 find src -type f | grep -E '*\.c' | while read -r C_SOURCE
 do
-
-C_OVERWRITED=$(echo "$C_SOURCE" | sed 's#^src/parse/#src_self/#g' | sed 's#^src/#src_self/#g')
-
-if [[ "$C_SOURCE" =~  ^src/parse/ ]]; then
-  cat src_self/parse.h > "$C_OVERWRITED"
-else
-  cat src_self/willani.h > "$C_OVERWRITED"
-fi
-
-cat "$C_SOURCE" \
-  | grep -v -E '^#' \
-  >> "$C_OVERWRITED"
+  C_OVERWRITED=$(echo "$C_SOURCE" | sed 's#^src/parse/#src_self/#g' | sed 's#^src/#src_self/#g')
+  cat "$C_SOURCE" > "$C_OVERWRITED"
 done
 
 echo "Directory 'src_self/' is created"

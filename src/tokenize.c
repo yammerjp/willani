@@ -1,6 +1,6 @@
 #include "willani.h"
 
-SourceFile *now_loading_sf = NULL;
+static SourceFile *now_loading_sf = NULL;
 
 // ========== for debug ==========
 char *get_line_head(char *head, SourceFile *sf) {
@@ -210,6 +210,8 @@ static int string_token_length(char *p) {
 static Token *new_token(TokenKind kind, Token *current, char *location, int length, bool prev_is_space) {
   Token *token = calloc(1, sizeof(Token));
   token->kind = kind;
+  if (!now_loading_sf)
+    error("now loading source file is not found to create new token");
   token->file = now_loading_sf;
   token->location = location;
   token->length = length;
@@ -225,6 +227,7 @@ static Token *new_token(TokenKind kind, Token *current, char *location, int leng
 
 // ========== tokenize ==========
 Token *tokenize(SourceFile *sf) {
+  SourceFile *sf_before = now_loading_sf;
   now_loading_sf = sf;
 
   Token head = {};
@@ -329,5 +332,6 @@ Token *tokenize(SourceFile *sf) {
 
   new_token(TK_EOF, current, p, 0, prev_is_space);
 
+  now_loading_sf = sf_before;
   return head.next;
 }

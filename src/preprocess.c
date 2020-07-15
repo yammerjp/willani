@@ -214,6 +214,58 @@ static void define_replace(Token *pre_begin){
   }
 }
 
+static char *including_filepath(Token *str_token) {
+  char *included_filepath = str_token->file->path;
+  char *new_filename = str_token->location+1;
+  int new_filenamelen = str_token->length-2;
+
+  char *dir_name = included_filepath;
+  int dir_namelen = strlen(included_filepath);
+  for (;dir_namelen > 0; dir_namelen--) {
+    // not yet supported escaping slash
+    if (dir_name[dir_namelen-1] == '/')
+      break;
+  }
+
+  char *new_filepath = calloc(dir_namelen + new_filenamelen + 1, sizeof(char));
+  memcpy(new_filepath, dir_name, dir_namelen);
+  memcpy(new_filepath + dir_namelen, new_filename, new_filenamelen);
+  new_filepath[dir_namelen + new_filenamelen] = '\0';
+
+  return new_filepath;
+}
+
+static void include_preprocess_line(Token **rest, Token *token) {
+  // token->next->kind is TK_PREPROCESS_BEGIN
+  Token *prebegin = token;
+  token = token->next->next;
+
+  if (!equal(token, "include"))
+    error_at(token, "expected include (preprocess directive)");
+  token = token->next;
+
+  if (!is_string_token(token))
+    error_at(token, "not yet supported include standard library");
+  char *filepath = including_filepath(token);
+  token = token->next;
+
+  if (token->kind != TK_PREPROCESS_END)
+    error_at(token, "expected preprocess line end");
+  Token *end = token;
+
+  SourceFile *sf = read_file(filepath);
+
+  // replace from include preprocess line to including file text
+  prebegin->next = tokenize(sf);
+
+  token = prebegin;
+  while (token->next->kind != TK_EOF)
+    token = token->next;
+  token->next = end->next;
+
+  *rest = prebegin;
+}
+
 Token *preprocess(Token *token) {
   head.next = token;
   token = &head;
@@ -225,6 +277,10 @@ Token *preprocess(Token *token) {
       if (equal(token->next->next, "define")) {
         define_preprocess_line(&token, token);
         define_replace(token);
+        continue;
+      }
+      if (equal(token->next->next, "include")) {
+        include_preprocess_line(&token, token);
         continue;
       }
       error_at(token->next->next, "unknown preprocess directive");
