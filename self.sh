@@ -22,7 +22,7 @@ make test
 echo -e "Create 2nd generation compiler"
 
 ./patch.sh
-./build.sh willani
+./build.sh
 cp willani willani-2nd
 cp -r asm asm-2nd
 
@@ -33,7 +33,7 @@ make test
 # Create 3rd generation compiler
 # ==========================================================================
 echo -e "Create 3rd generation compiler"
-./build.sh willani
+./build.sh
 cp willani willani-3rd
 cp -r asm asm-3rd
 

@@ -53,7 +53,6 @@ find src -type f | grep -E '*\.c' | while read -r C_SOURCE
 do
 
 C_OVERWRITED=$(echo "$C_SOURCE" | sed 's#^src/parse/#src_self/#g' | sed 's#^src/#src_self/#g')
-ASM=$(echo "$C_OVERWRITED" | sed 's#^src_self/#asm/#g' | sed 's#c$#s#g')
 
 if [[ "$C_SOURCE" =~  ^src/parse/ ]]; then
   cat src_self/parse.h > "$C_OVERWRITED"
