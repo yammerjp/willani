@@ -132,7 +132,6 @@ static void define_preprocess_line(Token **rest, Token *token) {
 
   // replacements
   Token *replacings = token;
-  token = token->next;
 
   // find the end of preprocess line
   while (token->kind != TK_PREPROCESS_END)
