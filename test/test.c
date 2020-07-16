@@ -495,8 +495,8 @@ int main() {
   assert("int i=5; i<<1;", ({ int i=5; i<<=1; i; }), 10);
   assert("int i=5; i>>1;", ({ int i=5; i>>=1; i; }), 2);
   assert("-1", -1, -1);
-  //assert("int i=-1; i;", ({ int i=-1; i; }), -1);
-  //assert("int i=1; i>>1;", ({ int i=-1; i>>=1; i; }), -1);
+  assert("int i=-1; i;", ({ int i=-1; i; }), -1);
+  assert("int i=1; i>>1;", ({ int i=-1; i>>=1; i; }), -1);
 
   #define DEFINED_IFDEF_DIRECTIVE 1
   #define DEFINED_IFNDEF_DIRECTIVE 1
@@ -529,8 +529,15 @@ int main() {
   assert("The assert will not be run because of ifdef else directive.", 1, 0);
   #endif
 
+  assert("sizeof(signed char)", sizeof (signed char), 1);
+  assert("sizeof(unsigned char)", sizeof (unsigned char), 1);
+  assert("sizeof(signed int)", sizeof (signed int), 4);
+  assert("sizeof(unsigned int)", sizeof (unsigned int), 4);
+  assert("sizeof(signed long)", sizeof (signed long), 8);
+  assert("sizeof(unsigned long)", sizeof (unsigned long), 8);
 
   assert("sizeof((char)1)", sizeof((char)1),1);
+  assert("(char)255",  (char)255, -1);
 
 
   printf("\nOK\n");

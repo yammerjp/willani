@@ -58,16 +58,20 @@ static void load(Type *type) {
   if (type->kind == TYPE_ARRAY)
     return;
 
-  fprintf(file, "  popq %%rax\n");               // load the stack top to rax
+  fprintf(file, "  popq %%rsi\n");               // load the stack top to rsi
+  char signchar = type->is_unsigned ? 'z'  : 's';
   switch (type->size) {
   case 1:
-    fprintf(file, "  movzbl (%%rax), %%rax\n");  // load the actual value of rax to rax
+    fprintf(file, "  mov $0, %%rax\n");
+    fprintf(file, "  mov (%%rsi), %%al\n");  // load the actual value of rsi to rax
+    fprintf(file, "  mov%cx %%al, %%rax\n", signchar);
     break;
   case 4:
-    fprintf(file, "  movl (%%rax), %%eax\n");    // load the actual value of rax to rax
+    fprintf(file, "  mov (%%rsi), %%eax\n");    // load the actual value of rsi to rax
+    fprintf(file, "  mov%cx %%eax, %%rax\n", signchar);
     break;
   case 8:
-    fprintf(file, "  movq (%%rax), %%rax\n");    // load the actual value of rax to rax
+    fprintf(file, "  mov (%%rsi), %%rax\n");    // load the actual value of rsi to rax
     break;
   default:
     error("failed to load a variable becase of unknown type size");
@@ -318,12 +322,13 @@ static void cast(Type *type) {
     fprintf(file, "  cmp $0, %%rax\n");
     fprintf(file, "  setne %%al\n");
   }
+  char signchar = type->is_unsigned ? 'z'  : 's';
   switch (type->size) {
   case 1:
-    fprintf(file, "  movsx %%al, %%rax\n");
+    fprintf(file, "  mov%cx %%al, %%rax\n", signchar);
     break;
   case 4:
-    fprintf(file, "  movsx %%eax, %%rax\n");
+    fprintf(file, "  mov%cx %%eax, %%rax\n", signchar);
     break;
   case 8:
     break;

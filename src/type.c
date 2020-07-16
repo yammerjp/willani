@@ -110,4 +110,5 @@ void copy_type(Type *dest, Type *src) {
   dest->is_extern = src->is_extern;
   dest->is_const = src->is_const;
   dest->undefined_member = src->undefined_member;
+  dest->is_unsigned = src->is_unsigned;
 }

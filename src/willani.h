@@ -101,6 +101,7 @@ struct Type {
   bool is_static;
   bool is_extern;
   bool is_const;
+  bool is_unsigned;
   bool undefined_member;  //Used if kind is TYPE_STRUCT and named by typedef but member is undefined
 };
 

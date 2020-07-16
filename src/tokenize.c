@@ -103,8 +103,10 @@ static int identifer_token_length(char *p) {
 static int reserved_token_length(char *p) {
   char reserved_words[][9] = {
     "continue",
+    "unsigned",
     "default",
     "typedef",
+    "signed",
     "struct",
     "return",
     "sizeof",

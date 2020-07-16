@@ -5,7 +5,9 @@ static int expect_array_length(Token *token);
 
 bool is_type_tokens(Token *token, AllowStaticOrNot ason, AllowExternOrNot aeon, AllowConstOrNot acon) {
   return (
-       equal(token, "int")
+       equal(token, "signed")
+    || equal(token, "unsigned")
+    || equal(token, "int")
     || equal(token, "char")
     || equal(token, "_Bool")
     || equal(token, "long")
@@ -46,6 +48,14 @@ Type *read_type(Token **rest, Token *token, AllowStaticOrNot ason, AllowExternOr
     is_const = true;
   }
 
+  bool is_unsigned = false;
+  if (equal(token, "signed")) {
+    token = token->next;
+  } else if (equal(token, "unsigned")) {
+    token = token->next;
+    is_unsigned = true;
+  }
+
   if(equal(token, "long")) {
     type = new_type_long();
     token = token->next;
@@ -71,6 +81,8 @@ Type *read_type(Token **rest, Token *token, AllowStaticOrNot ason, AllowExternOr
       return NULL;
     token = token->next;
     type = tdf->type;
+  } else if (is_unsigned) {
+    type = new_type_int();
   } else {
     return NULL;
   }
@@ -82,6 +94,10 @@ Type *read_type(Token **rest, Token *token, AllowStaticOrNot ason, AllowExternOr
   type->is_static = is_static;
   type->is_extern = is_extern;
   type->is_const = is_const;
+  type->is_unsigned = is_unsigned;
+  if (type->kind == TYPE_PTR)
+    type->is_unsigned = true;
+
   *rest = token;
   return type;
 }
