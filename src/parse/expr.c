@@ -296,12 +296,14 @@ Node *unary(Token **rest, Token *token) {
 // sizeofunary_inner_parens = "(" sizeofunary_inner_parens ")" | type | expr
 Node *sizeofunary(Token **rest, Token *token, bool inner_parens) {
   parse_log("sizeofunary()");
+  Token *begin = token;
   if (equal(token, "(")) {
     Node *node = sizeofunary(&token, token->next, true);
-    if (!equal(token, ")"))
-      error_at(token, "expected ) of sizeofunary");
-    *rest = token->next;
-    return node;
+    if (equal(token, ")")) {
+      *rest = token->next;
+      return node;
+    }
+    token = begin;
   }
 
   Type *type;

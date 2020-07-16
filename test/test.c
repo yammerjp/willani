@@ -530,6 +530,9 @@ int main() {
   #endif
 
 
+  assert("sizeof((char)1)", sizeof((char)1),1);
+
+
   printf("\nOK\n");
   return 0;
 }
