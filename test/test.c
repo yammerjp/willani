@@ -546,7 +546,7 @@ int main() {
   assert("(unsigned char)255", (unsigned char)255, 255);
   assert("(int)0xffffffff", (int)0xffffffff, -1);
 
-  //   assert("sizeof((char)1 + (char)1)", sizeof((char)1 + (char)1), 4);
+  assert("sizeof((char)1 + (char)1)", sizeof((char)1 + (char)1), 4);
 
   assert("sizeof(1?2:3)", sizeof(1?2:3), 4);
   assert("sizeof(1?(long)2:(char)3)", sizeof(1?(long)2:(char)3), 8);

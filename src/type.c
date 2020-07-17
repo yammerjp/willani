@@ -77,6 +77,9 @@ Type *type_conversion(Type *left, Type *right) {
   if (right->kind == TYPE_PTR || right->kind == TYPE_ARRAY)
     return right;
 
+  if (left->size < 4 && right->size < 4)
+    return new_type_int();
+
   if (left->size >= right->size)
     return left;
 
