@@ -48,12 +48,15 @@ Type *read_type(Token **rest, Token *token, AllowStaticOrNot ason, AllowExternOr
     is_const = true;
   }
 
+  bool declared_type_modifier = false;
   bool is_unsigned = false;
   if (equal(token, "signed")) {
     token = token->next;
+    declared_type_modifier = true;
   } else if (equal(token, "unsigned")) {
     token = token->next;
     is_unsigned = true;
+    declared_type_modifier = true;
   }
 
   if(equal(token, "long")) {
@@ -81,10 +84,20 @@ Type *read_type(Token **rest, Token *token, AllowStaticOrNot ason, AllowExternOr
       return NULL;
     token = token->next;
     type = tdf->type;
-  } else if (is_unsigned) {
+  } else if (declared_type_modifier) {
     type = new_type_int();
   } else {
     return NULL;
+  }
+
+  if (equal(token, "signed")) {
+    if (declared_type_modifier && is_unsigned)
+      error_at(token, "type modifier 'signed is conflicted with 'unsigned'");
+    token = token->next;
+  } else if (equal(token, "unsigned")) {
+    if (declared_type_modifier && !is_unsigned)
+      error_at(token, "type modifier 'unsigned is conflicted with 'signed'");
+    token = token->next;
   }
 
   while (equal(token, "*")) {
