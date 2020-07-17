@@ -539,6 +539,28 @@ int main() {
   assert("sizeof((char)1)", sizeof((char)1),1);
   assert("(char)255",  (char)255, -1);
 
+  assert("sizeof((int)1)", sizeof((int)1), 4);
+  assert("sizeof((long)1)", sizeof((long)1), 8);
+  assert("(char)255", (char)255, -1);
+  assert("(signed char)255", (signed char)255, -1);
+  assert("(unsigned char)255", (unsigned char)255, 255);
+  assert("(int)0xffffffff", (int)0xffffffff, -1);
+
+  //   assert("sizeof((char)1 + (char)1)", sizeof((char)1 + (char)1), 4);
+
+  assert("sizeof(1?2:3)", sizeof(1?2:3), 4);
+  assert("sizeof(1?(long)2:(char)3)", sizeof(1?(long)2:(char)3), 8);
+
+  assert("-1<1", -1<1, 1);
+  assert("(char)127+(char)127", (char)127+(char)127, 254);
+  assert("-1>>1", -1>>1, -1);
+  assert("(unsigned long)-1", (unsigned long)-1, -1);
+  assert("(-100)/2", (-100)/2, -50);
+  assert("((unsigned long)-100)/2", ((unsigned long)-100)/2, 9223372036854775758);
+  assert("(-100)%7", (-100)%7, -2);
+
+  //    assert("((unsigned long)-100)%9", ((unsigned long)-100)%9, 6);
+
 
   printf("\nOK\n");
   return 0;
