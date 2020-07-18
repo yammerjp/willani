@@ -59,17 +59,13 @@ static void load(Type *type) {
     return;
 
   fprintf(file, "  popq %%rsi\n");               // load the stack top to rsi
-  char *signstr = type->is_unsigned ? "z"  : "sx";
+  char signchar = type->is_unsigned ? 'z'  : 's';
   switch (type->size) {
   case 1:
-    fprintf(file, "  mov $0, %%rax\n");
-    fprintf(file, "  mov (%%rsi), %%al\n");  // load the actual value of rsi to rax
-    fprintf(file, "  mov%s %%al, %%rax\n", type->is_unsigned ? "zbl":"sx");
+    fprintf(file, "  mov%cbq (%%rsi), %%rax\n", signchar);
     break;
   case 4:
-    fprintf(file, "  mov (%%rsi), %%eax\n");    // load the actual value of rsi to rax
-    if (!type->is_unsigned)
-      fprintf(file, "  cltq\n");
+    fprintf(file, "  mov%s (%%rsi), %%rax\n", type->is_unsigned ? "zlq" : "slq");
     break;
   case 8:
     fprintf(file, "  mov (%%rsi), %%rax\n");    // load the actual value of rsi to rax
@@ -323,14 +319,13 @@ static void cast(Type *type) {
     fprintf(file, "  cmp $0, %%rax\n");
     fprintf(file, "  setne %%al\n");
   }
-  char *signstr = type->is_unsigned ? "z"  : "sx";
+  char signchar = type->is_unsigned ? 'z'  : 's';
   switch (type->size) {
   case 1:
-    fprintf(file, "  mov%s %%al, %%rax\n", type->is_unsigned ? "zbl" : "sx");
+    fprintf(file, "  mov%cbq %%al, %%rax\n", signchar);
     break;
   case 4:
-    if (!type->is_unsigned)
-      fprintf(file, "  movsx %%eax, %%rax\n");
+    fprintf(file, "  mov%s %%eax, %%rax\n", type->is_unsigned ? "zlq" : "slq");
     break;
   case 8:
     break;
