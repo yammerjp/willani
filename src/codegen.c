@@ -658,37 +658,43 @@ static void gen_function(Function *func) {
   epilogue();
 }
 
-static void gen_gvars() {
-  for (Var *var = gvars; var; var = var->next) {
-    if (var->type->is_extern)
-      continue;
-
-    fprintf(file, "%.*s:\n", var->namelen, var->name);
-
-    if (!var->init_values) {
-      fprintf(file, "  .zero %d\n", var->type->size);
-      continue;
-    }
-
-    for (int i =0; i< var->init_size; i++)
-      fprintf(file, "  .byte 0x%x\n", (var->init_values[i])&0b00000000000000000000000011111111);
-  }
-}
-
-void code_generate(char *filename) {
-  file = fopen(filename,"w");
-  if (!file)
-    error("fail to open input file");
- 
+static void gen_section_data() {
   // data sectioon
   fprintf(file, ".data\n");
+
+  // string
   for (String *str = strings; str; str = str->next) {
     fprintf(file, ".LC%d:\n", str->id);
     for (int i=0; i < str->length; i++)
       fprintf(file, "  .byte 0x%x\n", (str->p)[i]);
   }
-  gen_gvars();
 
+  // global variable
+  for (Var *var = gvars; var; var = var->next) {
+    if (var->type->is_extern || !var->init_values)
+      continue;
+
+    fprintf(file, "%.*s:\n", var->namelen, var->name);
+    for (int i =0; i< var->init_size; i++)
+      fprintf(file, "  .byte 0x%x\n", (var->init_values[i])&0b00000000000000000000000011111111);
+  }
+}
+
+static void gen_section_bss() {
+  fprintf(file, ".bss\n");
+
+  // global variable
+  for (Var *var = gvars; var; var = var->next) {
+    if (var->type->is_extern || var->init_values)
+      continue;
+
+    fprintf(file, "%.*s:\n", var->namelen, var->name);
+    fprintf(file, "  .zero %d\n", var->type->size);
+
+  }
+}
+
+static void gen_section_text() {
   // text section
   fprintf(file, ".text\n");
   for (Var *var = gvars; var; var = var->next) {
@@ -707,6 +713,15 @@ void code_generate(char *filename) {
       continue;
     gen_function(func);
   }
+}
+void code_generate(char *filename) {
+  file = fopen(filename,"w");
+  if (!file)
+    error("fail to open input file");
+
+  gen_section_bss();
+  gen_section_data();
+  gen_section_text();
 
   fclose(file);
 }
