@@ -658,16 +658,19 @@ static void gen_function(Function *func) {
   epilogue();
 }
 
-static void gen_section_data() {
-  // data sectioon
-  fprintf(file, ".data\n");
-
+static void gen_section_rodata() {
+  fprintf(file, ".rodata\n");
   // string
   for (String *str = strings; str; str = str->next) {
     fprintf(file, ".LC%d:\n", str->id);
     for (int i=0; i < str->length; i++)
       fprintf(file, "  .byte 0x%x\n", (str->p)[i]);
   }
+}
+
+static void gen_section_data() {
+  // data sectioon
+  fprintf(file, ".data\n");
 
   // global variable
   for (Var *var = gvars; var; var = var->next) {
@@ -690,7 +693,6 @@ static void gen_section_bss() {
 
     fprintf(file, "%.*s:\n", var->namelen, var->name);
     fprintf(file, "  .zero %d\n", var->type->size);
-
   }
 }
 
@@ -720,6 +722,7 @@ void code_generate(char *filename) {
     error("fail to open input file");
 
   gen_section_bss();
+  gen_section_rodata();
   gen_section_data();
   gen_section_text();
 
