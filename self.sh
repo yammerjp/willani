@@ -4,7 +4,6 @@ SCRIPT_DIR=$(cd "$(dirname "$0")"; pwd)
 cd "$SCRIPT_DIR"
 
 make clean
-rm -rf asm* willani*
 # ==========================================================================
 # Create 1st generation compiler
 # ==========================================================================
@@ -23,7 +22,9 @@ echo -e "Create 2nd generation compiler"
 
 ./build.sh
 cp willani willani-2nd
-cp -r asm asm-2nd
+mkdir -p asm-2nd/parse
+cp src/parse/*.s asm-2nd/parse
+cp src/*.s asm-2nd
 
 echo -e "Run test of 2nd generation compiler"
 make test
@@ -34,7 +35,9 @@ make test
 echo -e "Create 3rd generation compiler"
 ./build.sh
 cp willani willani-3rd
-cp -r asm asm-3rd
+mkdir -p asm-3rd/parse
+cp src/parse/*.s asm-3rd/parse
+cp src/*.s asm-3rd
 
 echo -e "Run test of 3rd generation compiler"
 make test
