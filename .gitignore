@@ -2,7 +2,7 @@
 *.o
 *.out
 tmp*
-test.s
+*.s
 test-*
 a.out
 willani*
