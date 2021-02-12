@@ -21,7 +21,6 @@ make test
 # ==========================================================================
 echo -e "Create 2nd generation compiler"
 
-./patch.sh
 ./build.sh
 cp willani willani-2nd
 cp -r asm asm-2nd

@@ -10,10 +10,10 @@ mkdir -p asm/parse
 
 echo -e "\nCompile souce files by willani\n"
 
-find src_self -type f | grep -E '*\.c' | while read -r C_OVERWRITED
+find src -type f | grep -E '*\.c' | while read -r C_OVERWRITED
 do
 
-ASM=$(echo "$C_OVERWRITED" | sed 's#^src_self/#asm/#g' | sed 's#c$#s#g')
+ASM=$(echo "$C_OVERWRITED" | sed 's#^src/#asm/#g' | sed 's#c$#s#g')
 
 echo "./willani $C_OVERWRITED -o $ASM"
 ./willani "$C_OVERWRITED" -o "$ASM"

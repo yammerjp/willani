@@ -1,12 +1,7 @@
 #ifndef INCLUDED_willani_h_
 #define INCLUDED_willani_h_
 
-#include <ctype.h>
-#include <stdarg.h>
-#include <stdbool.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include "libc.h"
 
 typedef struct Type Type;
 typedef struct SourceFile SourceFile;
