@@ -1,40 +1,50 @@
 #ifdef __STDC__
 
-#include <ctype.h>
 #include <stdarg.h>
-#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
 #else
 
-typedef _Bool bool;
 typedef long FILE;
+// stdio.h
 int fprintf();
-int strlen();
-int strncmp();
-int isalpha();
-int calloc();
+int printf();
 int fopen();
 int fclose();
-int isspace();
-int strstr();
-long strtol();
-#define true 1
-#define false 0
-#define NULL 0
-int printf();
-int fprintf();
-extern int stdout;
-extern int stderr;
-int exit();
+int fseek();
 #define SEEK_END 2
 #define SEEK_SET 0
-int fseek();
-typedef int size_t;
 int ftell();
 int fread();
+extern int stdout;
+extern int stderr;
+
+// string.h
+int strlen();
+int strncmp();
+int strstr();
 void memcpy();
 
+// stdlib.h
+int calloc();
+long strtol(char *nptr, char **endptr, int base);
+int exit();
+
+#define NULL 0
+// stddef.h stdio.h stdlib.h string.h time.h wchar.h
+typedef int size_t;
+
 #endif
+
+// stdbool.h
+typedef _Bool bool;
+#define true 1
+#define false 0
+
+// ctype.h
+int isalpha(int a);
+int isspace(int c);
+
+
