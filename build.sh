@@ -13,6 +13,7 @@ do
   ASM=$(echo "$C_FILE" | sed 's#c$#s#g')
   echo "./willani \"$C_FILE\" -o \"$ASM\""
   ./willani "$C_FILE" -o "$ASM"
+#  gcc -S "$C_FILE" -o "$ASM"
 done
 
 # Assemble and Link
