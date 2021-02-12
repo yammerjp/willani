@@ -3,7 +3,6 @@
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 
 #else
 
@@ -20,12 +19,6 @@ int ftell();
 int fread();
 extern int stdout;
 extern int stderr;
-
-// string.h
-int strlen();
-int strncmp();
-int strstr();
-void memcpy();
 
 // stdlib.h
 int calloc();
@@ -47,4 +40,8 @@ typedef _Bool bool;
 int isalpha(int a);
 int isspace(int c);
 
-
+// string.h
+size_t strlen(char *s);
+int strncmp(char *s1, char *s2, size_t n);
+char *strstr(char *haystack, char *needle);
+void *memcpy(void *dest, void *src, size_t n);
