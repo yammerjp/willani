@@ -23,7 +23,7 @@ extern int stderr;
 // stdlib.h
 int calloc();
 long strtol(char *nptr, char **endptr, int base);
-int exit();
+void exit_myasm(int status);
 
 #define NULL 0
 // stddef.h stdio.h stdlib.h string.h time.h wchar.h

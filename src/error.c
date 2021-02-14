@@ -13,10 +13,10 @@ void error_at(Token *token, char *msg) {
   int pos = token->location - line + indent;
   fprintf(stderr, "%*s", pos, "");
   fprintf(stderr, "^ %s\n", msg);
-  exit(1);
+  exit_myasm(1);
 }
 
 void error(char *p) {
   fprintf(stderr, "%s\n", p);
-  exit(1);
+  exit_myasm(1);
 }

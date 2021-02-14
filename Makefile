@@ -30,5 +30,5 @@ debug: willani
 	gdb tmp
 
 clean:
-	rm -rf willani* src/*.o src/*.s src/parse/*.o src/parse/*.s *~ tmp* *.log core test-* asm* obj src_self ast.json token.json
+	rm -rf willani* src/*.o src/*.s src/parse/*.o src/parse/*.s *~ tmp* *.log core test-* obj src_self ast.json token.json
 .PHONY: test clean sample debug

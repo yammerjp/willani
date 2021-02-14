@@ -2,14 +2,15 @@
 *.o
 *.out
 tmp*
-*.s
+/*.s
+!/asm/*.s
+/src/**/*.s
 test-*
 a.out
 willani*
 *.log
 core
 .gdb_history
-asm*
 obj/**/*
 src_self/**/*
 ast.json

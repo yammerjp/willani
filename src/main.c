@@ -22,7 +22,7 @@ bool find_strs(char *target, char* str1, char* str2) {
 }
 void usage(char *argv0) {
   fprintf(stderr, " Usage: %s inputfile -o outputfile", argv0);
-  exit(1);
+  exit_myasm(1);
 }
 
 void read_args(int argc, char **argv) {
@@ -62,7 +62,7 @@ void read_args(int argc, char **argv) {
     }
     if (argv[i][0] == '-') {
       fprintf(stderr, "unknown option: %s", argv[i]);
-      exit(1);
+      exit_myasm(1);
     }
 
     if (input_filename != NULL)
@@ -118,5 +118,5 @@ static void help(char *argv0) {
   fprintf(stderr, "  --parse-log      Output parse.log to print parsing log.\n");
   fprintf(stderr, "  -h\n");
   fprintf(stderr, "  --help           Show how to use willani.\n");
-  exit(0);
+  exit_myasm(0);
 }
