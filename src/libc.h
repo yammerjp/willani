@@ -9,7 +9,6 @@
 typedef long FILE;
 // stdio.h
 int fprintf();
-int printf();
 int fopen();
 int fclose();
 int fseek();
