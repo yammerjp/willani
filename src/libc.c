@@ -57,3 +57,58 @@ char *strstr(char *haystack, char *needle) {
   }
   return NULL;
 }
+
+// '1' => 1, '8' => 8, 'a' => 10, 'f' => 15
+int ctoi(char c) {
+  if ('0' <= c && c <= '9')
+    return c - '0';
+  if ('a' <= c && c <= 'f')
+    return 10 + c - 'a';
+  if ('A' <= c && c <= 'F')
+    return 10 + c - 'A';
+  return -1;
+}
+
+long strtol_mylibc(char *nptr, char **endptr, int base) {
+  if (base < 0 || 16 < base) // base is 0 to 16
+    return 0;
+
+  int ret = 0;
+  long sign_number = 1;
+
+  // read white spaces
+  while(isspace(*nptr))
+    nptr++;
+
+  // read +/- sign
+  if(*nptr == '+') {
+    nptr++;
+  } else if(*nptr == '-') {
+    nptr++;
+    sign_number = -1;
+  }
+
+  // read "0" or "0x" or "0X"
+  if ((base == 0 || base == 16) && *nptr == '0' && (nptr[1] == 'x' || nptr[1] == 'X')) {
+    base = 16;
+    nptr += 2;
+  } else if (base == 0 && *nptr == '0') {
+    base = 8;
+    nptr++;
+  }
+
+  if (base == 0) {
+    base = 10; // default base
+  }
+
+  // read digits
+  for(;*nptr && nptr != *endptr; nptr++) {
+    int d = ctoi(*nptr);
+    if(d == -1 || d >= base)
+      break;
+    ret = ret * base + d;
+  }
+  *endptr = nptr;
+  // FIXME: check overflow to return LONG_MAX
+  return ret * sign_number;
+}
