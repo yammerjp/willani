@@ -1,3 +1,5 @@
+#define strtol_mylibc(arg0, arg1,arg2) strtol(arg0, arg1, arg2)
+
 #ifdef __STDC__
 
 #include <stdarg.h>
@@ -22,7 +24,7 @@ extern int stderr;
 
 // stdlib.h
 int calloc();
-long strtol(char *nptr, char **endptr, int base);
+long strtol_mylibc(char *nptr, char **endptr, int base);
 void exit_mylibc(int status); // The function  is written  with assembly.
 
 #define NULL 0

@@ -9,9 +9,9 @@ long str_to_l(char *p, int length) {
       fprintf(stderr, "token: %.*s\n", length, p);
       error("failed to read number token");
     }
-    num = strtol(p+2, &p_end, 2);
+    num = strtol_mylibc(p+2, &p_end, 2);
   } else {
-    num = strtol(p, &p_end, 0);
+    num = strtol_mylibc(p, &p_end, 0);
   }
   if (p+length != p_end) {
     fprintf(stderr, "token: %.*s\n", length, p);
