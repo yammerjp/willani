@@ -57,8 +57,3 @@ char *strstr(char *haystack, char *needle) {
   }
   return NULL;
 }
-
-void _exit(int); // The function  is written  with assembly.
-void exit_myasm(int status) {
-  _exit(status);
-}

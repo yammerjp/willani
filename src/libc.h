@@ -3,6 +3,7 @@
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
+#define exit_mylibc(status) exit(status)
 
 #else
 
@@ -22,7 +23,7 @@ extern int stderr;
 // stdlib.h
 int calloc();
 long strtol(char *nptr, char **endptr, int base);
-void exit_myasm(int status);
+void exit_mylibc(int status); // The function  is written  with assembly.
 
 #define NULL 0
 // stddef.h stdio.h stdlib.h string.h time.h wchar.h

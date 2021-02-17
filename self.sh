@@ -8,11 +8,11 @@ make clean
 # Create 1st generation compiler
 # ==========================================================================
 echo -e "Create 1st generation compiler"
-make
+./build.sh gcc
 cp willani willani-1st
 
 echo -e "Run test of 1st generation compiler"
-make test
+./build.sh test
 
 # ==========================================================================
 # Create 2nd generation compiler
@@ -20,27 +20,27 @@ make test
 # ==========================================================================
 echo -e "Create 2nd generation compiler"
 
-./build.sh
+./build.sh self
 cp willani willani-2nd
 mkdir -p asm-2nd/parse
 cp src/parse/*.s asm-2nd/parse
 cp src/*.s asm-2nd
 
 echo -e "Run test of 2nd generation compiler"
-make test
+./build.sh test
 
 # ==========================================================================
 # Create 3rd generation compiler
 # ==========================================================================
 echo -e "Create 3rd generation compiler"
-./build.sh
+./build.sh self
 cp willani willani-3rd
 mkdir -p asm-3rd/parse
 cp src/parse/*.s asm-3rd/parse
 cp src/*.s asm-3rd
 
 echo -e "Run test of 3rd generation compiler"
-make test
+./build.sh test
 
 # ==========================================================================
 # Compare 2nd generation assembly codes with 3rd generation one
